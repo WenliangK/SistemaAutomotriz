@@ -81,6 +81,7 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+log.json
 
 # Node.js (for frontend build)
 node_modules/

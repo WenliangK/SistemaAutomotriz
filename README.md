@@ -111,7 +111,7 @@ Luego abre `http://localhost:5500` en el navegador.
 cd sistema-de-autogestion
 docker-compose up frontend
 ```
-Se abre en `http://localhost:3000`
+Se abre en `http://localhost:5500`
 
 ### Paso 4 — Iniciar sesion
 - **Email:** `admin@sanmartin.pe`
@@ -269,11 +269,10 @@ docker compose up --build
 
 Esto levanta 3 contenedores:
 - **db:** PostgreSQL 16 (puerto 5432)
-- **backend:** Spring Boot (puerto 8080)
-- **frontend:** Nginx (puerto 3000)
+- **backend:** Spring Boot (puerto 8080)  - **frontend:** Nginx (puerto 5500)
 
 URLs:
-- Frontend: http://localhost:3000
+- Frontend: http://localhost:5500
 - Backend API: http://localhost:8080/api
 - H2 Console: http://localhost:8080/h2-console
 
@@ -362,7 +361,7 @@ Es normal. La base de datos H2 es en memoria. Al cerrar el servidor se borran. A
 Asegurate de que:
 1. El frontend se sirve por HTTP (no `file://`)
 2. El backend esta corriendo en el puerto 8080
-3. Usas `http://localhost:5500` o `http://localhost:3000` (no doble clic al HTML)
+3. Usas `http://localhost:5500` (no doble clic al HTML)
 
 ### "npx serve no funciona"
 Asegurate de estar en la carpeta `frontend/`:
