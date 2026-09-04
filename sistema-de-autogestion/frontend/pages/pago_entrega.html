@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGestion - Pago y Entrega</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <script>
+        (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
+    </script>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="ag-page">
+        <div class="ag-page-header"><h1>Pago y Entrega</h1><p>Gestionar pagos y entregas de vehiculos finalizados</p></div>
+        <div id="alertContainer"></div>
+
+        <div class="ag-layout-main">
+            <div class="ag-section">
+                <div class="ag-section-header">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                        Ordenes Finalizadas
+                    </h3>
+                </div>
+                <div class="ag-section-body" style="max-height:600px; overflow-y:auto;" id="ordenesContainer">
+                    <p class="ag-text-muted">Cargando...</p>
+                </div>
+            </div>
+
+            <div class="ag-layout-stack">
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            Resumen del Dia
+                        </h3>
+                    </div>
+                    <div class="ag-section-body">
+                        <div class="ag-stat-row">
+                            <span class="ag-stat-label">Pagos pendientes</span>
+                            <span class="ag-stat-value text-caution" id="pagosPendientes">--</span>
+                        </div>
+                        <div class="ag-stat-row">
+                            <span class="ag-stat-label">Entregas pendientes</span>
+                            <span class="ag-stat-value text-active" id="entregasPendientes">--</span>
+                        </div>
+                        <hr class="ag-divider">
+                        <div class="ag-stat-row">
+                            <span class="ag-stat-label">Total a cobrar</span>
+                            <span class="ag-stat-value text-go" id="totalACobrar">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Flujo de Pago
+                        </h3>
+                    </div>
+                    <div class="ag-section-body">
+                        <div class="ag-flow-steps">
+                            <div class="ag-flow-step active">
+                                <div class="ag-flow-step-dot">1</div>
+                                OT Finalizada
+                            </div>
+                            <div class="ag-flow-step-line"></div>
+                            <div class="ag-flow-step">
+                                <div class="ag-flow-step-dot">2</div>
+                                Pago
+                            </div>
+                            <div class="ag-flow-step-line"></div>
+                            <div class="ag-flow-step">
+                                <div class="ag-flow-step-dot">3</div>
+                                Entrega
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="themeToggleWrap"></div>
+    <script src="../js/api.js"></script>
+    <script src="../js/animations.js"></script>
+    <script>
+        document.getElementById('navbar').innerHTML = renderNavbar('pago_entrega');
+        document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
+        initTheme();
+
+        async function loadOrdenesFinalizadas() {
+            try {
+                const ordenes = await apiFetch('/ordenes-trabajo?estado=FINALIZADA');
+                const c = document.getElementById('ordenesContainer');
+                if (!ordenes.length) { c.innerHTML = '<p class="ag-text-muted ag-text-center">No hay ordenes finalizadas pendientes</p>'; return; }
+                let pp = 0, ep = 0, tc = 0;
+                const cards = await Promise.all(ordenes.map(async (ot) => {
+                    let monto = 0, pagoInfo = null;
+                    try { const m = await apiFetch(`/ordenes-trabajo/${ot.id}/monto`); monto = m.monto || 0; } catch (e) {}
+                    try { pagoInfo = await apiFetch(`/ordenes-trabajo/${ot.id}/pago`); } catch (e) {}
+                    const tienePago = pagoInfo && pagoInfo.fechaPago;
+                    const tieneEntrega = pagoInfo && pagoInfo.fechaEntrega;
+                    if (!tienePago) pp++; if (!tieneEntrega) ep++; if (!tienePago) tc += monto;
+                    return `
+                        <div class="ag-card ag-ot-card status-finalizada" style="box-shadow:none; border:1px solid var(--ag-border); margin-bottom:0.75rem;">
+                            <div class="ag-card-body" style="padding:0.85rem 1rem;">
+                                <div class="ag-d-flex ag-justify-between ag-align-center">
+                                    <div class="ag-d-flex ag-align-center ag-gap-3">
+                                        <span class="ag-fw-700 ag-text-muted" style="font-family:var(--ag-font-heading);">#${ot.id}</span>
+                                        <span class="ag-text-muted ag-text-sm">Cot. #${ot.cotizacion?.id || '?'} | ${ot.mecanico?.nombre || '?'}</span>
+                                    </div>
+                                    <span class="ag-fw-700" style="color:var(--ag-text); font-family:var(--ag-font-heading);">${formatCurrency(monto)}</span>
+                                </div>
+                                <div class="ag-d-flex ag-gap-3 ag-mt-1">
+                                    <span class="ag-badge ${tienePago ? 'ag-badge-success' : 'ag-badge-warning'}">${tienePago ? 'Pagado' : 'Pendiente Pago'}</span>
+                                    <span class="ag-badge ${tieneEntrega ? 'ag-badge-success' : 'ag-badge-info'}">${tieneEntrega ? 'Entregado' : 'Pendiente Entrega'}</span>
+                                </div>
+                                <div class="ag-d-flex ag-gap-3 ag-mt-1">
+                                    ${!tienePago ? `<button class="ag-btn ag-btn-success ag-btn-sm" onclick="registrarPago(${ot.id},${monto})">Registrar Pago</button>` : ''}
+                                    ${tienePago && !tieneEntrega ? `<button class="ag-btn ag-btn-accent ag-btn-sm" onclick="registrarEntrega(${ot.id})">Registrar Entrega</button>` : ''}
+                                </div>
+                            </div>
+                        </div>`;
+                }));
+                c.innerHTML = cards.join('');
+                document.getElementById('pagosPendientes').textContent = pp;
+                document.getElementById('entregasPendientes').textContent = ep;
+                document.getElementById('totalACobrar').textContent = formatCurrency(tc);
+            } catch (e) { document.getElementById('ordenesContainer').innerHTML = '<p class="ag-text-muted">Error al cargar</p>'; }
+        }
+
+        async function registrarPago(otId, monto) { if (!confirm(`Registrar pago de ${formatCurrency(monto)} para OT #${otId}?`)) return; try { await apiFetch('/pagos', { method: 'POST', body: JSON.stringify({ ordenTrabajoId: otId, monto }) }); showSuccess('alertContainer', `Pago registrado para OT #${otId}`); loadOrdenesFinalizadas(); } catch (e) { showError('alertContainer', e.message); } }
+        async function registrarEntrega(otId) { if (!confirm(`Confirmar entrega del vehiculo para OT #${otId}?`)) return; try { await apiFetch(`/entregas/${otId}`, { method: 'POST' }); showSuccess('alertContainer', `Entrega registrada para OT #${otId}`); loadOrdenesFinalizadas(); } catch (e) { showError('alertContainer', e.message); } }
+
+        loadOrdenesFinalizadas();
+    </script>
+</body>
+</html>

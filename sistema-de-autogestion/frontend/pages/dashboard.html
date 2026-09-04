@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGestion - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <script>
+        (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
+    </script>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="ag-page">
+        <div class="ag-page-header">
+            <h1>Dashboard</h1>
+            <p>Resumen operativo del taller mecanico</p>
+        </div>
+
+        <div class="ag-grid ag-grid-4 ag-mb-3">
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="otCompletadas">--</div>
+                    <div class="ag-indicator-label">OT Completadas</div>
+                </div>
+            </div>
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="tiempoPromedio">--</div>
+                    <div class="ag-indicator-label">Tiempo Promedio (horas)</div>
+                </div>
+            </div>
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="ingresosMes">--</div>
+                    <div class="ag-indicator-label">Ingresos Total</div>
+                </div>
+            </div>
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="productosBajoStock">--</div>
+                    <div class="ag-indicator-label">Productos Bajo Stock</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ag-layout-main">
+            <div class="ag-layout-stack">
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            Alertas de Stock
+                        </h3>
+                    </div>
+                    <div class="ag-section-body" id="alertasContainer" style="max-height: 280px; overflow-y: auto;">
+                        <p class="ag-text-muted ag-text-center">Cargando...</p>
+                    </div>
+                </div>
+
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            Acceso Rapido
+                        </h3>
+                    </div>
+                    <div class="ag-section-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        <a href="recepcion.html" class="ag-action-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+                            Recepcion
+                            <svg class="ag-action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <a href="cotizacion.html" class="ag-action-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            Cotizacion
+                            <svg class="ag-action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <a href="inventario.html" class="ag-action-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                            Inventario
+                            <svg class="ag-action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <a href="orden_trabajo.html" class="ag-action-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                            Ordenes
+                            <svg class="ag-action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ag-layout-stack">
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Flujo del Taller
+                        </h3>
+                    </div>
+                    <div class="ag-section-body">
+                        <div class="ag-flow-steps">
+                            <div class="ag-flow-step active">
+                                <div class="ag-flow-step-dot">1</div>
+                                Recepcion
+                            </div>
+                            <div class="ag-flow-step-line"></div>
+                            <div class="ag-flow-step">
+                                <div class="ag-flow-step-dot">2</div>
+                                Diagnostico
+                            </div>
+                            <div class="ag-flow-step-line"></div>
+                            <div class="ag-flow-step">
+                                <div class="ag-flow-step-dot">3</div>
+                                Cotizacion
+                            </div>
+                            <div class="ag-flow-step-line"></div>
+                            <div class="ag-flow-step">
+                                <div class="ag-flow-step-dot">4</div>
+                                OT
+                            </div>
+                            <div class="ag-flow-step-line"></div>
+                            <div class="ag-flow-step">
+                                <div class="ag-flow-step-dot">5</div>
+                                Pago
+                            </div>
+                            <div class="ag-flow-step-line"></div>
+                            <div class="ag-flow-step">
+                                <div class="ag-flow-step-dot">6</div>
+                                Entrega
+                            </div>
+                        </div>
+                        <p class="ag-text-sm ag-text-muted">Recepcion &rarr; Diagnostico &rarr; Cotizacion &rarr; Aprobacion &rarr; Orden de Trabajo &rarr; Ejecucion &rarr; Pago &rarr; Entrega</p>
+                    </div>
+                </div>
+
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                            Acciones Rapidas
+                        </h3>
+                    </div>
+                    <div class="ag-section-body" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                        <a href="recepcion.html" class="ag-action-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Nueva Recepcion
+                            <svg class="ag-action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <a href="cotizacion.html" class="ag-action-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Nueva Cotizacion
+                            <svg class="ag-action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <a href="inventario.html" class="ag-action-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                            Registrar Entrada
+                            <svg class="ag-action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="themeToggleWrap"></div>
+    <script src="../js/api.js"></script>
+    <script src="../js/animations.js"></script>
+    <script>
+        document.getElementById('navbar').innerHTML = renderNavbar('dashboard');
+        document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
+        initTheme();
+
+        async function loadDashboard() {
+            try {
+                const ind = await apiFetch('/reportes/indicadores');
+                document.getElementById('otCompletadas').textContent = ind.otCompletadasMes || 0;
+                document.getElementById('tiempoPromedio').textContent = ind.tiempoPromedioHoras || '0';
+                document.getElementById('ingresosMes').textContent = formatCurrency(ind.ingresosMes || 0);
+                document.getElementById('productosBajoStock').textContent = ind.productosBajoStock || 0;
+            } catch (e) { console.error(e); }
+
+            try {
+                const alertas = await apiFetch('/inventario/alertas');
+                const c = document.getElementById('alertasContainer');
+                if (alertas.length === 0) {
+                    c.innerHTML = '<div class="ag-alert ag-alert-success" style="margin:0;">Stock en niveles adecuados</div>';
+                } else {
+                    c.innerHTML = `<table class="ag-table"><thead><tr><th>Producto</th><th class="col-num">Actual</th><th class="col-num">Minimo</th><th class="col-num">Faltante</th></tr></thead><tbody>${alertas.map(a => `<tr class="row-danger"><td class="ag-fw-600">${a.nombre}</td><td class="col-num">${a.stockActual}</td><td class="col-num">${a.stockMinimo}</td><td class="col-num"><span class="ag-badge ag-badge-danger">${a.stockMinimo - a.stockActual}</span></td></tr>`).join('')}</tbody></table>`;
+                }
+            } catch (e) {
+                document.getElementById('alertasContainer').innerHTML = '<p class="ag-text-muted">No se pudieron cargar las alertas</p>';
+            }
+        }
+        loadDashboard();
+    </script>
+</body>
+</html>

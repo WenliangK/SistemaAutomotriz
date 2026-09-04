@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGestion - Ordenes de Trabajo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <script>
+        (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
+    </script>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="ag-page">
+        <div class="ag-page-header"><h1>Ordenes de Trabajo</h1><p>Gestionar y dar seguimiento a las ordenes de trabajo</p></div>
+        <div id="alertContainer"></div>
+
+        <div class="ag-layout-sidebar">
+            <div class="ag-section">
+                <div class="ag-section-header">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                        Lista de Ordenes
+                    </h3>
+                    <select class="ag-form-control" id="filtroEstado" onchange="loadOrdenes()" style="width:auto; padding:0.35rem 2rem 0.35rem 0.65rem; font-size:0.78rem;">
+                        <option value="">Todas</option><option value="PENDIENTE">Pendientes</option><option value="EN_PROCESO">En Proceso</option><option value="EN_PRUEBA">En Prueba</option><option value="FINALIZADA">Finalizadas</option>
+                    </select>
+                </div>
+                <div class="ag-section-body" style="max-height:600px; overflow-y:auto;" id="ordenesContainer"><p class="ag-text-muted">Cargando...</p></div>
+            </div>
+
+            <div class="ag-section">
+                <div class="ag-section-header">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Crear Orden de Trabajo
+                    </h3>
+                </div>
+                <div class="ag-section-body">
+                    <form id="otForm">
+                        <div class="ag-form-group"><label class="ag-form-label">Cotizacion Aprobada *</label><select class="ag-form-control" id="cotizacionSelect" required><option value="">-- Seleccionar --</option></select></div>
+                        <div class="ag-form-group"><label class="ag-form-label">Mecanico Asignado *</label><select class="ag-form-control" id="mecanicoSelect" required><option value="2">Mecanico Uno (ID: 2)</option></select></div>
+                        <button type="submit" class="ag-btn ag-btn-primary ag-btn-block">Crear OT</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ag-modal-overlay" id="modalProducto">
+        <div class="ag-card ag-modal">
+            <div class="ag-card-header"><h3>Registrar Producto Usado</h3><button class="ag-btn ag-btn-outline ag-btn-sm" onclick="cerrarModal('modalProducto')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="ag-card-body">
+                <input type="hidden" id="otIdProducto">
+                <div class="ag-form-group"><label class="ag-form-label">Producto *</label><select class="ag-form-control" id="productoSelect" required><option value="">-- Seleccionar --</option></select></div>
+                <div class="ag-form-group"><label class="ag-form-label">Cantidad Usada *</label><input type="number" class="ag-form-control" id="cantidadUsada" min="1" required></div>
+                <button class="ag-btn ag-btn-primary ag-btn-block" onclick="registrarProductoUsado()">Registrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ag-modal-overlay" id="modalPago">
+        <div class="ag-card ag-modal">
+            <div class="ag-card-header"><h3>Registrar Pago</h3><button class="ag-btn ag-btn-outline ag-btn-sm" onclick="cerrarModal('modalPago')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="ag-card-body">
+                <input type="hidden" id="otIdPago">
+                <div class="ag-form-group"><label class="ag-form-label">Monto (S/)</label><input type="number" class="ag-form-control" id="montoPago" step="0.01" required></div>
+                <button class="ag-btn ag-btn-success ag-btn-block" onclick="registrarPago()">Registrar Pago</button>
+            </div>
+        </div>
+    </div>
+    <div id="themeToggleWrap"></div>
+    <script src="../js/api.js"></script>
+    <script src="../js/animations.js"></script>
+    <script>
+        document.getElementById('navbar').innerHTML = renderNavbar('orden_trabajo');
+        document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
+        initTheme();
+        const user = getUser();
+
+        function abrirModal(id) { document.getElementById(id).classList.add('show'); }
+        function cerrarModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        async function loadData() {
+            try {
+                const cotizaciones = await apiFetch('/cotizaciones?estado=APROBADA');
+                const sel = document.getElementById('cotizacionSelect');
+                cotizaciones.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = `Cot. #${c.id} - ${formatCurrency(c.total)}`; sel.appendChild(o); });
+                const productos = await apiFetch('/productos');
+                const ps = document.getElementById('productoSelect');
+                productos.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = `${p.nombre} (Stock: ${p.stockActual})`; ps.appendChild(o); });
+                loadOrdenes();
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadOrdenes() {
+            const estado = document.getElementById('filtroEstado').value;
+            try {
+                let ordenes = user.rol === 'MECANICO' ? await apiFetch(`/ordenes-trabajo/mecanico/${user.id}`) : await apiFetch(`/ordenes-trabajo${estado ? '?estado=' + estado : ''}`);
+                const c = document.getElementById('ordenesContainer');
+                if (!ordenes.length) { c.innerHTML = '<p class="ag-text-muted ag-text-center">No hay ordenes de trabajo</p>'; return; }
+                c.innerHTML = ordenes.map(ot => `
+                    <div class="ag-card ag-ot-card status-${ot.estado.toLowerCase()}" style="box-shadow:none; border:1px solid var(--ag-border); margin-bottom:0.75rem;">
+                        <div class="ag-card-body" style="padding:0.85rem 1rem;">
+                            <div class="ag-d-flex ag-justify-between ag-align-center">
+                                <div class="ag-d-flex ag-align-center ag-gap-3">
+                                    <span class="ag-fw-700 ag-text-muted" style="font-family:var(--ag-font-heading);">#${ot.id}</span>
+                                    ${estadoBadge(ot.estado)}
+                                    <span class="ag-text-muted ag-text-sm">Cot. #${ot.cotizacion?.id || '?'}</span>
+                                </div>
+                                <span class="ag-text-muted ag-text-sm">${formatDate(ot.fechaCreacion)}</span>
+                            </div>
+                            <div class="ag-text-sm ag-text-muted ag-mt-1">Mecanico: ${ot.mecanico?.nombre || '-'}</div>
+                            <div class="ag-d-flex ag-gap-3 ag-mt-1 ag-flex-wrap">
+                                ${ot.estado !== 'FINALIZADA' && ot.estado !== 'CANCELADA' ? `<button class="ag-btn ag-btn-outline ag-btn-sm" onclick="cambiarEstado(${ot.id},'${getNext(ot.estado)}')">${getBtnText(ot.estado)}</button>` : ''}
+                                ${ot.estado === 'EN_PROCESO' || ot.estado === 'EN_PRUEBA' ? `<button class="ag-btn ag-btn-outline ag-btn-sm" onclick="abrirModalProducto(${ot.id})">Producto Usado</button>` : ''}
+                                ${ot.estado === 'FINALIZADA' && user.rol === 'ADMIN' ? `<button class="ag-btn ag-btn-success ag-btn-sm" onclick="abrirModalPago(${ot.id})">Pago</button><button class="ag-btn ag-btn-accent ag-btn-sm" onclick="registrarEntrega(${ot.id})">Entregar</button>` : ''}
+                            </div>
+                        </div>
+                    </div>`).join('');
+            } catch (e) { document.getElementById('ordenesContainer').innerHTML = '<p class="ag-text-muted">Error al cargar</p>'; }
+        }
+
+        function getNext(a) { return {PENDIENTE:'EN_PROCESO',EN_PROCESO:'EN_PRUEBA',EN_PRUEBA:'FINALIZADA'}[a]||'FINALIZADA'; }
+        function getBtnText(a) { return {PENDIENTE:'Iniciar',EN_PROCESO:'Pasar a Prueba',EN_PRUEBA:'Finalizar'}[a]||'Cambiar'; }
+
+        async function cambiarEstado(id, ne) { try { await apiFetch(`/ordenes-trabajo/${id}/estado`, { method: 'PUT', body: JSON.stringify({ estado: ne }) }); showSuccess('alertContainer', `OT #${id} -> ${ne}`); loadOrdenes(); } catch (e) { showError('alertContainer', e.message); } }
+
+        function abrirModalProducto(otId) { document.getElementById('otIdProducto').value = otId; abrirModal('modalProducto'); }
+
+        async function registrarProductoUsado() {
+            const otId = document.getElementById('otIdProducto').value;
+            try {
+                await apiFetch(`/ordenes-trabajo/${otId}/productos-usados`, { method: 'POST', body: JSON.stringify({ productoId: parseInt(document.getElementById('productoSelect').value), cantidadUsada: parseInt(document.getElementById('cantidadUsada').value) }) });
+                cerrarModal('modalProducto');
+                showSuccess('alertContainer', 'Producto registrado y stock descontado');
+                loadOrdenes();
+            } catch (e) { showError('alertContainer', e.message); }
+        }
+
+        function abrirModalPago(otId) { document.getElementById('otIdPago').value = otId; abrirModal('modalPago'); }
+
+        async function registrarPago() {
+            const otId = document.getElementById('otIdPago').value;
+            try { await apiFetch('/pagos', { method: 'POST', body: JSON.stringify({ ordenTrabajoId: parseInt(otId), monto: parseFloat(document.getElementById('montoPago').value) }) }); cerrarModal('modalPago'); showSuccess('alertContainer', 'Pago registrado'); loadOrdenes(); } catch (e) { showError('alertContainer', e.message); }
+        }
+
+        async function registrarEntrega(otId) { if (!confirm('Confirmar entrega del vehiculo?')) return; try { await apiFetch(`/entregas/${otId}`, { method: 'POST' }); showSuccess('alertContainer', 'Entrega registrada'); loadOrdenes(); } catch (e) { showError('alertContainer', e.message); } }
+
+        loadData();
+    </script>
+</body>
+</html>
