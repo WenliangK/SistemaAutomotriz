@@ -45,7 +45,7 @@ sistema-de-autogestion/
 
 | Capa | Tecnología |
 |------|-----------|
-| **Frontend** | HTML + CSS + JavaScript + Bootstrap 5 + Tema claro/oscuro/sistema |
+| **Frontend** | HTML + CSS + JavaScript + Bootstrap 5 |
 | **Backend** | Java 17+ / Spring Boot 3 (Spring Web, Spring Data JPA, Spring Security) |
 | **Base de datos** | H2 en memoria (para presentaciones) / PostgreSQL (para producción con Docker) |
 | **Autenticación** | JWT (JSON Web Tokens) |
@@ -56,36 +56,31 @@ sistema-de-autogestion/
 ## 🚀 Cómo Ejecutar (Presentación en Clase)
 
 ### Lo que necesitas
-- **Java 17 o superior** instalado en la computadora
-- **Eso es todo** (no necesita Docker, no necesita PostgreSQL)
+- **Java 17 o superior** (https://adoptium.net/)
+- **Maven** (https://maven.apache.org/download.cgi) — solo para compilar el backend
+- **Python** (opcional) — para servir el frontend por HTTP
 
-### Paso 1 — Copiar archivos a un USB
-Copia esta estructura completa a tu USB:
+### Paso 1 — Compilar el backend (crear el JAR)
+Abre una terminal en la carpeta del backend:
+```bash
+cd sistema-de-autogestion/sistema-de-autogestion/backend
+mvn clean package -DskipTests
 ```
-USB/
-├── README.md
-└── sistema-de-autogestion/
-    ├── backend/
-    │   ├── target/autogestion-backend-1.0.0.jar  ← ARCHIVO PRINCIPAL
-    │   └── ...
-    ├── frontend/
-    │   ├── index.html
-    │   ├── js/api.js
-    │   └── pages/
-    └── ...
+Esto descarga las dependencias (primera vez, ~2 min) y crea el archivo:
 ```
+backend/target/autogestion-backend-1.0.0.jar  (~52MB)
+```
+> El JAR NO se sube a GitHub (pesa 52MB). Se genera desde el codigo fuente con el comando anterior.
 
 ### Paso 2 — Arrancar el backend
-Abre una terminal (CMD o PowerShell) y ejecuta:
 ```bash
-cd USB:\sistema-de-autogestion\backend
-java -jar target\autogestion-backend-1.0.0.jar
+java -jar target/autogestion-backend-1.0.0.jar
 ```
 Espera hasta que veas:
 ```
 Started AutogestionApplication in X seconds
 ```
-> ⚠️ **No cierres esta terminal** mientras presentas. El servidor debe seguir corriendo.
+> No cierres esta terminal mientras presentas.
 
 ### Paso 3 — Servir el frontend por HTTP (IMPORTANTE)
 
@@ -182,7 +177,6 @@ Al arrancar el JAR, se insertan automáticamente estos datos:
 | Pantalla | Descripción |
 |----------|------------|
 | **Login** | Formulario centrado con tarjeta, validacion de campos |
-| **Tema** | Boton flotante: claro / oscuro / sistema (respeta el SO) |
 | **Dashboard** | 4 tarjetas de indicadores + alertas de stock |
 | **Recepción** | Formulario cliente + vehículo + problema, tabla de recepciones |
 | **Cotización** | Diagnóstico + selector servicios/productos + total en vivo |
@@ -328,13 +322,6 @@ Asegurate de que:
 1. El frontend se sirve por HTTP (no `file://`)
 2. El backend esta corriendo en el puerto 8080
 3. Usas `http://localhost:5500` o `http://localhost:3000` (no doble clic al HTML)
-
-### Tema Claro / Oscuro / Sistema
-- Haz click en el boton flotante (esquina inferior derecha) para ciclar entre temas
-- **Sistema**: respeta el tema del sistema operativo automaticamente
-- **Claro**: fuerza tema claro
-- **Oscuro**: fuerza tema oscuro
-- La preferencia se guarda y persiste entre sesiones
 
 ---
 
