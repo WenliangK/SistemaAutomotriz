@@ -53,71 +53,39 @@ sistema-de-autogestion/
 |------|-----------|
 | **Frontend** | HTML + CSS + JavaScript + Animaciones CSS custom |
 | **Backend** | Java 17+ / Spring Boot 3 (Spring Web, Spring Data JPA, Spring Security) |
-| **Base de datos** | H2 en memoria (para presentaciones) / PostgreSQL (para produccion con Docker) |
+| **Base de datos** | PostgreSQL 16 (via Docker) |
 | **Autenticacion** | JWT (JSON Web Tokens) |
 | **Roles** | ADMIN, MECANICO, ALMACENERO |
 
 ---
 
-## Como Ejecutar (Presentacion en Clase)
+## Como Ejecutar
 
 ### Lo que necesitas
-- **Java 17 o superior** (https://adoptium.net/)
-- **Maven** (https://maven.apache.org/download.cgi) — solo para compilar el backend
-- **Node.js** (opcional) — para usar `npx serve` y servir el frontend
+- **Docker** (https://docs.docker.com/get-docker/)
+- **Docker Compose** (viene incluido con Docker Desktop)
 
-### Paso 1 — Compilar el backend (crear el JAR)
-Abre una terminal en la carpeta del backend:
-```bash
-cd sistema-de-autogestion/sistema-de-autogestion/backend
-mvn clean package -DskipTests
-```
-Esto descarga las dependencias (primera vez, ~2 min) y crea el archivo:
-```
-backend/target/autogestion-backend-1.0.0.jar  (~52MB)
-```
-> El JAR NO se sube a GitHub (pesa 52MB). Se genera desde el codigo fuente con el comando anterior.
-
-### Paso 2 — Arrancar el backend
-```bash
-java -jar target/autogestion-backend-1.0.0.jar
-```
-Espera hasta que veas:
-```
-Started AutogestionApplication in X seconds
-```
-> No cierres esta terminal mientras presentas.
-
-### Paso 3 — Servir el frontend por HTTP (IMPORTANTE)
-
-**NO abras los archivos HTML con doble clic** (usando `file://`). El navegador bloquea las llamadas API por CORS.
-
-**Opcion A — npx serve (recomendado, sin instalar nada):**
-```bash
-cd sistema-de-autogestion/sistema-de-autogestion/frontend
-npx serve . -l 5500
-```
-Luego abre `http://localhost:5500` en el navegador.
-> La primera vez te pedira instalar `serve`, dale que si.
-
-**Opcion B — VS Code Live Server:**
-1. Abre la carpeta `frontend/` en VS Code
-2. Instala la extension "Live Server" si no la tienes
-3. Click derecho en `index.html` -> "Open with Live Server"
-4. Se abre en `http://localhost:5500`
-
-**Opcion C — Usar el nginx del Docker:**
+### Paso 1 — Levantar el sistema
 ```bash
 cd sistema-de-autogestion
-docker-compose up frontend
+docker compose up --build
 ```
-Se abre en `http://localhost:5500`
+Esto construye e inicia 3 contenedores:
+- **db:** PostgreSQL 16 (puerto 5432)
+- **backend:** Spring Boot (puerto 8080)
+- **frontend:** Nginx (puerto 5500)
 
-### Paso 4 — Iniciar sesion
+Espera hasta que veas los logs de los contenedores iniciando.
+
+### Paso 2 — Abrir el navegador
+- **Frontend:** http://localhost:5500
+- **Backend API:** http://localhost:8080/api
+
+### Paso 3 — Iniciar sesion
 - **Email:** `admin@sanmartin.pe`
 - **Contrasena:** `admin123`
 
-### Paso 5 — Recorrer el flujo del negocio
+### Paso 4 — Recorrer el flujo del negocio
 ```
 Login -> Dashboard -> Recepcion -> Cotizacion -> Ordenes de Trabajo -> Inventario -> Pago/Entrega
 ```
@@ -136,7 +104,7 @@ Login -> Dashboard -> Recepcion -> Cotizacion -> Ordenes de Trabajo -> Inventari
 
 ## Que Hay en la Base de Datos (Automatico)
 
-Al arrancar el JAR, se insertan automaticamente estos datos:
+Al levantar Docker, se insertan automaticamente estos datos:
 
 | Dato | Cantidad |
 |------|----------|
@@ -146,7 +114,7 @@ Al arrancar el JAR, se insertan automaticamente estos datos:
 | Servicios | 8 (cambio de aceite, alineacion, frenos, etc.) |
 | Productos | 12 (aceite, filtros, pastillas, discos, etc.) |
 
-> La base de datos es H2 en memoria — se pierde al cerrar el servidor. Pero cada vez que lo vuelvas a arrancar, los datos semilla se insertan automaticamente.
+> Los datos se mantienen en PostgreSQL dentro del contenedor Docker. Si eliminas el volumen `pgdata`, se perderan y se volveran a insertar al reiniciar.
 
 ---
 
@@ -206,12 +174,12 @@ Al arrancar el JAR, se insertan automaticamente estos datos:
 ## Arquitectura del Sistema
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌──────────────┐     ┌─────────┐
-│   Frontend  │────>│  Controller  │────>│   Service    │────>│   H2    │
-│  (HTML/JS)  │ API │  (REST)      │     │ (Logica)     │     │  (DB)   │
-└─────────────┘     └──────────────┘     └──────────────┘     └─────────┘
-     HTML               Spring Boot          Spring Boot        En memoria
-   Bootstrap            @RestController      @Service          Base de datos
+┌─────────────┐     ┌──────────────┐     ┌──────────────┐     ┌─────────────┐
+│   Frontend  │────>│  Controller  │────>│   Service    │────>│ PostgreSQL  │
+│  (HTML/JS)  │ API │  (REST)      │     │ (Logica)     │     │   (DB)      │
+└─────────────┘     └──────────────┘     └──────────────┘     └─────────────┘
+     HTML               Spring Boot          Spring Boot        Docker
+   Bootstrap            @RestController      @Service          Puerto 5432
      JWT                 JWT Filter           @Transactional
 ```
 
@@ -258,23 +226,10 @@ agFlashRow(tableRow)              // Resalta una fila momentaneamente
 
 ---
 
-## Version con Docker (Opcional)
+## URLs del Sistema
 
-Si la computadora tiene Docker instalado, tambien puedes levantar con PostgreSQL:
-
-```bash
-cd sistema-de-autogestion
-docker compose up --build
-```
-
-Esto levanta 3 contenedores:
-- **db:** PostgreSQL 16 (puerto 5432)
-- **backend:** Spring Boot (puerto 8080)  - **frontend:** Nginx (puerto 5500)
-
-URLs:
 - Frontend: http://localhost:5500
 - Backend API: http://localhost:8080/api
-- H2 Console: http://localhost:8080/h2-console
 
 ---
 
@@ -342,34 +297,30 @@ pago_entrega
 ## Resolver Problemas Comunes
 
 ### "Puerto 8080 ya en uso"
-Cierra otras aplicaciones que puedan estar usando ese puerto, o cambia el puerto en:
-```
-backend/src/main/resources/application.properties
-server.port=8081
+Cierra otras aplicaciones que puedan estar usando ese puerto, o cambia el puerto en `docker-compose.yml`:
+```yaml
+backend:
+  ports:
+    - "8081:8080"
 ```
 
-### "Java no encontrado"
-Instala Java desde https://adoptium.net/ (descarga JDK 17 o superior)
+### "Docker no encontrado"
+Instala Docker Desktop desde https://docs.docker.com/get-docker/
 
-### "No se conecta al backend"
-Verifica que la terminal donde corre el JAR siga abierta y muestre `Started AutogestionApplication`
+### "Los contenedores no inician"
+Verifica que Docker este corriendo. Puedes revisar los logs con:
+```bash
+docker compose logs
+```
 
 ### "Los datos se perdieron"
-Es normal. La base de datos H2 es en memoria. Al cerrar el servidor se borran. Al volver a arrancar, se insertan los datos semilla automaticamente.
+Si eliminaste el volumen `pgdata`, se pierden los datos. Al reiniciar Docker se vuelven a insertar automaticamente.
 
 ### "Recibo 403 o error CORS"
 Asegurate de que:
 1. El frontend se sirve por HTTP (no `file://`)
 2. El backend esta corriendo en el puerto 8080
 3. Usas `http://localhost:5500` (no doble clic al HTML)
-
-### "npx serve no funciona"
-Asegurate de estar en la carpeta `frontend/`:
-```bash
-cd sistema-de-autogestion/sistema-de-autogestion/frontend
-npx serve . -l 5500
-```
-Si no tienes Node.js, descargalo desde https://nodejs.org/
 
 ---
 
