@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGestion - Cotizacion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    </head>
+<body>
+    <div id="navbar"></div>
+    <div class="ag-page">
+        <div class="ag-page-header">
+            <h1>Diagnostico y Cotizacion</h1>
+            <p>Registrar diagnostico y generar cotizacion para una recepcion</p>
+        </div>
+        <div id="alertContainer"></div>
+        <div class="ag-grid" style="grid-template-columns: 5fr 7fr;">
+            <div class="ag-card">
+                <div class="ag-card-header">
+                    <h3>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+                        Diagnostico
+                    </h3>
+                </div>
+                <div class="ag-card-body">
+                    <form id="diagnosticoForm">
+                        <div class="ag-form-group">
+                            <label class="ag-form-label">Recepcion *</label>
+                            <select class="ag-form-control" id="recepcionSelect" required><option value="">-- Seleccionar --</option></select>
+                        </div>
+                        <div class="ag-form-group">
+                            <label class="ag-form-label">Mecanico *</label>
+                            <select class="ag-form-control" id="mecanicoSelect" required><option value="2">Mecanico Uno (ID: 2)</option></select>
+                        </div>
+                        <div class="ag-form-group">
+                            <label class="ag-form-label">Descripcion *</label>
+                            <textarea class="ag-form-control" id="diagnosticoDesc" rows="3" required placeholder="Describa los hallazgos..."></textarea>
+                        </div>
+                        <button type="submit" class="ag-btn ag-btn-accent ag-btn-block">Registrar Diagnostico</button>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <div class="ag-card ag-mb-2">
+                    <div class="ag-card-header">
+                        <h3>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                            Generar Cotizacion
+                        </h3>
+                    </div>
+                    <div class="ag-card-body">
+                        <form id="cotizacionForm">
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Diagnostico ID *</label>
+                                <input type="number" class="ag-form-control" id="diagnosticoId" required placeholder="ID del diagnostico creado">
+                            </div>
+                            <div class="ag-section-title">Servicios</div>
+                            <div class="ag-form-group">
+                                <div class="ag-d-flex ag-gap-3">
+                                    <input type="text" class="ag-form-control" id="servicioNombre" placeholder="Nombre del servicio" style="flex:2;">
+                                    <input type="number" class="ag-form-control" id="servicioPrecio" step="0.01" placeholder="Precio" style="flex:1;">
+                                    <button type="button" class="ag-btn ag-btn-outline ag-btn-sm" onclick="agregarServicio()">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="ag-section-title">Productos / Repuestos</div>
+                            <div class="ag-form-group" id="productosSelector"></div>
+
+                            <div class="ag-section-title" style="margin-top:1rem;">Items Seleccionados</div>
+                            <div class="ag-table-wrap">
+                                <table class="ag-table">
+                                    <thead><tr><th>Tipo</th><th>Descripcion</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead>
+                                    <tbody id="itemsSeleccionados"><tr><td colspan="6" class="ag-text-center ag-text-muted">No hay items</td></tr></tbody>
+                                </table>
+                            </div>
+                            <div class="ag-d-flex ag-justify-between ag-align-center ag-mt-2" style="padding-top:0.75rem; border-top:1px solid var(--color-gray-200);">
+                                <span class="ag-fw-700 ag-text-muted" style="font-size:0.85rem;">TOTAL</span>
+                                <span class="ag-fw-700" id="totalDisplay" style="font-size:1.5rem; color:var(--color-primary);">S/ 0.00</span>
+                            </div>
+                            <button type="submit" class="ag-btn ag-btn-primary ag-btn-block ag-btn-lg ag-mt-2">Generar Cotizacion</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="ag-card">
+                    <div class="ag-card-header"><h3>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Cotizaciones Existentes</h3></div>
+                    <div class="ag-card-body" style="max-height:250px; overflow-y:auto;" id="cotizacionesContainer"><p class="ag-text-muted">Cargando...</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/icons.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        document.getElementById('navbar').innerHTML = renderNavbar('cotizacion');
+        let itemsSeleccionados = [];
+
+        async function loadData() {
+            try {
+                const recepciones = await apiFetch('/recepciones?estado=PENDIENTE');
+                const sel = document.getElementById('recepcionSelect');
+                recepciones.forEach(r => { const o = document.createElement('option'); o.value = r.id; o.textContent = `#${r.id} - ${r.vehiculo?.placa || '?'}`; sel.appendChild(o); });
+
+                const productos = await apiFetch('/productos');
+                document.getElementById('productosSelector').innerHTML = `<div class="ag-table-wrap"><table class="ag-table"><thead><tr><th>Producto</th><th style="width:70px;">Cant.</th><th style="width:100px;">Precio</th><th style="width:50px;"></th></tr></thead><tbody>${productos.map(p => `<tr><td>${p.nombre} <span class="ag-text-muted ag-text-sm">${p.tipo}</span></td><td><input type="number" class="ag-form-control" id="cant_${p.id}" value="1" min="1" style="padding:0.3rem 0.5rem; font-size:0.8rem;"></td><td><input type="number" class="ag-form-control" id="prec_${p.id}" value="${p.precioUnitario}" step="0.01" style="padding:0.3rem 0.5rem; font-size:0.8rem;"></td><td><button type="button" class="ag-btn ag-btn-outline ag-btn-sm" onclick="agregarProducto(${p.id},'${p.nombre.replace(/'/g,"\\'")}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></td></tr>`).join('')}</tbody></table></div>`;
+
+                loadCotizaciones();
+            } catch (e) { showError('alertContainer', 'Error: ' + e.message); }
+        }
+
+        function agregarServicio() {
+            const n = document.getElementById('servicioNombre').value;
+            const p = parseFloat(document.getElementById('servicioPrecio').value);
+            if (!n || isNaN(p)) { showError('alertContainer', 'Ingrese nombre y precio'); return; }
+            itemsSeleccionados.push({ tipo: 'SERVICIO', descripcion: n, cantidad: 1, precio: p, id: null });
+            actualizarItems();
+            document.getElementById('servicioNombre').value = '';
+            document.getElementById('servicioPrecio').value = '';
+        }
+
+        function agregarProducto(id, nombre) {
+            const c = parseInt(document.getElementById(`cant_${id}`).value);
+            const p = parseFloat(document.getElementById(`prec_${id}`).value);
+            if (isNaN(c) || isNaN(p) || c < 1) { showError('alertContainer', 'Cantidad y precio validos requeridos'); return; }
+            itemsSeleccionados.push({ tipo: 'PRODUCTO', descripcion: nombre, cantidad: c, precio: p, id });
+            actualizarItems();
+        }
+
+        function eliminarItem(i) { itemsSeleccionados.splice(i, 1); actualizarItems(); }
+
+        function actualizarItems() {
+            const tbody = document.getElementById('itemsSeleccionados');
+            if (!itemsSeleccionados.length) { tbody.innerHTML = '<tr><td colspan="6" class="ag-text-center ag-text-muted">No hay items</td></tr>'; document.getElementById('totalDisplay').textContent = 'S/ 0.00'; return; }
+            let total = 0;
+            tbody.innerHTML = itemsSeleccionados.map((it, i) => {
+                const sub = it.precio * it.cantidad; total += sub;
+                return `<tr><td><span class="ag-badge ag-badge-${it.tipo==='SERVICIO'?'info':'repuesto'}">${it.tipo}</span></td><td>${it.descripcion}</td><td>${it.cantidad}</td><td>${formatCurrency(it.precio)}</td><td class="ag-fw-600">${formatCurrency(sub)}</td><td><button class="ag-btn ag-btn-outline ag-btn-sm" onclick="eliminarItem(${i})" style="padding:0.2rem 0.4rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td></tr>`;
+            }).join('');
+            document.getElementById('totalDisplay').textContent = formatCurrency(total);
+        }
+
+        document.getElementById('diagnosticoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const d = await apiFetch('/diagnosticos', { method: 'POST', body: JSON.stringify({ recepcionId: parseInt(document.getElementById('recepcionSelect').value), mecanicoId: parseInt(document.getElementById('mecanicoSelect').value), descripcion: document.getElementById('diagnosticoDesc').value }) });
+                document.getElementById('diagnosticoId').value = d.id;
+                showSuccess('alertContainer', `Diagnostico #${d.id} registrado. Use este ID para la cotizacion.`);
+            } catch (error) { showError('alertContainer', 'Error: ' + error.message); }
+        });
+
+        document.getElementById('cotizacionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!itemsSeleccionados.length) { showError('alertContainer', 'Agregue al menos un servicio o producto'); return; }
+            try {
+                const servicios = itemsSeleccionados.filter(i => i.tipo === 'SERVICIO').map(i => ({ servicioId: i.id, precio: i.precio }));
+                const productos = itemsSeleccionados.filter(i => i.tipo === 'PRODUCTO').map(i => ({ productoId: i.id, cantidadEstimada: i.cantidad, precioUnitario: i.precio }));
+                const c = await apiFetch('/cotizaciones', { method: 'POST', body: JSON.stringify({ diagnosticoId: parseInt(document.getElementById('diagnosticoId').value), servicios, productos }) });
+                showSuccess('alertContainer', `Cotizacion #${c.id} creada con total ${formatCurrency(c.total)}`);
+                itemsSeleccionados = []; actualizarItems(); loadCotizaciones();
+            } catch (error) { showError('alertContainer', 'Error: ' + error.message); }
+        });
+
+        async function loadCotizaciones() {
+            try {
+                const cotizaciones = await apiFetch('/cotizaciones');
+                const c = document.getElementById('cotizacionesContainer');
+                if (!cotizaciones.length) { c.innerHTML = '<p class="ag-text-muted ag-text-center">No hay cotizaciones</p>'; return; }
+                c.innerHTML = cotizaciones.map(ct => `
+                    <div class="ag-d-flex ag-justify-between ag-align-center" style="padding:0.6rem 0; border-bottom:1px solid var(--color-gray-100);">
+                        <div class="ag-d-flex ag-align-center ag-gap-3">
+                            <span class="ag-fw-600 ag-text-muted">#${ct.id}</span>
+                            ${estadoBadge(ct.estado)}
+                        </div>
+                        <div class="ag-d-flex ag-align-center ag-gap-3">
+                            <span class="ag-fw-600">${formatCurrency(ct.total)}</span>
+                            ${ct.estado === 'PENDIENTE' ? `
+                                <button class="ag-btn ag-btn-success ag-btn-sm" onclick="aprobarCotizacion(${ct.id})">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Aprobar
+                                </button>
+                                <button class="ag-btn ag-btn-danger ag-btn-sm" onclick="rechazarCotizacion(${ct.id})">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </button>` : ''}
+                        </div>
+                    </div>`).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function aprobarCotizacion(id) { try { await apiFetch(`/cotizaciones/${id}/aprobar`, { method: 'PUT' }); showSuccess('alertContainer', 'Cotizacion aprobada'); loadCotizaciones(); } catch (e) { showError('alertContainer', e.message); } }
+        async function rechazarCotizacion(id) { try { await apiFetch(`/cotizaciones/${id}/rechazar`, { method: 'PUT' }); showSuccess('alertContainer', 'Cotizacion rechazada'); loadCotizaciones(); } catch (e) { showError('alertContainer', e.message); } }
+
+        loadData();
+    </script>
+</body>
+</html>

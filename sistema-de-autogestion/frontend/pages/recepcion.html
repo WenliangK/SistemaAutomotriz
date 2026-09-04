@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGestion - Recepcion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    </head>
+<body>
+    <div id="navbar"></div>
+    <div class="ag-page">
+        <div class="ag-page-header">
+            <h1>Recepcion de Vehiculos</h1>
+            <p>Registrar ingreso de vehiculo al taller</p>
+        </div>
+        <div id="alertContainer"></div>
+        <div class="ag-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="ag-card">
+                <div class="ag-card-header">
+                    <h3>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Datos del Cliente y Vehiculo
+                    </h3>
+                </div>
+                <div class="ag-card-body">
+                    <form id="recepcionForm">
+                        <div class="ag-section-title">Cliente</div>
+                        <div class="ag-grid ag-grid-2 ag-mb-2">
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Nombre *</label>
+                                <input type="text" class="ag-form-control" id="clienteNombre" required>
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Telefono</label>
+                                <input type="text" class="ag-form-control" id="clienteTelefono">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Email</label>
+                                <input type="email" class="ag-form-control" id="clienteEmail">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Documento</label>
+                                <input type="text" class="ag-form-control" id="clienteDocumento">
+                            </div>
+                        </div>
+                        <div class="ag-form-group">
+                            <label class="ag-form-label">O seleccionar cliente existente</label>
+                            <select class="ag-form-control" id="clienteExistente">
+                                <option value="">-- Nuevo cliente --</option>
+                            </select>
+                        </div>
+
+                        <div class="ag-section-title" style="margin-top: 1.25rem;">Vehiculo</div>
+                        <div class="ag-grid ag-grid-2 ag-mb-2">
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Placa *</label>
+                                <input type="text" class="ag-form-control" id="vehiculoPlaca" required placeholder="ABC-123" style="text-transform:uppercase;">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Marca</label>
+                                <input type="text" class="ag-form-control" id="vehiculoMarca">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Modelo</label>
+                                <input type="text" class="ag-form-control" id="vehiculoModelo">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Anio</label>
+                                <input type="number" class="ag-form-control" id="vehiculoAnio" min="1900" max="2030">
+                            </div>
+                        </div>
+
+                        <div class="ag-section-title" style="margin-top: 1.25rem;">Problema Reportado</div>
+                        <div class="ag-form-group">
+                            <textarea class="ag-form-control" id="problemaReportado" rows="3" placeholder="Describa el problema que presenta el vehiculo..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="ag-btn ag-btn-primary ag-btn-block ag-btn-lg" style="margin-top: 0.5rem;">
+                            Registrar Recepcion
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="ag-card">
+                <div class="ag-card-header">
+                    <h3>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                        Recepciones Registradas
+                    </h3>
+                    <select class="ag-form-control" id="filtroEstado" onchange="loadRecepciones()" style="width:auto; padding:0.35rem 2rem 0.35rem 0.65rem; font-size:0.8rem;">
+                        <option value="">Todos</option>
+                        <option value="PENDIENTE" selected>Pendientes</option>
+                        <option value="EN_DIAGNOSTICO">En Diagnostico</option>
+                        <option value="COTIZADA">Cotizada</option>
+                        <option value="EN_TRABAJO">En Trabajo</option>
+                        <option value="FINALIZADA">Finalizada</option>
+                    </select>
+                </div>
+                <div class="ag-card-body" style="max-height:600px; overflow-y:auto;" id="recepcionesContainer">
+                    <p class="ag-text-muted ag-text-center">Cargando recepciones...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/icons.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        document.getElementById('navbar').innerHTML = renderNavbar('recepcion');
+
+        async function loadClientes() {
+            try {
+                const clientes = await apiFetch('/clientes');
+                const sel = document.getElementById('clienteExistente');
+                clientes.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = `${c.nombre} (${c.documento || 'Sin doc'})`; sel.appendChild(o); });
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadRecepciones() {
+            const estado = document.getElementById('filtroEstado').value;
+            try {
+                const params = estado ? `?estado=${estado}` : '';
+                const recepciones = await apiFetch(`/recepciones${params}`);
+                const c = document.getElementById('recepcionesContainer');
+                if (recepciones.length === 0) { c.innerHTML = '<p class="ag-text-muted ag-text-center">No hay recepciones</p>'; return; }
+                c.innerHTML = recepciones.map(r => `
+                    <div class="ag-card ag-mb-1" style="box-shadow:none; border:1px solid var(--color-gray-100);">
+                        <div class="ag-card-body" style="padding:0.75rem 1rem;">
+                            <div class="ag-d-flex ag-justify-between ag-align-center">
+                                <div class="ag-d-flex ag-align-center ag-gap-3">
+                                    <span class="ag-fw-700" style="color:var(--color-gray-400);">#${r.id}</span>
+                                    ${estadoBadge(r.estado)}
+                                    <span class="ag-text-muted ag-text-sm">${r.vehiculo?.placa || '-'}</span>
+                                </div>
+                                <span class="ag-text-muted ag-text-sm">${formatDate(r.fechaIngreso)}</span>
+                            </div>
+                            <p class="ag-text-sm ag-text-muted ag-mt-1" style="margin:0;">${r.problemaReportado}</p>
+                        </div>
+                    </div>`).join('');
+            } catch (e) { document.getElementById('recepcionesContainer').innerHTML = '<p class="ag-text-muted">Error al cargar recepciones</p>'; }
+        }
+
+        document.getElementById('recepcionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                let clienteId = document.getElementById('clienteExistente').value;
+                if (!clienteId) {
+                    const cliente = await apiFetch('/clientes', { method: 'POST', body: JSON.stringify({ nombre: document.getElementById('clienteNombre').value, telefono: document.getElementById('clienteTelefono').value, email: document.getElementById('clienteEmail').value, documento: document.getElementById('clienteDocumento').value }) });
+                    clienteId = cliente.id;
+                }
+                const vehiculo = await apiFetch('/vehiculos', { method: 'POST', body: JSON.stringify({ clienteId: parseInt(clienteId), placa: document.getElementById('vehiculoPlaca').value.toUpperCase(), marca: document.getElementById('vehiculoMarca').value, modelo: document.getElementById('vehiculoModelo').value, anio: document.getElementById('vehiculoAnio').value ? parseInt(document.getElementById('vehiculoAnio').value) : null }) });
+                await apiFetch('/recepciones', { method: 'POST', body: JSON.stringify({ vehiculoId: vehiculo.id, problemaReportado: document.getElementById('problemaReportado').value }) });
+                showSuccess('alertContainer', 'Recepcion registrada exitosamente');
+                document.getElementById('recepcionForm').reset();
+                document.getElementById('clienteExistente').value = '';
+                loadRecepciones();
+            } catch (error) { showError('alertContainer', 'Error: ' + error.message); }
+        });
+
+        loadClientes();
+        loadRecepciones();
+    </script>
+</body>
+</html>
