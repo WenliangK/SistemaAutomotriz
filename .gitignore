@@ -69,6 +69,8 @@ build/
 
 # VS Code
 .vscode/
+!.vscode/
+!.vscode/settings.json
 
 # OS generated files
 .DS_Store

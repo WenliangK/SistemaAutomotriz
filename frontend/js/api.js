@@ -1,4 +1,8 @@
-const API_BASE = 'http://localhost:8080/api';
+// El frontend se sirve con Live Server (:5500) y la API desde Docker (:8080).
+// Se puede cambiar temporalmente sin editar el código con ?apiBase=http://host:8080/api
+const API_BASE = new URLSearchParams(window.location.search).get('apiBase')
+    || localStorage.getItem('apiBase')
+    || 'http://localhost:8080/api';
 
 function getToken() { return localStorage.getItem('token'); }
 function setToken(token) { localStorage.setItem('token', token); }

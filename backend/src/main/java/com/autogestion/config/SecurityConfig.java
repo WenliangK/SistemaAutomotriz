@@ -31,7 +31,7 @@ public class SecurityConfig {
 
     /**
      * CORS configuration shared by both the global CorsFilter and Spring Security.
-     * - Allows localhost:5500 as origin
+     * - Allows Live Server, whether it uses localhost or 127.0.0.1
      * - All standard methods including OPTIONS
      * - All headers (Authorization, Content-Type, etc.)
      * - Credentials enabled for JWT via Authorization header
@@ -42,7 +42,9 @@ public class SecurityConfig {
 
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:5500",
-                "http://localhost:*"
+                "http://localhost:*",
+                "http://127.0.0.1:5500",
+                "http://127.0.0.1:*"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

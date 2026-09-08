@@ -431,7 +431,7 @@
                 setUser({ id: data.id, nombre: data.nombre, email: data.email, rol: data.rol });
                 window.location.href = 'pages/dashboard.html';
             } catch (error) {
-                showError('alertContainer', 'Error de conexion. Verifique que el servidor este activo.');
+                showError('alertContainer', `No se pudo conectar con la API (${API_BASE}). Inicie Docker y confirme que el backend use el puerto 8080.`);
             }
         });
     </script>
