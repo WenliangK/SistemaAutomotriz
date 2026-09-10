@@ -181,7 +181,9 @@
     <script src="../js/api.js"></script>
     <script src="../js/animations.js"></script>
     <script>
-        document.getElementById('navbar').innerHTML = renderNavbar('dashboard');
+        (function() {
+            if (!checkAuth()) { window.location.href = '../index.html'; return; }
+            document.getElementById('navbar').innerHTML = renderNavbar('dashboard');
         document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
         initTheme();
 
@@ -207,6 +209,7 @@
             }
         }
         loadDashboard();
+        })();
     </script>
 </body>
 </html>

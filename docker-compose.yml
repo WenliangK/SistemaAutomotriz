@@ -17,6 +17,14 @@ services:
       timeout: 5s
       retries: 10
 
+  frontend:
+    build: ./frontend
+    container_name: autogestion_frontend
+    ports:
+      - "5500:80"
+    depends_on:
+      - backend
+
   backend:
     build: ./backend
     container_name: autogestion_backend

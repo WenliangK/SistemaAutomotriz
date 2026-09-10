@@ -377,7 +377,10 @@
     <script src="js/api.js"></script>
     <script src="js/animations.js"></script>
     <script>
-        if (isLoggedIn()) window.location.href = 'pages/dashboard.html';
+        if (isLoggedIn()) {
+            const u = getUser();
+            window.location.href = (u && u.rol === 'MECANICO') ? 'pages/mecanico.html' : 'pages/dashboard.html';
+        }
 
         const themeOrder = ['system', 'light', 'dark'];
         const themeIcons = {
@@ -429,9 +432,9 @@
                 const data = await response.json();
                 setToken(data.token);
                 setUser({ id: data.id, nombre: data.nombre, email: data.email, rol: data.rol });
-                window.location.href = 'pages/dashboard.html';
+                window.location.href = data.rol === 'MECANICO' ? 'pages/mecanico.html' : 'pages/dashboard.html';
             } catch (error) {
-                showError('alertContainer', `No se pudo conectar con la API (${API_BASE}). Inicie Docker y confirme que el backend use el puerto 8080.`);
+                showError('alertContainer', 'Error de conexion. Verifique que el servidor este activo.');
             }
         });
     </script>
