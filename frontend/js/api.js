@@ -61,8 +61,8 @@ function renderNavbar(activePage) {
     const user = getUser();
     if (!user) return '';
 
-    const roleLabel = user.rol === 'ADMIN' ? 'Administrador' : user.rol === 'MECANICO' ? 'Mecanico' : 'Almacenero';
-    const dotClass = user.rol === 'ADMIN' ? 'dot-admin' : user.rol === 'MECANICO' ? 'dot-mecanico' : 'dot-almacenero';
+    const roleLabel = user.rol === 'ADMIN' ? 'Administrador' : user.rol === 'MECANICO' ? 'Mecanico' : user.rol === 'RECEPCIONISTA' ? 'Recepcionista' : 'Almacenero';
+    const dotClass = user.rol === 'ADMIN' ? 'dot-admin' : user.rol === 'MECANICO' ? 'dot-mecanico' : user.rol === 'RECEPCIONISTA' ? 'dot-recepcionista' : 'dot-almacenero';
 
     const navLinks = {
         ADMIN: [
@@ -82,6 +82,11 @@ function renderNavbar(activePage) {
         ALMACENERO: [
             { page: 'dashboard', label: 'Dashboard', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>' },
             { page: 'inventario', label: 'Inventario', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>' },
+        ],
+        RECEPCIONISTA: [
+            { page: 'recepcionista', label: 'Panel', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>' },
+            { page: 'recepcion', label: 'Recepcion', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>' },
+            { page: 'cotizacion', label: 'Cotizacion', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' },
         ],
     };
 

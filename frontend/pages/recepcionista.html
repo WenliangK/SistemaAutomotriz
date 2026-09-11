@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGestion - Panel Recepcionista</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <script>
+        (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
+    </script>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="ag-page">
+        <div class="ag-page-header">
+            <h1>Panel del Recepcionista</h1>
+            <p>Recepciones y cotizaciones</p>
+        </div>
+        <div class="ag-grid ag-grid-3 ag-mb-3">
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="recepcionesActivas">--</div>
+                    <div class="ag-indicator-label">Recepciones Activas</div>
+                </div>
+            </div>
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="cotizacionesPendientes">--</div>
+                    <div class="ag-indicator-label">Cotizaciones Pendientes</div>
+                </div>
+            </div>
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="cotizacionesAprobadas">--</div>
+                    <div class="ag-indicator-label">Cotizaciones Aprobadas</div>
+                </div>
+            </div>
+        </div>
+        <div class="ag-layout-main">
+            <div class="ag-layout-stack">
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>Acceso Rápido</h3>
+                    </div>
+                    <div class="ag-section-body" style="display:flex; flex-direction:column; gap:0.5rem;">
+                        <a href="recepcion.html" class="ag-action-link">Nueva Recepción</a>
+                        <a href="cotizacion.html" class="ag-action-link">Nueva Cotización</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="themeToggleWrap"></div>
+    <script src="../js/api.js"></script>
+    <script src="../js/animations.js"></script>
+    <script>
+        (function() {
+            if (!checkAuth()) { window.location.href = '../index.html'; return; }
+            document.getElementById('navbar').innerHTML = renderNavbar('recepcionista');
+            document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
+            initTheme();
+            const user = getUser();
+            if (!user || user.rol !== 'RECEPCIONISTA') window.location.href = '../index.html';
+        })();
+    </script>
+</body>
+</html>

@@ -379,7 +379,8 @@
     <script>
         if (isLoggedIn()) {
             const u = getUser();
-            window.location.href = (u && u.rol === 'MECANICO') ? 'pages/mecanico.html' : 'pages/dashboard.html';
+            const rol = u ? u.rol : null;
+            window.location.href = rol === 'MECANICO' ? 'pages/mecanico.html' : rol === 'RECEPCIONISTA' ? 'pages/recepcionista.html' : 'pages/dashboard.html';
         }
 
         const themeOrder = ['system', 'light', 'dark'];
@@ -432,7 +433,7 @@
                 const data = await response.json();
                 setToken(data.token);
                 setUser({ id: data.id, nombre: data.nombre, email: data.email, rol: data.rol });
-                window.location.href = data.rol === 'MECANICO' ? 'pages/mecanico.html' : 'pages/dashboard.html';
+                window.location.href = data.rol === 'MECANICO' ? 'pages/mecanico.html' : data.rol === 'RECEPCIONISTA' ? 'pages/recepcionista.html' : 'pages/dashboard.html';
             } catch (error) {
                 showError('alertContainer', 'Error de conexion. Verifique que el servidor este activo.');
             }

@@ -97,11 +97,11 @@ public class SecurityConfig {
 
                 .requestMatchers("/api/inventario/**").hasAnyRole("ADMIN", "ALMACENERO")
 
-                .requestMatchers("/api/recepciones/**").hasAnyRole("ADMIN", "MECANICO")
+                .requestMatchers("/api/recepciones/**").hasAnyRole("ADMIN", "MECANICO", "RECEPCIONISTA")
 
-                .requestMatchers("/api/diagnosticos/**").hasAnyRole("ADMIN", "MECANICO")
+                .requestMatchers("/api/diagnosticos/**").hasAnyRole("ADMIN", "MECANICO", "RECEPCIONISTA")
 
-                .requestMatchers("/api/cotizaciones/**").hasAnyRole("ADMIN", "MECANICO")
+                .requestMatchers("/api/cotizaciones/**").hasAnyRole("ADMIN", "MECANICO", "RECEPCIONISTA")
 
                 .requestMatchers("/api/ordenes-trabajo/**").hasAnyRole("ADMIN", "MECANICO")
 

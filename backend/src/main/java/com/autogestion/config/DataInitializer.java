@@ -39,6 +39,9 @@ public class DataInitializer implements CommandLineRunner {
                                 .nombre("Mecánico Uno").email("mecanico1@sanmartin.pe")
                                 .passwordHash(hash).rol("MECANICO").activo(true).build());
                 usuarioRepository.save(Usuario.builder()
+                                .nombre("Recepcionista").email("recepcionista@sanmartin.pe")
+                                .passwordHash(hash).rol("RECEPCIONISTA").activo(true).build());
+                usuarioRepository.save(Usuario.builder()
                                 .nombre("Almacenero").email("almacen@sanmartin.pe")
                                 .passwordHash(hash).rol("ALMACENERO").activo(true).build());
 
