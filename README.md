@@ -55,7 +55,7 @@ sistema-de-autogestion/
 | **Backend** | Java 17+ / Spring Boot 3 (Spring Web, Spring Data JPA, Spring Security) |
 | **Base de datos** | PostgreSQL 16 (via Docker) |
 | **Autenticacion** | JWT (JSON Web Tokens) |
-| **Roles** | ADMIN, MECANICO, ALMACENERO |
+| **Roles** | ADMIN, MECANICO, RECEPCIONISTA, ALMACENERO |
 
 ---
 
@@ -64,66 +64,22 @@ sistema-de-autogestion/
 ### Lo que necesitas
 - **Docker** (https://docs.docker.com/get-docker/)
 - **Docker Compose** (viene incluido con Docker Desktop)
-- La extensión **Live Server** de VS Code
 
-### Paso 1 — Levantar la API y la base de datos
+### Paso 1 — Levantar el sistema
 ```bash
-cd /ruta/a/SistemaAutomotriz
-docker compose up --build -d
+cd sistema-de-autogestion
+docker compose up --build
 ```
-
-> Si Docker muestra `permission denied while trying to connect to the Docker API`, ejecuta los comandos con `sudo` (por ejemplo, `sudo docker compose up --build -d`). Para evitar usar `sudo` siempre, agrega tu usuario al grupo Docker con `sudo usermod -aG docker $USER` y cierra/inicia sesión.
-
-Esto construye e inicia 2 contenedores:
+Esto construye e inicia 3 contenedores:
 - **db:** PostgreSQL 16 (puerto 5432)
 - **backend:** Spring Boot (puerto 8080)
+- **frontend:** Nginx (puerto 5500)
 
-Comprueba que estén activos antes de abrir el frontend:
+Espera hasta que veas los logs de los contenedores iniciando.
 
-```bash
-docker compose ps
-docker compose logs -f backend
-```
-
-El log correcto termina con `Started AutogestionApplication`.
-
-### Paso 2 — Abrir el frontend con Live Server
-
-En VS Code abre la carpeta `frontend`, selecciona `frontend/index.html` y usa **Open with Live Server**. Debe abrirse en:
-
-- **Frontend:** http://localhost:5500 (o http://127.0.0.1:5500)
+### Paso 2 — Abrir el navegador
+- **Frontend:** http://localhost:5500
 - **Backend API:** http://localhost:8080/api
-
-Live Server solo sirve HTML/CSS/JS; no inicia Spring Boot. Por eso Docker debe permanecer iniciado mientras se usa la aplicación. El backend acepta ambos orígenes de Live Server (`localhost` y `127.0.0.1`).
-
-### Comandos habituales de Docker
-
-Ejecuta estos comandos desde la raíz del proyecto (`SistemaAutomotriz`). Si tu instalación requiere permisos, antepón `sudo` a `docker`.
-
-| Acción | Comando |
-|--------|---------|
-| Iniciar o reconstruir los servicios en segundo plano | `docker compose up --build -d` |
-| Ver estado de los servicios | `docker compose ps` |
-| Ver logs en tiempo real | `docker compose logs -f` |
-| Ver solo los logs del backend | `docker compose logs -f backend` |
-| Detener los servicios sin borrar los datos | `docker compose down` |
-| Reiniciar los contenedores y conservar datos | `docker compose down --remove-orphans` + `docker compose up --build -d` |
-| Eliminar todos los contenedores Docker de forma forzada | `docker ps -aq \| xargs -r docker rm -f` |
-
-Si necesitas `sudo` para el último comando, tanto la consulta como la eliminación deben llevarlo:
-
-```bash
-sudo docker ps -aq | xargs -r sudo docker rm -f
-```
-
-Para borrar los datos de prueba y crear una base de datos nueva, usa:
-
-```bash
-docker compose down --volumes --remove-orphans
-docker compose up --build -d
-```
-
-`--volumes` elimina el volumen `pgdata`, por lo que se borran los registros creados en la base de datos. Al levantarse un volumen nuevo, PostgreSQL vuelve a ejecutar `database/init.sql` y carga el esquema y los datos semilla. No uses `docker system prune -a --volumes` salvo que también quieras eliminar recursos Docker no usados de otros proyectos.
 
 ### Paso 3 — Iniciar sesion
 - **Email:** `admin@sanmartin.pe`
@@ -136,12 +92,21 @@ Login -> Dashboard -> Recepcion -> Cotizacion -> Ordenes de Trabajo -> Inventari
 
 ---
 
+## Modelo de Caso de Uso de Negocio (Actualizado)
+
+Actores: **Cliente, Recepcionista, Mecanico, Administrador**.
+
+El Recepcionista es el actor clave que registra la llegada del cliente/vehiculo, inicia la recepcion y coordina el flujo inicial del taller.
+
+---
+
 ## Credenciales de Prueba
 
 | Usuario | Email | Contrasena | Rol |
 |---------|-------|------------|-----|
 | Admin Taller | admin@sanmartin.pe | admin123 | ADMIN |
 | Mecanico Uno | mecanico1@sanmartin.pe | admin123 | MECANICO |
+| Recepcionista | recepcionista@sanmartin.pe | admin123 | RECEPCIONISTA |
 | Almacenero | almacen@sanmartin.pe | admin123 | ALMACENERO |
 
 ---
@@ -158,7 +123,7 @@ Al levantar Docker, se insertan automaticamente estos datos:
 | Servicios | 8 (cambio de aceite, alineacion, frenos, etc.) |
 | Productos | 12 (aceite, filtros, pastillas, discos, etc.) |
 
-> Los datos se guardan en el volumen Docker `pgdata`, no solo en el contenedor. Se conservan al usar `docker compose down`; se eliminan con `docker compose down --volumes`. El archivo `database/init.sql` se ejecuta únicamente cuando PostgreSQL crea un volumen nuevo.
+> Los datos se mantienen en PostgreSQL dentro del contenedor Docker. Si eliminas el volumen `pgdata`, se perderan y se volveran a insertar al reiniciar.
 
 ---
 
@@ -242,6 +207,7 @@ Al levantar Docker, se insertan automaticamente estos datos:
 |-----|------------|
 | **ADMIN** | Todo: gestionar clientes, vehiculos, recepciones, cotizaciones, ordenes, inventario, pagos, entregas, reportes |
 | **MECANICO** | Recepciones, diagnosticos, cotizaciones, sus ordenes de trabajo, registrar productos usados |
+| **RECEPCIONISTA** | Recepcion, diagnosticos, cotizaciones | Recepcionista |
 | **ALMACENERO** | Inventario: ver productos, registrar movimientos, ver alertas de stock |
 
 ---
