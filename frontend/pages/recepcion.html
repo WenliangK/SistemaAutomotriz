@@ -20,7 +20,6 @@
             <p>Registrar ingreso de vehiculo al taller</p>
         </div>
         <div id="alertContainer"></div>
-
         <div class="ag-layout-sidebar">
             <div class="ag-section">
                 <div class="ag-section-header">
@@ -56,7 +55,6 @@
                                 <option value="">-- Nuevo cliente --</option>
                             </select>
                         </div>
-
                         <div class="ag-section-title" style="margin-top: 1.25rem;">Vehiculo</div>
                         <div class="ag-grid ag-grid-2 ag-mb-2">
                             <div class="ag-form-group">
@@ -76,19 +74,16 @@
                                 <input type="number" class="ag-form-control" id="vehiculoAnio" min="1900" max="2030">
                             </div>
                         </div>
-
                         <div class="ag-section-title" style="margin-top: 1.25rem;">Problema Reportado</div>
                         <div class="ag-form-group">
                             <textarea class="ag-form-control" id="problemaReportado" rows="3" placeholder="Describa el problema que presenta el vehiculo..." required></textarea>
                         </div>
-
                         <button type="submit" class="ag-btn ag-btn-primary ag-btn-block ag-btn-lg" style="margin-top: 0.5rem;">
                             Registrar Recepcion
                         </button>
                     </form>
                 </div>
             </div>
-
             <div class="ag-layout-stack">
                 <div class="ag-section">
                     <div class="ag-section-header">
@@ -116,10 +111,11 @@
     <script src="../js/api.js"></script>
     <script src="../js/animations.js"></script>
     <script>
-        document.getElementById('navbar').innerHTML = renderNavbar('recepcion');
+        (function() {
+            if (!checkAuth()) { window.location.href = '../index.html'; return; }
+            document.getElementById('navbar').innerHTML = renderNavbar('recepcion');
         document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
         initTheme();
-
         async function loadClientes() {
             try {
                 const clientes = await apiFetch('/clientes');
@@ -127,8 +123,7 @@
                 clientes.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = `${c.nombre} (${c.documento || 'Sin doc'})`; sel.appendChild(o); });
             } catch (e) { console.error(e); }
         }
-
-        async function loadRecepciones() {
+        window.loadRecepciones = async function() {
             const estado = document.getElementById('filtroEstado').value;
             try {
                 const params = estado ? `?estado=${estado}` : '';
@@ -149,28 +144,34 @@
                             <p class="ag-text-sm ag-text-muted ag-mt-1" style="margin:0;">${r.problemaReportado}</p>
                         </div>
                     </div>`).join('');
-            } catch (e) { document.getElementById('recepcionesContainer').innerHTML = '<p class="ag-text-muted">Error al cargar recepciones</p>'; }
+            } catch (e) { console.error('API Error:', e); document.getElementById('recepcionesContainer').innerHTML = '<p class="ag-text-muted">Error al cargar recepciones</p>'; }
         }
-
         document.getElementById('recepcionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
-                let clienteId = document.getElementById('clienteExistente').value;
-                if (!clienteId) {
-                    const cliente = await apiFetch('/clientes', { method: 'POST', body: JSON.stringify({ nombre: document.getElementById('clienteNombre').value, telefono: document.getElementById('clienteTelefono').value, email: document.getElementById('clienteEmail').value, documento: document.getElementById('clienteDocumento').value }) });
-                    clienteId = cliente.id;
-                }
-                const vehiculo = await apiFetch('/vehiculos', { method: 'POST', body: JSON.stringify({ clienteId: parseInt(clienteId), placa: document.getElementById('vehiculoPlaca').value.toUpperCase(), marca: document.getElementById('vehiculoMarca').value, modelo: document.getElementById('vehiculoModelo').value, anio: document.getElementById('vehiculoAnio').value ? parseInt(document.getElementById('vehiculoAnio').value) : null }) });
-                await apiFetch('/recepciones', { method: 'POST', body: JSON.stringify({ vehiculoId: vehiculo.id, problemaReportado: document.getElementById('problemaReportado').value }) });
+                await apiFetch('/recepciones/completa', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        clienteNombre: document.getElementById('clienteNombre').value,
+                        clienteTelefono: document.getElementById('clienteTelefono').value,
+                        clienteEmail: document.getElementById('clienteEmail').value,
+                        clienteDocumento: document.getElementById('clienteDocumento').value,
+                        vehiculoPlaca: document.getElementById('vehiculoPlaca').value.toUpperCase(),
+                        vehiculoMarca: document.getElementById('vehiculoMarca').value,
+                        vehiculoModelo: document.getElementById('vehiculoModelo').value,
+                        vehiculoAnio: document.getElementById('vehiculoAnio').value ? parseInt(document.getElementById('vehiculoAnio').value) : null,
+                        problemaReportado: document.getElementById('problemaReportado').value
+                    })
+                });
                 showSuccess('alertContainer', 'Recepcion registrada exitosamente');
                 document.getElementById('recepcionForm').reset();
                 document.getElementById('clienteExistente').value = '';
                 loadRecepciones();
             } catch (error) { showError('alertContainer', 'Error: ' + error.message); }
         });
-
         loadClientes();
         loadRecepciones();
+        })();
     </script>
 </body>
 </html>

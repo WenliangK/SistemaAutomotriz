@@ -22,8 +22,6 @@
             overflow: hidden;
             transition: background 0.4s ease;
         }
-
-        /* === BRAND SIDE === */
         .ag-login-brand {
             background: #0f172a;
             display: flex;
@@ -159,8 +157,6 @@
             letter-spacing: 0.08em;
             margin: 0;
         }
-
-        /* === FORM SIDE === */
         .ag-login-form-side {
             display: flex;
             flex-direction: column;
@@ -233,8 +229,6 @@
             min-height: 0;
             margin-bottom: 0;
         }
-
-        /* === THEME TOGGLE === */
         .ag-login-theme-toggle {
             position: absolute;
             bottom: 1.5rem;
@@ -272,8 +266,6 @@
         .ag-login-theme-toggle:hover svg {
             transform: rotate(15deg);
         }
-
-        /* === ANIMATIONS === */
         @keyframes brandSlideIn {
             from { opacity: 0; transform: translateX(-20px); }
             to { opacity: 1; transform: translateX(0); }
@@ -286,8 +278,6 @@
             from { opacity: 0; transform: translateX(-10px); }
             to { opacity: 1; transform: translateX(0); }
         }
-
-        /* === RESPONSIVE === */
         @media (max-width: 1024px) {
             .ag-login { grid-template-columns: 1fr; }
             .ag-login-brand { display: none; }
@@ -307,7 +297,6 @@
                 </div>
                 <h1>AutoGestion</h1>
                 <p class="ag-login-brand-desc">Sistema de gestion integral para talleres mecanicos automotrices. Control total desde la recepcion hasta la entrega.</p>
-
                 <div class="ag-login-features">
                     <div class="ag-login-feature">
                         <div class="ag-login-feature-icon">
@@ -334,22 +323,18 @@
                         Reportes y metricas del taller
                     </div>
                 </div>
-
                 <div class="ag-login-brand-footer">
                     <p>V1.0 &mdash; Taller Mecanico Automotriz</p>
                 </div>
             </div>
         </div>
-
         <div class="ag-login-form-side">
             <div class="ag-login-form-inner">
                 <div class="ag-login-form-header">
                     <h2>Bienvenido</h2>
                     <p>Ingrese sus credenciales para acceder al sistema.</p>
                 </div>
-
                 <div id="alertContainer" class="ag-login-error"></div>
-
                 <form id="loginForm" class="ag-login-form" onsubmit="return false;">
                     <div class="ag-form-group">
                         <label class="ag-form-label" for="email">Correo electronico</label>
@@ -367,13 +352,11 @@
                     </div>
                 </form>
             </div>
-
             <button class="ag-login-theme-toggle" id="loginThemeToggle" title="Cambiar tema" aria-label="Cambiar tema">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             </button>
         </div>
     </div>
-
     <script src="js/api.js"></script>
     <script src="js/animations.js"></script>
     <script>
@@ -382,19 +365,16 @@
             const rol = u ? u.rol : null;
             window.location.href = rol === 'MECANICO' ? 'pages/mecanico.html' : rol === 'RECEPCIONISTA' ? 'pages/recepcionista.html' : 'pages/dashboard.html';
         }
-
         const themeOrder = ['system', 'light', 'dark'];
         const themeIcons = {
             system: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
             light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
             dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
         };
-
         function initLoginTheme() {
             const stored = localStorage.getItem('ag-theme') || 'system';
             applyTheme(stored);
             updateLoginThemeIcon(stored);
-
             const btn = document.getElementById('loginThemeToggle');
             if (!btn) return;
             btn.addEventListener('click', () => {
@@ -404,21 +384,17 @@
                 applyTheme(next);
                 updateLoginThemeIcon(next);
             });
-
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
                 if (localStorage.getItem('ag-theme') === 'system') applyTheme('system');
             });
         }
-
         function updateLoginThemeIcon(mode) {
             const btn = document.getElementById('loginThemeToggle');
             if (!btn) return;
             btn.innerHTML = themeIcons[mode] || themeIcons.system;
             btn.title = `Tema: ${mode}`;
         }
-
         initLoginTheme();
-
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();

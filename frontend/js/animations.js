@@ -1,22 +1,14 @@
 (() => {
   'use strict';
-
   if (window.__agAnimationsInit) return;
   window.__agAnimationsInit = true;
-
-  /* ============================================================
-     PAGE TRANSITIONS (SPA-light via interception)
-     ============================================================ */
-
   function initPageTransitions() {
     document.addEventListener('click', (e) => {
       const link = e.target.closest('a[href]');
       if (!link) return;
-
       const href = link.getAttribute('href');
       if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto:')) return;
       if (link.target === '_blank') return;
-
       e.preventDefault();
       const page = document.querySelector('.ag-page');
       if (page) {
@@ -28,7 +20,6 @@
         window.location.href = href;
       }
     });
-
     const page = document.querySelector('.ag-page');
     if (page) {
       page.classList.add('ag-page-enter');
@@ -37,11 +28,6 @@
       }, { once: true });
     }
   }
-
-  /* ============================================================
-     BUTTON RIPPLE
-     ============================================================ */
-
   function initButtonRipple() {
     document.addEventListener('pointerdown', (e) => {
       const btn = e.target.closest('.ag-btn');
@@ -53,11 +39,6 @@
       btn.style.setProperty('--ripple-y', y + '%');
     });
   }
-
-  /* ============================================================
-     ROW FLASH (call after inserting/updating table rows)
-     ============================================================ */
-
   window.agFlashRow = function(row) {
     if (!row) return;
     row.classList.remove('flash');
@@ -67,11 +48,6 @@
       row.classList.remove('flash');
     }, { once: true });
   };
-
-  /* ============================================================
-     EMPTY STATE HELPER
-     ============================================================ */
-
   window.agEmptyState = function(container, icon, title, desc) {
     if (!container) return;
     container.innerHTML = `
@@ -83,11 +59,6 @@
         <p class="ag-empty-desc">${desc || 'No hay elementos para mostrar en este momento.'}</p>
       </div>`;
   };
-
-  /* ============================================================
-     SKELETON LOADER HELPER
-     ============================================================ */
-
   window.agSkeleton = function(container, type) {
     if (!container) return;
     if (type === 'cards') {
@@ -116,11 +87,6 @@
         </div>`;
     }
   };
-
-  /* ============================================================
-     INIT
-     ============================================================ */
-
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       initPageTransitions();
@@ -130,5 +96,4 @@
     initPageTransitions();
     initButtonRipple();
   }
-
 })();

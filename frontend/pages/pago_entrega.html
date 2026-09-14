@@ -6,8 +6,8 @@
     <title>AutoGestion - Pago y Entrega</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/styles.css">
-    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="../css/styles.css?v=20260913b">
+    <link rel="stylesheet" href="../css/animations.css?v=20260913b">
     <script>
         (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
     </script>
@@ -17,7 +17,6 @@
     <div class="ag-page">
         <div class="ag-page-header"><h1>Pago y Entrega</h1><p>Gestionar pagos y entregas de vehiculos finalizados</p></div>
         <div id="alertContainer"></div>
-
         <div class="ag-layout-main">
             <div class="ag-section">
                 <div class="ag-section-header">
@@ -30,7 +29,6 @@
                     <p class="ag-text-muted">Cargando...</p>
                 </div>
             </div>
-
             <div class="ag-layout-stack">
                 <div class="ag-section">
                     <div class="ag-section-header">
@@ -55,7 +53,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="ag-section">
                     <div class="ag-section-header">
                         <h3>
@@ -86,36 +83,33 @@
         </div>
     </div>
     <div id="themeToggleWrap"></div>
-    <script src="../js/api.js"></script>
-    <script src="../js/animations.js"></script>
+    <script src="../js/api.js?v=20260913b"></script>
+    <script src="../js/animations.js?v=20260913b"></script>
+    <script src="../js/confirm-modal.js?v=20260913b"></script>
     <script>
         document.getElementById('navbar').innerHTML = renderNavbar('pago_entrega');
         document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
         initTheme();
-
         async function loadOrdenesFinalizadas() {
             try {
-                const ordenes = await apiFetch('/ordenes-trabajo?estado=FINALIZADA');
+                const ordenes = await apiFetch('/ordenes-trabajo/finalizadas-completa');
                 const c = document.getElementById('ordenesContainer');
                 if (!ordenes.length) { c.innerHTML = '<p class="ag-text-muted ag-text-center">No hay ordenes finalizadas pendientes</p>'; return; }
                 let pp = 0, ep = 0, tc = 0;
-                const cards = await Promise.all(ordenes.map(async (ot) => {
-                    let monto = 0, pagoInfo = null;
-                    try { const m = await apiFetch(`/ordenes-trabajo/${ot.id}/monto`); monto = m.monto || 0; } catch (e) {}
-                    try { pagoInfo = await apiFetch(`/ordenes-trabajo/${ot.id}/pago`); } catch (e) {}
-                    const tienePago = pagoInfo && pagoInfo.fechaPago;
-                    const tieneEntrega = pagoInfo && pagoInfo.fechaEntrega;
+                const colorEstado = '#059669'; 
+                const cards = ordenes.map((ot) => {
+                    const monto = ot.monto || 0;
+                    const tienePago = ot.tienePago;
+                    const tieneEntrega = ot.tieneEntrega;
                     if (!tienePago) pp++; if (!tieneEntrega) ep++; if (!tienePago) tc += monto;
                     return `
-                        <div class="ag-card ag-ot-card status-finalizada" style="box-shadow:none; border:1px solid var(--ag-border); margin-bottom:0.75rem;">
-                            <div class="ag-card-body" style="padding:0.85rem 1rem;">
-                                <div class="ag-d-flex ag-justify-between ag-align-center">
-                                    <div class="ag-d-flex ag-align-center ag-gap-3">
-                                        <span class="ag-fw-700 ag-text-muted" style="font-family:var(--ag-font-heading);">#${ot.id}</span>
-                                        <span class="ag-text-muted ag-text-sm">Cot. #${ot.cotizacion?.id || '?'} | ${ot.mecanico?.nombre || '?'}</span>
-                                    </div>
-                                    <span class="ag-fw-700" style="color:var(--ag-text); font-family:var(--ag-font-heading);">${formatCurrency(monto)}</span>
-                                </div>
+                        <div class="ag-d-flex ag-justify-between ag-align-center" style="background:#26344a; border-left:4px solid ${colorEstado}; border-radius:6px; padding:0.85rem 1rem; margin-bottom:0.75rem; box-shadow:0 1px 3px rgba(0,0,0,0.3);">
+                            <div class="ag-d-flex ag-align-center ag-gap-3">
+                                <span class="ag-fw-700 ag-text-muted" style="font-family:var(--ag-font-heading);">#${ot.id}</span>
+                                <span class="ag-text-muted ag-text-sm">Cot. #${ot.cotizacionId || '?'} | ${ot.mecanicoNombre || '?'}</span>
+                            </div>
+                            <div class="ag-d-flex ag-align-center ag-gap-3">
+                                <span class="ag-fw-700" style="color:#f1f5f9; font-family:var(--ag-font-heading);">${formatCurrency(monto)}</span>
                                 <div class="ag-d-flex ag-gap-3 ag-mt-1">
                                     <span class="ag-badge ${tienePago ? 'ag-badge-success' : 'ag-badge-warning'}">${tienePago ? 'Pagado' : 'Pendiente Pago'}</span>
                                     <span class="ag-badge ${tieneEntrega ? 'ag-badge-success' : 'ag-badge-info'}">${tieneEntrega ? 'Entregado' : 'Pendiente Entrega'}</span>
@@ -126,17 +120,15 @@
                                 </div>
                             </div>
                         </div>`;
-                }));
+                });
                 c.innerHTML = cards.join('');
                 document.getElementById('pagosPendientes').textContent = pp;
                 document.getElementById('entregasPendientes').textContent = ep;
                 document.getElementById('totalACobrar').textContent = formatCurrency(tc);
             } catch (e) { document.getElementById('ordenesContainer').innerHTML = '<p class="ag-text-muted">Error al cargar</p>'; }
         }
-
-        async function registrarPago(otId, monto) { if (!confirm(`Registrar pago de ${formatCurrency(monto)} para OT #${otId}?`)) return; try { await apiFetch('/pagos', { method: 'POST', body: JSON.stringify({ ordenTrabajoId: otId, monto }) }); showSuccess('alertContainer', `Pago registrado para OT #${otId}`); loadOrdenesFinalizadas(); } catch (e) { showError('alertContainer', e.message); } }
-        async function registrarEntrega(otId) { if (!confirm(`Confirmar entrega del vehiculo para OT #${otId}?`)) return; try { await apiFetch(`/entregas/${otId}`, { method: 'POST' }); showSuccess('alertContainer', `Entrega registrada para OT #${otId}`); loadOrdenesFinalizadas(); } catch (e) { showError('alertContainer', e.message); } }
-
+        async function registrarPago(otId, monto) { if (!(await confirmarAccion(`Registrar pago de ${formatCurrency(monto)} para OT #${otId}?`, { tipo: 'primary' }))) return; try { await apiFetch('/pago-entrega/completa', { method: 'POST', body: JSON.stringify({ ordenTrabajoId: otId, monto }) }); showSuccess('alertContainer', `Pago registrado para OT #${otId}`); loadOrdenesFinalizadas(); } catch (e) { showError('alertContainer', e.message); } }
+        async function registrarEntrega(otId) { if (!(await confirmarAccion('Confirmar entrega del vehiculo para OT #${otId}?', { tipo: 'danger' }))) return; try { await apiFetch(`/entregas/${otId}`, { method: 'POST' }); showSuccess('alertContainer', `Entrega registrada para OT #${otId}`); loadOrdenesFinalizadas(); } catch (e) { showError('alertContainer', e.message); } }
         loadOrdenesFinalizadas();
     </script>
 </body>

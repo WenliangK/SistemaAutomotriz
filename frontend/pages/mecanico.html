@@ -19,7 +19,6 @@
             <h1>Panel del Mecánico</h1>
             <p>Ordenes asignadas y control de ejecución</p>
         </div>
-
         <div class="ag-grid ag-grid-4 ag-mb-3">
             <div class="ag-indicator">
                 <div class="ag-indicator-icon ic-blue">
@@ -58,7 +57,6 @@
                 </div>
             </div>
         </div>
-
         <div class="ag-layout-main">
             <div class="ag-layout-stack" style="flex:2;">
                 <div class="ag-section">
@@ -71,7 +69,6 @@
                     <div class="ag-section-body" id="misOrdenes" style="max-height:520px; overflow-y:auto;"><p class="ag-text-muted">Cargando...</p></div>
                 </div>
             </div>
-
             <div class="ag-layout-stack" style="flex:1;">
                 <div class="ag-section">
                     <div class="ag-section-header">
@@ -110,10 +107,8 @@
             document.getElementById('navbar').innerHTML = renderNavbar('mecanico');
         document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
         initTheme();
-
         const user = getUser();
         if (!user || user.rol !== 'MECANICO') window.location.href = '../index.html';
-
         async function loadPanel() {
             try {
                 const ordenes = await apiFetch(`/ordenes-trabajo/mecanico/${user.id}`);
@@ -125,7 +120,6 @@
                 document.getElementById('otProceso').textContent = proceso;
                 document.getElementById('otFinalizadas').textContent = finalizadas;
                 document.getElementById('otPendientes').textContent = pendientes;
-
                 const c = document.getElementById('misOrdenes');
                 if (!ordenes.length) { c.innerHTML = '<p class="ag-text-muted ag-text-center">No hay ordenes asignadas</p>'; return; }
                 c.innerHTML = ordenes.map(ot => `
@@ -135,7 +129,7 @@
                                 <div class="ag-d-flex ag-align-center ag-gap-3">
                                     <span class="ag-fw-700 ag-text-muted" style="font-family:var(--ag-font-heading);">#${ot.id}</span>
                                     ${estadoBadge(ot.estado)}
-                                    <span class="ag-text-muted ag-text-sm">Cot. #${ot.cotizacion?.id || '?'}</span>
+                                    <span class="ag-text-muted ag-text-sm">Cot. #${ot.cotizacionId || '?'}</span>
                                 </div>
                                 <span class="ag-text-muted ag-text-sm">${formatDate(ot.fechaCreacion)}</span>
                             </div>
@@ -148,17 +142,14 @@
                     </div>`).join('');
             } catch (e) { console.error(e); document.getElementById('misOrdenes').innerHTML = '<p class="ag-text-muted">Error al cargar</p>'; }
         }
-
         function getNext(a) { return {PENDIENTE:'EN_PROCESO', EN_PROCESO:'EN_PRUEBA', EN_PRUEBA:'FINALIZADA'}[a] || 'FINALIZADA'; }
         function getBtnText(a) { return {PENDIENTE:'Iniciar', EN_PROCESO:'Pasar a Prueba', EN_PRUEBA:'Finalizar'}[a] || 'Cambiar'; }
-
-        async function cambiarEstado(id, ne) {
+        window.cambiarEstado = async function(id, ne) {
             try {
                 await apiFetch(`/ordenes-trabajo/${id}/estado`, { method: 'PUT', body: JSON.stringify({ estado: ne }) });
                 loadPanel();
             } catch (e) { console.error(e); }
         }
-
         loadPanel();
         })();
     </script>

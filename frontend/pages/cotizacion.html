@@ -20,7 +20,6 @@
             <p>Registrar diagnostico y generar cotizacion para una recepcion</p>
         </div>
         <div id="alertContainer"></div>
-
         <div class="ag-layout-wide">
             <div class="ag-layout-stack">
                 <div class="ag-section">
@@ -48,7 +47,6 @@
                         </form>
                     </div>
                 </div>
-
                 <div class="ag-section">
                     <div class="ag-section-header">
                         <h3>
@@ -61,7 +59,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="ag-section">
                 <div class="ag-section-header">
                     <h3>
@@ -87,7 +84,6 @@
                         </div>
                         <div class="ag-section-title">Productos / Repuestos</div>
                         <div class="ag-form-group" id="productosSelector"></div>
-
                         <div class="ag-section-title" style="margin-top:1rem;">Items Seleccionados</div>
                         <div class="ag-table-wrap">
                             <table class="ag-table">
@@ -109,25 +105,23 @@
     <script src="../js/api.js"></script>
     <script src="../js/animations.js"></script>
     <script>
-        document.getElementById('navbar').innerHTML = renderNavbar('cotizacion');
+        (function() {
+            if (!checkAuth()) { window.location.href = '../index.html'; return; }
+            document.getElementById('navbar').innerHTML = renderNavbar('cotizacion');
         document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
         initTheme();
         let itemsSeleccionados = [];
-
         async function loadData() {
             try {
                 const recepciones = await apiFetch('/recepciones?estado=PENDIENTE');
                 const sel = document.getElementById('recepcionSelect');
-                recepciones.forEach(r => { const o = document.createElement('option'); o.value = r.id; o.textContent = `#${r.id} - ${r.vehiculo?.placa || '?'}`; sel.appendChild(o); });
-
+                recepciones.forEach(r => { const o = document.createElement('option'); o.value = r.id; o.textContent = `#${r.id} - ${r.vehiculoPlaca || '?'}`; sel.appendChild(o); });
                 const productos = await apiFetch('/productos');
                 document.getElementById('productosSelector').innerHTML = `<div class="ag-table-wrap"><table class="ag-table"><thead><tr><th>Producto</th><th style="width:70px;">Cant.</th><th style="width:100px;">Precio</th><th style="width:50px;"></th></tr></thead><tbody>${productos.map(p => `<tr><td>${p.nombre} <span class="ag-text-muted ag-text-sm">${p.tipo}</span></td><td><input type="number" class="ag-form-control" id="cant_${p.id}" value="1" min="1" style="padding:0.3rem 0.5rem; font-size:0.8rem;"></td><td><input type="number" class="ag-form-control" id="prec_${p.id}" value="${p.precioUnitario}" step="0.01" style="padding:0.3rem 0.5rem; font-size:0.8rem;"></td><td><button type="button" class="ag-btn ag-btn-outline ag-btn-sm" onclick="agregarProducto(${p.id},'${p.nombre.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></td></tr>`).join('')}</tbody></table></div>`;
-
                 loadCotizaciones();
-            } catch (e) { showError('alertContainer', 'Error: ' + e.message); }
+            } catch (e) { console.error('loadData error:', e); showError('alertContainer', 'Error al cargar datos: ' + e.message); }
         }
-
-        function agregarServicio() {
+        window.agregarServicio = function() {
             const n = document.getElementById('servicioNombre').value;
             const p = parseFloat(document.getElementById('servicioPrecio').value);
             if (!n || isNaN(p)) { showError('alertContainer', 'Ingrese nombre y precio'); return; }
@@ -136,17 +130,14 @@
             document.getElementById('servicioNombre').value = '';
             document.getElementById('servicioPrecio').value = '';
         }
-
-        function agregarProducto(id, nombre) {
+        window.agregarProducto = function(id, nombre) {
             const c = parseInt(document.getElementById(`cant_${id}`).value);
             const p = parseFloat(document.getElementById(`prec_${id}`).value);
             if (isNaN(c) || isNaN(p) || c < 1) { showError('alertContainer', 'Cantidad y precio validos requeridos'); return; }
             itemsSeleccionados.push({ tipo: 'PRODUCTO', descripcion: nombre, cantidad: c, precio: p, id });
             actualizarItems();
         }
-
-        function eliminarItem(i) { itemsSeleccionados.splice(i, 1); actualizarItems(); }
-
+        window.eliminarItem = function(i) { itemsSeleccionados.splice(i, 1); actualizarItems(); }
         function actualizarItems() {
             const tbody = document.getElementById('itemsSeleccionados');
             if (!itemsSeleccionados.length) { tbody.innerHTML = '<tr><td colspan="6" class="ag-text-center ag-text-muted">No hay items</td></tr>'; document.getElementById('totalDisplay').textContent = 'S/ 0.00'; return; }
@@ -157,31 +148,38 @@
             }).join('');
             document.getElementById('totalDisplay').textContent = formatCurrency(total);
         }
-
         document.getElementById('diagnosticoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
                 const d = await apiFetch('/diagnosticos', { method: 'POST', body: JSON.stringify({ recepcionId: parseInt(document.getElementById('recepcionSelect').value), mecanicoId: parseInt(document.getElementById('mecanicoSelect').value), descripcion: document.getElementById('diagnosticoDesc').value }) });
                 document.getElementById('diagnosticoId').value = d.id;
                 showSuccess('alertContainer', `Diagnostico #${d.id} registrado. Use este ID para la cotizacion.`);
+                const sel = document.getElementById('recepcionSelect');
+                sel.innerHTML = '<option value="">-- Seleccionar --</option>';
+                const recepciones = await apiFetch('/recepciones?estado=PENDIENTE');
+                recepciones.forEach(r => { const o = document.createElement('option'); o.value = r.id; o.textContent = `#${r.id} - ${r.vehiculo?.placa || '?'}`; sel.appendChild(o); });
             } catch (error) { showError('alertContainer', 'Error: ' + error.message); }
         });
-
         document.getElementById('cotizacionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!itemsSeleccionados.length) { showError('alertContainer', 'Agregue al menos un servicio o producto'); return; }
             try {
-                const servicios = itemsSeleccionados.filter(i => i.tipo === 'SERVICIO').map(i => ({ servicioId: i.id, precio: i.precio }));
+                const allServicios = await apiFetch('/servicios');
+                const servicioMap = Object.fromEntries(allServicios.map(s => [s.nombre, s.id]));
+                const servicios = itemsSeleccionados.filter(i => i.tipo === 'SERVICIO').map(i => {
+                    const sid = servicioMap[i.descripcion] || 1;
+                    return { servicioId: sid, precio: i.precio };
+                });
                 const productos = itemsSeleccionados.filter(i => i.tipo === 'PRODUCTO').map(i => ({ productoId: i.id, cantidadEstimada: i.cantidad, precioUnitario: i.precio }));
-                const c = await apiFetch('/cotizaciones', { method: 'POST', body: JSON.stringify({ diagnosticoId: parseInt(document.getElementById('diagnosticoId').value), servicios, productos }) });
+                const c = await apiFetch('/cotizaciones/completa', { method: 'POST', body: JSON.stringify({ diagnosticoId: parseInt(document.getElementById('diagnosticoId').value), servicios, productos }) });
                 showSuccess('alertContainer', `Cotizacion #${c.id} creada con total ${formatCurrency(c.total)}`);
                 itemsSeleccionados = []; actualizarItems(); loadCotizaciones();
             } catch (error) { showError('alertContainer', 'Error: ' + error.message); }
         });
-
         async function loadCotizaciones() {
             try {
                 const cotizaciones = await apiFetch('/cotizaciones');
+                console.log('loadCotizaciones response:', cotizaciones);
                 const c = document.getElementById('cotizacionesContainer');
                 if (!cotizaciones.length) { c.innerHTML = '<p class="ag-text-muted ag-text-center">No hay cotizaciones</p>'; return; }
                 c.innerHTML = cotizaciones.map(ct => `
@@ -201,13 +199,12 @@
                                 </button>` : ''}
                         </div>
                     </div>`).join('');
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error(e); showError('alertContainer', 'Error al cargar cotizaciones: ' + e.message); }
         }
-
-        async function aprobarCotizacion(id) { try { await apiFetch(`/cotizaciones/${id}/aprobar`, { method: 'PUT' }); showSuccess('alertContainer', 'Cotizacion aprobada'); loadCotizaciones(); } catch (e) { showError('alertContainer', e.message); } }
-        async function rechazarCotizacion(id) { try { await apiFetch(`/cotizaciones/${id}/rechazar`, { method: 'PUT' }); showSuccess('alertContainer', 'Cotizacion rechazada'); loadCotizaciones(); } catch (e) { showError('alertContainer', e.message); } }
-
+        window.aprobarCotizacion = async function(id) { try { await apiFetch(`/cotizaciones/${id}/aprobar`, { method: 'PUT' }); showSuccess('alertContainer', 'Cotizacion aprobada'); loadCotizaciones(); } catch (e) { showError('alertContainer', e.message); } };
+        window.rechazarCotizacion = async function(id) { try { await apiFetch(`/cotizaciones/${id}/rechazar`, { method: 'PUT' }); showSuccess('alertContainer', 'Cotizacion rechazada'); loadCotizaciones(); } catch (e) { showError('alertContainer', e.message); } };
         loadData();
+        })();
     </script>
 </body>
 </html>

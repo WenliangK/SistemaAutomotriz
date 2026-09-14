@@ -17,7 +17,6 @@
     <div class="ag-page">
         <div class="ag-page-header"><h1>Gestion de Inventario</h1><p>Control de repuestos e insumos del taller</p></div>
         <div id="alertContainer"></div>
-
         <div class="ag-layout-sidebar">
             <div class="ag-section">
                 <div class="ag-section-header">
@@ -39,7 +38,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="ag-layout-stack">
                 <div class="ag-section">
                     <div class="ag-section-header">
@@ -58,7 +56,6 @@
                         </form>
                     </div>
                 </div>
-
                 <div class="ag-section">
                     <div class="ag-section-header">
                         <h3 style="color:var(--ag-signal-stop);">
@@ -73,7 +70,6 @@
             </div>
         </div>
     </div>
-
     <div class="ag-modal-overlay" id="modalNuevoProducto">
         <div class="ag-card ag-modal">
             <div class="ag-card-header"><h3>Nuevo Producto</h3><button class="ag-btn ag-btn-outline ag-btn-sm" onclick="cerrarModal('modalNuevoProducto')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -103,7 +99,6 @@
         initTheme();
         function abrirModal(id) { document.getElementById(id).classList.add('show'); }
         function cerrarModal(id) { document.getElementById(id).classList.remove('show'); }
-
         async function loadProductos() {
             try {
                 const productos = await apiFetch('/productos');
@@ -124,7 +119,6 @@
                 loadAlertas();
             } catch (e) { showError('alertContainer', 'Error: ' + e.message); }
         }
-
         async function loadAlertas() {
             try {
                 const alertas = await apiFetch('/inventario/alertas');
@@ -133,14 +127,12 @@
                 c.innerHTML = alertas.map(a => `<div class="ag-alert ag-alert-danger" style="margin-bottom:0.5rem;"><div><strong>${a.nombre}</strong><div class="ag-text-sm">Actual: ${a.stockActual} | Minimo: ${a.stockMinimo} | Faltante: ${a.stockMinimo - a.stockActual}</div></div></div>`).join('');
             } catch (e) { document.getElementById('alertasContainer').innerHTML = '<p class="ag-text-muted">Sin alertas</p>'; }
         }
-
         async function crearProducto() {
             try {
                 await apiFetch('/productos', { method: 'POST', body: JSON.stringify({ nombre: document.getElementById('productoNombre').value, tipo: document.getElementById('productoTipo').value, precioUnitario: parseFloat(document.getElementById('productoPrecio').value), stockActual: parseInt(document.getElementById('productoStock').value), stockMinimo: parseInt(document.getElementById('productoStockMin').value) }) });
                 cerrarModal('modalNuevoProducto'); showSuccess('alertContainer', 'Producto creado'); loadProductos();
             } catch (e) { showError('alertContainer', e.message); }
         }
-
         function editarStock(id, nombre, actual) {
             const nv = prompt(`Stock actual de "${nombre}": ${actual}\n\nIngrese nuevo stock:`);
             if (nv === null) return;
@@ -148,7 +140,6 @@
             if (diff === 0) return;
             registrarMovimiento(id, diff >= 0 ? 'ENTRADA' : 'AJUSTE', Math.abs(diff), 'Ajuste manual');
         }
-
         document.getElementById('movimientoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
@@ -156,11 +147,9 @@
                 showSuccess('alertContainer', 'Movimiento registrado'); document.getElementById('movimientoForm').reset(); loadProductos();
             } catch (e) { showError('alertContainer', e.message); }
         });
-
         async function registrarMovimiento(pid, tipo, cant, motivo) {
             try { await apiFetch('/inventario/movimientos', { method: 'POST', body: JSON.stringify({ productoId: pid, tipo, cantidad: cant, motivo }) }); showSuccess('alertContainer', 'Stock actualizado'); loadProductos(); } catch (e) { showError('alertContainer', e.message); }
         }
-
         loadProductos();
     </script>
 </body>

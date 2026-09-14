@@ -19,7 +19,6 @@
             <h1>Dashboard</h1>
             <p>Resumen operativo del taller mecanico</p>
         </div>
-
         <div class="ag-grid ag-grid-4 ag-mb-3">
             <div class="ag-indicator">
                 <div class="ag-indicator-icon ic-blue">
@@ -58,7 +57,6 @@
                 </div>
             </div>
         </div>
-
         <div class="ag-layout-main">
             <div class="ag-layout-stack">
                 <div class="ag-section">
@@ -72,7 +70,6 @@
                         <p class="ag-text-muted ag-text-center">Cargando...</p>
                     </div>
                 </div>
-
                 <div class="ag-section">
                     <div class="ag-section-header">
                         <h3>
@@ -104,7 +101,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="ag-layout-stack">
                 <div class="ag-section">
                     <div class="ag-section-header">
@@ -148,7 +144,6 @@
                         <p class="ag-text-sm ag-text-muted">Recepcion &rarr; Diagnostico &rarr; Cotizacion &rarr; Aprobacion &rarr; Orden de Trabajo &rarr; Ejecucion &rarr; Pago &rarr; Entrega</p>
                     </div>
                 </div>
-
                 <div class="ag-section">
                     <div class="ag-section-header">
                         <h3>
@@ -186,7 +181,6 @@
             document.getElementById('navbar').innerHTML = renderNavbar('dashboard');
         document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
         initTheme();
-
         async function loadDashboard() {
             try {
                 const ind = await apiFetch('/reportes/indicadores');
@@ -195,7 +189,6 @@
                 document.getElementById('ingresosMes').textContent = formatCurrency(ind.ingresosMes || 0);
                 document.getElementById('productosBajoStock').textContent = ind.productosBajoStock || 0;
             } catch (e) { console.error(e); }
-
             try {
                 const alertas = await apiFetch('/inventario/alertas');
                 const c = document.getElementById('alertasContainer');
