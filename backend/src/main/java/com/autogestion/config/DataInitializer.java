@@ -24,23 +24,15 @@ public class DataInitializer implements CommandLineRunner {
 
         @Override
         public void run(String... args) {
-                if (usuarioRepository.count() > 0) {
-                        log.info("Base de datos ya tiene datos, omitiendo seed...");
-                        return;
-                }
-
-                log.info("Insertando datos semilla...");
-
                 String hash = passwordEncoder.encode("admin123");
+                if (usuarioRepository.count() == 0) {
+                        log.info("Insertando datos semilla...");
                 Usuario admin = usuarioRepository.save(Usuario.builder()
                                 .nombre("Admin Taller").email("admin@sanmartin.pe")
                                 .passwordHash(hash).rol("ADMIN").activo(true).build());
                 Usuario mecanico = usuarioRepository.save(Usuario.builder()
                                 .nombre("Mecánico Uno").email("mecanico1@sanmartin.pe")
                                 .passwordHash(hash).rol("MECANICO").activo(true).build());
-                usuarioRepository.save(Usuario.builder()
-                                .nombre("Recepcionista").email("recepcionista@sanmartin.pe")
-                                .passwordHash(hash).rol("RECEPCIONISTA").activo(true).build());
                 usuarioRepository.save(Usuario.builder()
                                 .nombre("Almacenero").email("almacen@sanmartin.pe")
                                 .passwordHash(hash).rol("ALMACENERO").activo(true).build());
@@ -111,5 +103,12 @@ public class DataInitializer implements CommandLineRunner {
                 log.info("   Usuarios: 3 (admin@sanmartin.pe / admin123)");
                 log.info("   Clientes: 3 | Vehículos: 3");
                 log.info("   Servicios: 8 | Productos: 12");
+                }
+                if (usuarioRepository.findByEmail("recepcionista@sanmartin.pe").isEmpty()) {
+                    usuarioRepository.save(Usuario.builder()
+                                    .nombre("Recepcionista").email("recepcionista@sanmartin.pe")
+                                    .passwordHash(hash).rol("RECEPCIONISTA").activo(true).build());
+                    log.info("Recepcionista insertado (base existente o nueva).");
+                }
         }
 }

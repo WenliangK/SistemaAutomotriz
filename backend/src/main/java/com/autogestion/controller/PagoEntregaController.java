@@ -1,13 +1,19 @@
 package com.autogestion.controller;
 
+import com.autogestion.dto.OrdenTrabajoFinalizadaDTO;
+import com.autogestion.dto.PagoEntregaCompletaRequest;
+import com.autogestion.dto.PagoEntregaResponseDTO;
 import com.autogestion.dto.PagoRequest;
-import com.autogestion.entity.PagoEntrega;
+import com.autogestion.service.OrdenTrabajoService;
 import com.autogestion.service.PagoEntregaService;
+import jakarta.annotation.security.PermitAll;
+import org.springframework.security.access.prepost.PreAuthorize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,6 +23,7 @@ import java.util.Optional;
 public class PagoEntregaController {
 
     private final PagoEntregaService pagoEntregaService;
+    private final OrdenTrabajoService ordenTrabajoService;
 
     @GetMapping("/ordenes-trabajo/{id}/monto")
     public ResponseEntity<Map<String, BigDecimal>> obtenerMonto(@PathVariable Long id) {
@@ -25,19 +32,33 @@ public class PagoEntregaController {
     }
 
     @PostMapping("/pagos")
-    public ResponseEntity<PagoEntrega> registrarPago(@RequestBody PagoRequest request) {
+    public ResponseEntity<PagoEntregaResponseDTO> registrarPago(@RequestBody PagoRequest request) {
         return ResponseEntity.ok(pagoEntregaService.registrarPago(request));
     }
 
     @PostMapping("/entregas/{ordenTrabajoId}")
-    public ResponseEntity<PagoEntrega> registrarEntrega(@PathVariable Long ordenTrabajoId) {
+    public ResponseEntity<PagoEntregaResponseDTO> registrarEntrega(@PathVariable Long ordenTrabajoId) {
         return ResponseEntity.ok(pagoEntregaService.registrarEntrega(ordenTrabajoId));
     }
 
     @GetMapping("/ordenes-trabajo/{id}/pago")
     public ResponseEntity<?> obtenerPago(@PathVariable Long id) {
-        Optional<PagoEntrega> pago = pagoEntregaService.obtenerPorOT(id);
+        Optional<PagoEntregaResponseDTO> pago = pagoEntregaService.obtenerPorOT(id);
         return pago.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    
+    @PermitAll
+    @GetMapping("/ordenes-trabajo/finalizadas-completa")
+    public ResponseEntity<List<OrdenTrabajoFinalizadaDTO>> listarFinalizadasCompleta() {
+        return ResponseEntity.ok(ordenTrabajoService.listarFinalizadasConPago());
+    }
+
+    
+    @PreAuthorize("permitAll()")
+    @PostMapping("/pago-entrega/completa")
+    public ResponseEntity<PagoEntregaResponseDTO> registrarPagoEntregaCompleta(@RequestBody PagoEntregaCompletaRequest request) {
+        return ResponseEntity.ok(ordenTrabajoService.registrarPagoEntregaCompleto(request));
     }
 }

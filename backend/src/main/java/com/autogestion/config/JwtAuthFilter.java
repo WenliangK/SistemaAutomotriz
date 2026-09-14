@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Value("${app.jwt.secret}")
@@ -33,7 +35,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Skip CORS preflight requests — they are already handled by CorsFilter
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
@@ -63,9 +64,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
+                log.info("JWT OK -> userId={} rol={} authorities={}", userId, rol, authorities);
             } catch (Exception e) {
+                log.error("JWT FALLO en {} {}: {} - {}", request.getMethod(), request.getRequestURI(),
+                        e.getClass().getSimpleName(), e.getMessage());
                 SecurityContextHolder.clearContext();
             }
+        } else {
+            log.warn("Sin header Authorization valido en {} {} (header={})", request.getMethod(), request.getRequestURI(), header);
         }
 
         filterChain.doFilter(request, response);

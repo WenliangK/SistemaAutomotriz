@@ -1,5 +1,6 @@
 package com.autogestion.service;
 
+import com.autogestion.dto.PagoEntregaResponseDTO;
 import com.autogestion.dto.PagoRequest;
 import com.autogestion.entity.OrdenTrabajo;
 import com.autogestion.entity.PagoEntrega;
@@ -21,7 +22,7 @@ public class PagoEntregaService {
     private final OrdenTrabajoRepository ordenTrabajoRepository;
 
     @Transactional
-    public PagoEntrega registrarPago(PagoRequest request) {
+    public PagoEntregaResponseDTO registrarPago(PagoRequest request) {
         OrdenTrabajo ot = ordenTrabajoRepository.findById(request.getOrdenTrabajoId())
                 .orElseThrow(() -> new RuntimeException("Orden de trabajo no encontrada"));
 
@@ -35,11 +36,12 @@ public class PagoEntregaService {
                 .monto(BigDecimal.valueOf(request.getMonto()))
                 .fechaPago(LocalDateTime.now())
                 .build();
-        return pagoEntregaRepository.save(pago);
+        pago = pagoEntregaRepository.save(pago);
+        return toResponseDTO(pago);
     }
 
     @Transactional
-    public PagoEntrega registrarEntrega(Long ordenTrabajoId) {
+    public PagoEntregaResponseDTO registrarEntrega(Long ordenTrabajoId) {
         OrdenTrabajo ot = ordenTrabajoRepository.findById(ordenTrabajoId)
                 .orElseThrow(() -> new RuntimeException("Orden de trabajo no encontrada"));
 
@@ -52,20 +54,33 @@ public class PagoEntregaService {
 
         pago.setFechaEntrega(LocalDateTime.now());
 
-        
         var recepcion = ot.getCotizacion().getDiagnostico().getRecepcion();
         recepcion.setEstado("ENTREGADA");
 
-        return pagoEntregaRepository.save(pago);
+        pago = pagoEntregaRepository.save(pago);
+        return toResponseDTO(pago);
     }
 
+    @Transactional(readOnly = true)
     public BigDecimal obtenerMonto(Long ordenTrabajoId) {
         OrdenTrabajo ot = ordenTrabajoRepository.findById(ordenTrabajoId)
                 .orElseThrow(() -> new RuntimeException("Orden de trabajo no encontrada"));
         return ot.getCotizacion().getTotal();
     }
 
-    public Optional<PagoEntrega> obtenerPorOT(Long ordenTrabajoId) {
-        return pagoEntregaRepository.findByOrdenTrabajoId(ordenTrabajoId);
+    @Transactional(readOnly = true)
+    public Optional<PagoEntregaResponseDTO> obtenerPorOT(Long ordenTrabajoId) {
+        return pagoEntregaRepository.findByOrdenTrabajoId(ordenTrabajoId)
+                .map(this::toResponseDTO);
+    }
+
+    public PagoEntregaResponseDTO toResponseDTO(PagoEntrega pago) {
+        return PagoEntregaResponseDTO.builder()
+                .id(pago.getId())
+                .ordenTrabajoId(pago.getOrdenTrabajo().getId())
+                .monto(pago.getMonto())
+                .fechaPago(pago.getFechaPago())
+                .fechaEntrega(pago.getFechaEntrega())
+                .build();
     }
 }

@@ -1,6 +1,7 @@
 package com.autogestion.service;
 
 import com.autogestion.dto.DiagnosticoRequest;
+import com.autogestion.dto.DiagnosticoResponseDTO;
 import com.autogestion.entity.Diagnostico;
 import com.autogestion.entity.Recepcion;
 import com.autogestion.entity.Usuario;
@@ -23,7 +24,7 @@ public class DiagnosticoService {
     private final UsuarioRepository usuarioRepository;
 
     @Transactional
-    public Diagnostico crear(DiagnosticoRequest request) {
+    public DiagnosticoResponseDTO crear(DiagnosticoRequest request) {
         Recepcion recepcion = recepcionRepository.findById(request.getRecepcionId())
                 .orElseThrow(() -> new RuntimeException("Recepción no encontrada"));
 
@@ -40,10 +41,31 @@ public class DiagnosticoService {
                 .descripcion(request.getDescripcion())
                 .fecha(LocalDateTime.now())
                 .build();
-        return diagnosticoRepository.save(diagnostico);
+        Diagnostico saved = diagnosticoRepository.save(diagnostico);
+
+        
+        return DiagnosticoResponseDTO.builder()
+                .id(saved.getId())
+                .descripcion(saved.getDescripcion())
+                .fecha(saved.getFecha())
+                .recepcionId(saved.getRecepcion().getId())
+                .mecanicoId(saved.getMecanico().getId())
+                .mecanicoNombre(saved.getMecanico().getNombre())
+                .build();
     }
 
-    public List<Diagnostico> listarPorRecepcion(Long recepcionId) {
-        return diagnosticoRepository.findByRecepcionId(recepcionId);
+    @Transactional(readOnly = true)
+    public List<DiagnosticoResponseDTO> listarPorRecepcion(Long recepcionId) {
+        return diagnosticoRepository.findByRecepcionId(recepcionId)
+                .stream()
+                .map(d -> DiagnosticoResponseDTO.builder()
+                        .id(d.getId())
+                        .descripcion(d.getDescripcion())
+                        .fecha(d.getFecha())
+                        .recepcionId(d.getRecepcion().getId())
+                        .mecanicoId(d.getMecanico().getId())
+                        .mecanicoNombre(d.getMecanico().getNombre())
+                        .build())
+                .toList();
     }
 }

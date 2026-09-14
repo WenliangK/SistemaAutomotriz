@@ -1,9 +1,10 @@
 package com.autogestion.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class RecepcionRequest {
-    private Long vehiculoId;
-    private String problemaReportado;
+    @NotNull private Long vehiculoId;
+    @NotNull private String problemaReportado;
 }

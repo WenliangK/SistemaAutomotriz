@@ -1,10 +1,11 @@
 package com.autogestion.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class DiagnosticoRequest {
-    private Long recepcionId;
-    private Long mecanicoId;
-    private String descripcion;
+    @NotNull private Long recepcionId;
+    @NotNull private Long mecanicoId;
+    @NotNull private String descripcion;
 }

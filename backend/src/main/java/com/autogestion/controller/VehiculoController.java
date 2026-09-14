@@ -1,7 +1,7 @@
 package com.autogestion.controller;
 
 import com.autogestion.dto.VehiculoRequest;
-import com.autogestion.entity.Vehiculo;
+import com.autogestion.dto.VehiculoResponseDTO;
 import com.autogestion.service.VehiculoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +17,17 @@ public class VehiculoController {
     private final VehiculoService vehiculoService;
 
     @PostMapping
-    public ResponseEntity<Vehiculo> crear(@RequestBody VehiculoRequest request) {
+    public ResponseEntity<VehiculoResponseDTO> crear(@RequestBody VehiculoRequest request) {
         return ResponseEntity.ok(vehiculoService.crear(request));
     }
 
     @GetMapping
-    public ResponseEntity<List<Vehiculo>> listar() {
+    public ResponseEntity<List<VehiculoResponseDTO>> listar() {
         return ResponseEntity.ok(vehiculoService.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Vehiculo> obtener(@PathVariable Long id) {
+    public ResponseEntity<VehiculoResponseDTO> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(vehiculoService.obtenerPorId(id));
     }
 }

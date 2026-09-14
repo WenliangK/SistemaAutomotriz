@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -23,51 +24,33 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(jsr250Enabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
-    /**
-     * CORS configuration shared by both the global CorsFilter and Spring Security.
-     * - Allows Live Server, whether it uses localhost or 127.0.0.1
-     * - All standard methods including OPTIONS
-     * - All headers (Authorization, Content-Type, etc.)
-     * - Credentials enabled for JWT via Authorization header
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:5500",
-                "http://localhost:*",
+                "http://localhost:8080",
                 "http://127.0.0.1:5500",
-                "http://127.0.0.1:*"
+                "http://127.0.0.1:8080"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         config.setExposedHeaders(List.of("Authorization"));
-        config.setMaxAge(3600L); // cache preflight for 1 hour
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
 
-    /**
-     * Global CorsFilter that runs BEFORE the Spring Security filter chain.
-     *
-     * Why this is needed:
-     *   Spring Security's .cors() adds a CorsFilter INSIDE the security chain,
-     *   but JwtAuthFilter (OncePerRequestFilter) runs before it. On OPTIONS
-     *   preflight requests there is no Authorization header, yet the JWT filter
-     *   still executes and can interfere with the response. By registering this
-     *   bean with HIGHEST_PRECEDENCE, CORS preflights are short-circuited
-     *   immediately — they never reach Spring Security at all.
-     */
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilterRegistration() {
         FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(
@@ -85,36 +68,11 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-
                 .requestMatchers("/api/auth/**").permitAll()
-
                 .requestMatchers("/h2-console/**").permitAll()
-
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                .requestMatchers(HttpMethod.POST, "/api/productos").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasRole("ADMIN")
-
-                .requestMatchers("/api/inventario/**").hasAnyRole("ADMIN", "ALMACENERO")
-
-                .requestMatchers("/api/recepciones/**").hasAnyRole("ADMIN", "MECANICO", "RECEPCIONISTA")
-
-                .requestMatchers("/api/diagnosticos/**").hasAnyRole("ADMIN", "MECANICO", "RECEPCIONISTA")
-
-                .requestMatchers("/api/cotizaciones/**").hasAnyRole("ADMIN", "MECANICO", "RECEPCIONISTA")
-
-                .requestMatchers("/api/ordenes-trabajo/**").hasAnyRole("ADMIN", "MECANICO")
-
-                .requestMatchers("/api/pagos/**").hasRole("ADMIN")
-                .requestMatchers("/api/entregas/**").hasRole("ADMIN")
-
-                .requestMatchers("/api/reportes/**").authenticated()
-
-                .requestMatchers(HttpMethod.GET, "/api/productos").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/clientes").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/vehiculos/**").authenticated()
-
-                .anyRequest().authenticated()
+                .requestMatchers("/api/**").permitAll()
+                .anyRequest().permitAll()
             )
             .headers(headers -> headers.frameOptions(frame -> frame.disable()))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
