@@ -2,108 +2,111 @@
 
 ## [1.0.0] - 2026-09-14
 
-### Fixed Bugs
+### Corrección de errores
 
 #### Backend
 
-**LazyInitializationException (500 Internal Server Error)**
-- **Problem**: Entities with `@ManyToOne(fetch = FetchType.LAZY)` relationships caused `LazyInitializationException` when serializing to JSON outside of transaction scope
-- **Solution**: Created DTOs for all entities and modified services to return DTOs instead of entities directly. Added `@Transactional(readOnly = true)` to read methods and mapped entities to DTOs inside transaction boundaries
-- **Files Modified**:
-  - `DiagnosticoResponseDTO.java` (new)
-  - `VehiculoResponseDTO.java` (new)
-  - `RecepcionResponseDTO.java` (new)
-  - `OrdenTrabajoResponseDTO.java` (new)
-  - `OtProductoUsadoResponseDTO.java` (new)
-  - `PagoEntregaResponseDTO.java` (new)
-  - `CotizacionResponseDTO.java` (updated)
-  - `VehiculoResponseDTO.java` (new)
-  - `DiagnosticoService.java` - Added `@Transactional` to all public methods, returns DTOs
-  - `CotizacionService.java` - Added `@Transactional(readOnly = true)` to read methods, returns DTOs
-  - `VehiculoService.java` - Added `@Transactional` to all methods, returns DTOs
-  - `RecepcionService.java` - Added `@Transactional` to all methods, returns DTOs
-  - `PagoEntregaService.java` - Added `@Transactional(readOnly = true)` to read methods, returns DTOs
-  - `OrdenTrabajoService.java` - Added `@Transactional(readOnly = true)` to read methods, returns DTOs
-  - All controllers updated to return DTOs instead of entities
+**LazyInitializationException (Error 500)**
+- **Problema:** Las entidades con relaciones `@ManyToOne(fetch = FetchType.LAZY)` provocaban `LazyInitializationException` al serializar la respuesta a JSON fuera del alcance de una transacción.
+- **Solución:** Se crearon DTOs para las entidades y se modificaron los servicios para devolver DTOs en lugar de entidades directamente. También se agregó `@Transactional(readOnly = true)` a los métodos de lectura y se realizó el mapeo de las entidades a DTOs dentro de los límites transaccionales.
+- **Archivos modificados:**
+  - `DiagnosticoResponseDTO.java` (nuevo)
+  - `VehiculoResponseDTO.java` (nuevo)
+  - `RecepcionResponseDTO.java` (nuevo)
+  - `OrdenTrabajoResponseDTO.java` (nuevo)
+  - `OtProductoUsadoResponseDTO.java` (nuevo)
+  - `PagoEntregaResponseDTO.java` (nuevo)
+  - `CotizacionResponseDTO.java` (actualizado)
+  - `DiagnosticoService.java` - Se agregó `@Transactional` a los métodos públicos y ahora devuelve DTOs.
+  - `CotizacionService.java` - Se agregó `@Transactional(readOnly = true)` a los métodos de lectura y ahora devuelve DTOs.
+  - `VehiculoService.java` - Se agregó `@Transactional` a los métodos y ahora devuelve DTOs.
+  - `RecepcionService.java` - Se agregó `@Transactional` a los métodos y ahora devuelve DTOs.
+  - `PagoEntregaService.java` - Se agregó `@Transactional(readOnly = true)` a los métodos de lectura y ahora devuelve DTOs.
+  - `OrdenTrabajoService.java` - Se agregó `@Transactional(readOnly = true)` a los métodos de lectura y ahora devuelve DTOs.
+  - Todos los controladores fueron actualizados para devolver DTOs en lugar de entidades.
 
-**Duplicate Payment Constraint Violation (400)**
-- **Problem**: Creating duplicate payment for same OT caused 500 error due to unique constraint violation
-- **Solution**: Modified `registrarPagoInterno()` in `OrdenTrabajoService` to check for existing payment and throw clear error message if payment already exists
-- **Files Modified**: `OrdenTrabajoService.java`
+**Violación de restricción por pago duplicado (400)**
+- **Problema:** Registrar un pago duplicado para la misma OT provocaba un error 500 debido a la violación de una restricción única.
+- **Solución:** Se modificó `registrarPagoInterno()` en `OrdenTrabajoService` para comprobar si ya existe un pago y mostrar un mensaje de error claro cuando se intenta registrar uno duplicado.
+- **Archivo modificado:** `OrdenTrabajoService.java`
 
-**Cotización State Management**
-- **Problem**: Cotizaciones remained in `APROBADA` state after creating OT, allowing duplicate OT creation
-- **Solution**: Added state transition to `CONVERTIDA` after OT creation in both `crear()` and `crearCompleta()` methods
-- **Database Migration**: Added `CONVERTIDA` to `cotizacion_estado_check` constraint
-- **Files Modified**: `OrdenTrabajoService.java`, database migration
+**Gestión del estado de las cotizaciones**
+- **Problema:** Las cotizaciones permanecían en estado `APROBADA` después de crear una OT, permitiendo crear múltiples OT a partir de la misma cotización.
+- **Solución:** Se agregó la transición de estado a `CONVERTIDA` después de crear la OT, tanto en `crear()` como en `crearCompleta()`.
+- **Migración de base de datos:** Se agregó `CONVERTIDA` a la restricción `cotizacion_estado_check`.
+- **Archivos modificados:** `OrdenTrabajoService.java` y migración de base de datos.
 
-**CotizaciónRepository Query Optimization**
-- **Problem**: `findAll()` caused `LazyInitializationException` due to nested LAZY relationships
-- **Solution**: Added `LEFT JOIN FETCH` queries for `diagnostico`, `recepcion`, `vehiculo`, `cliente`, `mecanico` relationships
-- **Files Modified**: `CotizacionRepository.java`, `VehiculoRepository.java`, `DiagnosticoRepository.java`
+**Optimización de consultas en `CotizacionRepository`**
+- **Problema:** `findAll()` provocaba `LazyInitializationException` debido a relaciones `LAZY` anidadas.
+- **Solución:** Se agregaron consultas con `LEFT JOIN FETCH` para las relaciones `diagnostico`, `recepcion`, `vehiculo`, `cliente` y `mecanico`.
+- **Archivos modificados:** `CotizacionRepository.java`, `VehiculoRepository.java`, `DiagnosticoRepository.java`
 
 **PagoEntregaRepository**
-- Added `LEFT JOIN FETCH` for `ordenTrabajo` relationship
+- Se agregó `LEFT JOIN FETCH` para la relación `ordenTrabajo`.
 
-**PagoEntregaService** - Added `@Transactional(readOnly = true)` to `obtenerMonto()`
+**PagoEntregaService**
+- Se agregó `@Transactional(readOnly = true)` al método `obtenerMonto()`.
 
 **GlobalExceptionHandler**
-- Added `RuntimeException` handler with fallback message "Error inesperado, contacte soporte"
+- Se agregó un manejador para `RuntimeException` con el mensaje de respaldo: `"Error inesperado, contacte soporte"`.
 
 **OrdenTrabajoService**
-- Added `OtProductoUsadoResponseDTO` mapping
-- Added `@Transactional(readOnly = true)` to `listarFinalizadasConPago()`
-- Made `toResponseDTO()` public for cross-service usage
+- Se agregó el mapeo mediante `OtProductoUsadoResponseDTO`.
+- Se agregó `@Transactional(readOnly = true)` a `listarFinalizadasConPago()`.
+- Se hizo público `toResponseDTO()` para permitir su uso desde otros servicios.
 
 #### Frontend
 
 **Cache Busting**
-- Added `?v=20260913b` query parameter to all CSS/JS references in HTML files
+- Se agregó el parámetro `?v=20260913b` a las referencias de CSS y JS en los archivos HTML.
 
-**LazyInitializationException in Frontend**
-- Fixed field mapping in `pago_entrega.html` and `mecanico.html` to use flat DTO fields instead of nested objects
+**LazyInitializationException en el frontend**
+- Se corrigió el mapeo de campos en `pago_entrega.html` y `mecanico.html` para utilizar los campos planos de los DTOs en lugar de objetos anidados.
 
-**Race Condition in `loadOrdenes()`**
-- Added sequence guard (`loadOrdenesSeq`) to prevent race conditions
-- Removed inline `onchange="loadOrdenes()"` from select element, replaced with `addEventListener`
-- Added sequence guard in catch block
+**Race Condition en `loadOrdenes()`**
+- Se agregó un control de secuencia mediante `loadOrdenesSeq` para evitar condiciones de carrera.
+- Se eliminó `onchange="loadOrdenes()"` del elemento `select` y se reemplazó por `addEventListener`.
+- Se agregó el control de secuencia también en el bloque `catch`.
 
-**IIFE Scope Issue (ReferenceError)**
-- **Problem**: Functions defined inside IIFE were not accessible to inline `onclick` handlers
-- **Solution**: Exposed functions to `window` object (`window.aprobarCotizacion`, `window.rechazarCotizacion`, `window.agregarServicio`, `window.agregarProducto`, `window.eliminarItem`)
+**Problema de alcance con IIFE (ReferenceError)**
+- **Problema:** Las funciones definidas dentro de una IIFE no eran accesibles desde los manejadores `onclick` escritos directamente en HTML.
+- **Solución:** Se expusieron las funciones necesarias mediante el objeto `window`:
+  - `window.aprobarCotizacion`
+  - `window.rechazarCotizacion`
+  - `window.agregarServicio`
+  - `window.agregarProducto`
+  - `window.eliminarItem`
 
-**Custom Confirm Modal**
-- Created `frontend/js/confirm-modal.js` with reusable `confirmarAccion(mensaje, opciones)` function
-- Returns `Promise<boolean>` for async/await usage
-- Replaced all native `confirm()` calls in `orden_trabajo.html` and `pago_entrega.html`
-- Reused existing `.ag-modal-overlay` / `.ag-modal` CSS styles
+**Modal de confirmación personalizado**
+- Se creó `frontend/js/confirm-modal.js` con la función reutilizable `confirmarAccion(mensaje, opciones)`.
+- La función devuelve `Promise<boolean>` para permitir su uso con `async/await`.
+- Se reemplazaron todas las llamadas a `confirm()` nativo en `orden_trabajo.html` y `pago_entrega.html`.
+- Se reutilizaron los estilos CSS existentes `.ag-modal-overlay` y `.ag-modal`.
 
-**Cache Busting for Static Assets**
-- Added `?v=20260913b` query parameter to all CSS/JS references in all HTML pages
+**Cache Busting para recursos estáticos**
+- Se agregó el parámetro `?v=20260913b` a las referencias de CSS y JS en todas las páginas HTML.
 
-**Select Refresh After Submit**
-- `orden_trabajo.html`: Re-populates `cotizacionSelect` after OT creation
-- `cotizacion.html`: Re-populates `recepcionSelect` after diagnóstico creation
-- Removed stale cached options that caused duplicate submissions
+**Actualización de selects después del envío**
+- `orden_trabajo.html`: Se vuelve a cargar `cotizacionSelect` después de crear una OT.
+- `cotizacion.html`: Se vuelve a cargar `recepcionSelect` después de crear un diagnóstico.
+- Se eliminaron opciones almacenadas en caché que podían provocar envíos duplicados.
 
-**OtProductoUsado Endpoints**
-- Created `OtProductoUsadoResponseDTO`
-- Modified `registrarProductoUsado()` and `listarProductosUsados()` to return DTOs
-- Added `toProductoUsadoResponseDTO()` helper method
+**Endpoints de `OtProductoUsado`**
+- Se creó `OtProductoUsadoResponseDTO`.
+- Se modificaron `registrarProductoUsado()` y `listarProductosUsados()` para devolver DTOs.
+- Se agregó el método auxiliar `toProductoUsadoResponseDTO()`.
 
 **GlobalExceptionHandler**
-- Added `RuntimeException` handler with fallback message "Error inesperado, contacte soporte"
-- Proper handler ordering (specific first, generic last)
+- Se agregó un manejador para `RuntimeException` con el mensaje de respaldo: `"Error inesperado, contacte soporte"`.
+- Se estableció el orden correcto de los manejadores, colocando los específicos antes del genérico.
 
-#### Database
-- Added `CONVERTIDA` to `cotizacion_estado_check` constraint
-- Added `LEFT JOIN FETCH` to `PagoEntregaRepository.findByOrdenTrabajoId()`
-- Added `LEFT JOIN FETCH` to `OtProductoUsadoRepository.findByOrdenTrabajoId()`
+#### Base de datos
 
-### Known Issues / Future Improvements
-- Consider creating specific exception classes (`NotFoundException`, `ConflictException`) for more precise HTTP status codes (404, 409)
-- Current implementation returns 400 for all RuntimeExceptions
+- Se agregó `CONVERTIDA` a la restricción `cotizacion_estado_check`.
+- Se agregó `LEFT JOIN FETCH` a `PagoEntregaRepository.findByOrdenTrabajoId()`.
+- Se agregó `LEFT JOIN FETCH` a `OtProductoUsadoRepository.findByOrdenTrabajoId()`.
 
-## [Unreleased]
-- Remove all code comments (`//`, `--`, `/** */`) from Java, JS, HTML, CSS files
-</content>
+### Problemas conocidos / Mejoras futuras
+
+- Considerar la creación de excepciones específicas como `NotFoundException` y `ConflictException` para utilizar códigos HTTP más precisos, como 404 y 409.
+- Actualmente, todas las `RuntimeException` se responden con código HTTP 400.
