@@ -1,0 +1,278 @@
+/* =========================================================
+   AutoGestion - Polish v1.4.0
+   Simetria, responsive, guias contextuales, wizard de pago
+   y ticket imprimible. Carga despues de redesign.css.
+   Solo suma: no pisa el sistema de diseno existente.
+   ========================================================= */
+
+/* ---------- 1. GUIA CONTEXTUAL ("que hago aqui") ---------- */
+.ag-guide {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  background: linear-gradient(135deg, var(--ag-oil-surface), transparent 70%), var(--ag-surface);
+  border: 1px solid var(--ag-oil-border);
+  border-radius: var(--ag-radius-lg);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--ag-shadow-sm);
+}
+.ag-guide-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--ag-oil);
+  color: #fff;
+}
+.ag-guide-icon svg { width: 18px; height: 18px; }
+.ag-guide-body { flex: 1; min-width: 0; }
+.ag-guide-title { font-family: var(--ag-font-heading); font-weight: 700; font-size: 0.88rem; color: var(--ag-text-heading); margin: 0 0 0.25rem; }
+.ag-guide-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; font-size: 0.8rem; color: var(--ag-text-mid); }
+.ag-guide-steps li { display: flex; align-items: center; gap: 0.35rem; }
+.ag-guide-steps b {
+  width: 18px; height: 18px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--ag-oil); color: #fff;
+  font-size: 0.65rem; font-weight: 700;
+}
+.ag-guide-cta { flex-shrink: 0; align-self: center; }
+.ag-guide-close {
+  flex-shrink: 0; border: none; background: transparent; color: var(--ag-text-muted);
+  cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 0.2rem; border-radius: 6px;
+}
+.ag-guide-close:hover { color: var(--ag-text); background: var(--ag-border-subtle); }
+
+/* ---------- 2. HEAD SIMETRICO ---------- */
+.ag-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.ag-head-icon {
+  width: 48px; height: 48px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--ag-oil), var(--ag-btn-primary-dark, #b45309));
+  color: #fff;
+  box-shadow: var(--ag-shadow-md);
+}
+.ag-head-icon svg { width: 24px; height: 24px; }
+.ag-head-titles { flex: 1; min-width: 200px; }
+.ag-head-titles h1 {
+  font-family: var(--ag-font-heading); font-size: 1.5rem; font-weight: 700;
+  color: var(--ag-text-heading); letter-spacing: -0.02em; margin: 0; line-height: 1.2;
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+}
+.ag-head-titles p { color: var(--ag-text-muted); font-size: 0.86rem; margin: 0.25rem 0 0; }
+.ag-head-meta { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+/* ---------- 3. CTA + ESTADO VACIO ---------- */
+.ag-cta {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.65rem 1.2rem; border-radius: var(--ag-radius);
+  background: linear-gradient(135deg, #d97706, #b45309); color: #fff !important;
+  font-weight: 600; font-size: 0.86rem; text-decoration: none; border: none; cursor: pointer;
+  box-shadow: var(--ag-shadow-md); transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.ag-cta:hover { transform: translateY(-1px); box-shadow: var(--ag-shadow-lg); }
+.ag-cta:active { transform: translateY(0) scale(0.98); }
+.ag-cta svg { width: 15px; height: 15px; }
+.ag-empty {
+  text-align: center; padding: 2.5rem 1.5rem; color: var(--ag-text-muted);
+  display: flex; flex-direction: column; align-items: center; gap: 0.7rem;
+}
+.ag-empty-icon {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--ag-ground); border: 1px dashed var(--ag-border);
+  display: flex; align-items: center; justify-content: center; color: var(--ag-steel-light);
+}
+.ag-empty-icon svg { width: 26px; height: 26px; }
+.ag-empty strong { color: var(--ag-text-heading); font-size: 0.95rem; }
+.ag-empty p { margin: 0; font-size: 0.82rem; max-width: 380px; }
+
+/* ---------- 4. WIZARD DE PAGO ---------- */
+.ag-modal--wide { max-width: 760px; }
+.ag-wizard { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 1.1rem; }
+.ag-wz-step { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 600; color: var(--ag-text-muted); white-space: nowrap; }
+.ag-wz-dot {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--ag-ground); border: 1.5px solid var(--ag-border);
+  font-size: 0.68rem; font-weight: 700; color: var(--ag-text-muted);
+  transition: all 0.2s ease;
+}
+.ag-wz-step.done .ag-wz-dot { background: var(--ag-signal-go); border-color: var(--ag-signal-go); color: #fff; }
+.ag-wz-step.now { color: var(--ag-oil-text, var(--ag-text-heading)); }
+.ag-wz-step.now .ag-wz-dot { background: var(--ag-oil); border-color: var(--ag-oil); color: #fff; box-shadow: 0 0 0 4px rgba(217,119,6,0.15); }
+.ag-wz-line { flex: 1; min-width: 12px; height: 2px; border-radius: 2px; background: var(--ag-border); }
+.ag-wz-step.done + .ag-wz-line { background: var(--ag-signal-go); }
+.ag-doc-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-bottom: 0.9rem; }
+.ag-doc-card { position: relative; cursor: pointer; }
+.ag-doc-card input { position: absolute; opacity: 0; pointer-events: none; }
+.ag-doc-card-inner {
+  display: flex; align-items: center; gap: 0.7rem;
+  border: 1.5px solid var(--ag-border); border-radius: var(--ag-radius-lg);
+  padding: 0.8rem 0.9rem; background: var(--ag-surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+.ag-doc-card:hover .ag-doc-card-inner { transform: translateY(-1px); box-shadow: var(--ag-shadow-sm); }
+.ag-doc-card input:checked + .ag-doc-card-inner { border-color: var(--ag-oil); box-shadow: 0 0 0 3px rgba(217,119,6,0.15); }
+.ag-doc-card input:focus-visible + .ag-doc-card-inner { outline: 2px solid var(--ag-oil); outline-offset: 2px; }
+.ag-doc-ico {
+  width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--ag-ground); color: var(--ag-text-mid);
+}
+.ag-doc-card input:checked + .ag-doc-card-inner .ag-doc-ico { background: var(--ag-oil); color: #fff; }
+.ag-doc-ico svg { width: 20px; height: 20px; }
+.ag-doc-card b { display: block; font-size: 0.88rem; color: var(--ag-text-heading); }
+.ag-doc-card small { display: block; font-size: 0.72rem; color: var(--ag-text-muted); }
+.ag-doc-check {
+  margin-left: auto; width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+  border: 1.5px solid var(--ag-border); display: inline-flex; align-items: center; justify-content: center;
+  color: transparent; transition: all 0.15s ease;
+}
+.ag-doc-card input:checked + .ag-doc-card-inner .ag-doc-check { background: var(--ag-signal-go); border-color: var(--ag-signal-go); color: #fff; }
+.ag-doc-check svg { width: 12px; height: 12px; }
+.ag-pay-grid { display: grid; grid-template-columns: 1fr 300px; gap: 1.1rem; align-items: start; }
+.ag-mini-ticket {
+  border: 1px dashed var(--ag-border); border-radius: var(--ag-radius-lg);
+  padding: 0.85rem 1rem; font-size: 0.78rem; background: var(--ag-ground);
+  position: sticky; top: 0;
+}
+.ag-mini-ticket h4 { margin: 0 0 0.4rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ag-text-muted); }
+.ag-mini-ticket .row { display: flex; justify-content: space-between; padding: 0.15rem 0; color: var(--ag-text-mid); }
+.ag-mini-ticket .row.total { font-weight: 700; font-size: 0.95rem; color: var(--ag-text-heading); border-top: 1px dashed var(--ag-border); margin-top: 0.35rem; padding-top: 0.45rem; }
+.ag-field-hint { font-size: 0.72rem; color: var(--ag-text-muted); margin-top: 0.25rem; }
+.ag-field-error { font-size: 0.74rem; color: var(--ag-signal-stop, #dc2626); font-weight: 600; margin-top: 0.25rem; }
+.ag-form-control.is-bad { border-color: var(--ag-signal-stop, #dc2626); box-shadow: 0 0 0 3px rgba(220,38,38,0.12); }
+
+/* ---------- 5. TICKET / CONSTANCIA ---------- */
+.ag-ticket {
+  max-width: 380px; margin: 0 auto;
+  background: #ffffff; color: #1e293b;
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid #e2e8f0;
+  font-size: 0.84rem;
+}
+.ag-ticket-top { background: linear-gradient(135deg, #0f172a, #1e293b); color: #f8fafc; padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 0.8rem; }
+.ag-ticket-brand { width: 42px; height: 42px; flex-shrink: 0; border-radius: 10px; background: rgba(217,119,6,0.2); border: 1px solid rgba(217,119,6,0.5); display: flex; align-items: center; justify-content: center; color: #fbbf24; }
+.ag-ticket-brand svg { width: 22px; height: 22px; }
+.ag-ticket-top h2 { margin: 0; font-size: 1rem; letter-spacing: 0.01em; }
+.ag-ticket-top small { color: rgba(248,250,252,0.6); font-size: 0.7rem; }
+.ag-ticket-folio { margin-left: auto; text-align: right; flex-shrink: 0; }
+.ag-ticket-folio .folio-tipo { display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; background: #d97706; color: #fff; border-radius: 6px; padding: 0.15rem 0.5rem; }
+.ag-ticket-folio .folio-num { display: block; font-family: var(--ag-font-heading); font-weight: 700; font-size: 0.95rem; margin-top: 0.25rem; }
+.ag-ticket-folio .folio-fecha { display: block; font-size: 0.68rem; color: rgba(248,250,252,0.6); }
+.ag-ticket-body { padding: 1rem 1.25rem; }
+.ag-ticket-client { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.6rem 0.8rem; margin-bottom: 0.8rem; font-size: 0.78rem; }
+.ag-ticket-client b { color: #0f172a; }
+.ag-ticket-client .row { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.1rem 0; }
+.ag-ticket-client .row span:first-child { color: #64748b; }
+.ag-ticket-items { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 0.6rem; }
+.ag-ticket-items td { padding: 0.3rem 0; border-bottom: 1px dashed #e2e8f0; }
+.ag-ticket-items td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.ag-ticket-totals { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.ag-ticket-totals td { padding: 0.18rem 0; }
+.ag-ticket-totals td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.ag-ticket-totals tr.grand td { font-size: 1.05rem; font-weight: 800; color: #0f172a; border-top: 2px solid #0f172a; padding-top: 0.45rem; }
+.ag-ticket-foot { text-align: center; padding: 0.8rem 1.25rem 1rem; font-size: 0.7rem; color: #64748b; border-top: 1px dashed #e2e8f0; }
+.ag-ticket-foot .ok { display: inline-flex; align-items: center; gap: 0.3rem; color: #059669; font-weight: 700; font-size: 0.75rem; }
+.ag-ticket-foot .ok svg { width: 14px; height: 14px; }
+
+/* ---------- 6. RESPONSIVE ---------- */
+@media (max-width: 1100px) {
+  .ag-layout-main { grid-template-columns: 1fr; }
+  .ag-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .ag-pay-grid { grid-template-columns: 1fr; }
+  .ag-mini-ticket { position: static; }
+}
+@media (max-width: 768px) {
+  .ag-page { padding: 1rem; }
+  .ag-grid-2, .ag-grid-3 { grid-template-columns: 1fr; }
+  /* Navbar: scroll horizontal en vez de desaparecer */
+  .ag-navbar { flex-wrap: wrap; }
+  .ag-navbar-nav {
+    display: flex !important;
+    order: 3; flex-basis: 100%;
+    overflow-x: auto; gap: 0.15rem;
+    padding-bottom: 0.2rem;
+    scrollbar-width: none;
+  }
+  .ag-navbar-nav::-webkit-scrollbar { display: none; }
+  .ag-navbar-nav a { padding: 0.55rem 0.7rem; font-size: 0.78rem; border-bottom: none; border-radius: 8px; }
+  .ag-navbar-nav a.active { background: rgba(255,255,255,0.1); }
+  .ag-user-pill-name { display: none; }
+  .ag-guide { flex-direction: column; }
+  .ag-guide-cta { align-self: stretch; }
+  .ag-guide-cta .ag-cta { width: 100%; justify-content: center; }
+  .ag-head-titles h1 { font-size: 1.25rem; }
+  .ag-modal { margin: 0.5rem; max-height: 92vh; overflow-y: auto; }
+  .ag-modal--wide { max-width: calc(100vw - 1rem); }
+  .ag-doc-cards { grid-template-columns: 1fr; }
+  .ag-flow-steps { flex-wrap: wrap; row-gap: 0.4rem; }
+  .ag-indicator { padding: 0.9rem 1rem; }
+  .ag-indicator-value { font-size: 1.35rem; }
+  .ag-wizard { overflow-x: auto; }
+}
+@media (max-width: 420px) {
+  .ag-grid-4 { grid-template-columns: 1fr; }
+  .ag-ticket { max-width: 100%; }
+}
+
+/* ---------- 7. MODAL INTERNO (header/body/footer) ---------- */
+.ag-modal {
+  background: var(--ag-surface);
+  border: 1px solid var(--ag-border);
+  border-radius: var(--ag-radius-xl, 14px);
+  box-shadow: var(--ag-shadow-lg);
+  overflow: hidden;
+}
+.ag-modal-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--ag-border);
+}
+.ag-modal-header h3 {
+  margin: 0; font-family: var(--ag-font-heading); font-size: 1rem; font-weight: 700;
+  color: var(--ag-text-heading); letter-spacing: -0.01em;
+}
+.ag-modal-close {
+  width: 30px; height: 30px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid transparent; border-radius: 8px; background: transparent;
+  color: var(--ag-text-muted); font-size: 1.25rem; line-height: 1; cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ag-modal-close:hover { background: var(--ag-ground); color: var(--ag-text); border-color: var(--ag-border); }
+.ag-modal-body { padding: 1.1rem 1.2rem; }
+.ag-modal-footer {
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+  padding: 0.9rem 1.2rem; border-top: 1px solid var(--ag-border); background: var(--ag-ground);
+}
+
+/* ---------- 8. IMPRESION FIEL A PANTALLA ---------- */
+.ag-ticket, .ag-ticket * {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+@media print {
+  .ag-ticket { border: 1px solid #cbd5e1; border-radius: 0; max-width: 380px; }
+  .ag-ticket-top { break-inside: avoid; }
+  .ag-ticket-body { break-inside: avoid; }
+}
+
+/* ---------- 9. FOCO + MOVIMIENTO ---------- */
+.ag-btn:focus-visible, .ag-cta:focus-visible, .ag-action-link:focus-visible,
+.ag-form-control:focus-visible, .ag-navbar-nav a:focus-visible {
+  outline: 2px solid var(--ag-oil); outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ag-cta, .ag-doc-card-inner, .ag-guide { transition: none !important; }
+  .ag-cta:hover, .ag-doc-card:hover .ag-doc-card-inner { transform: none !important; }
+}

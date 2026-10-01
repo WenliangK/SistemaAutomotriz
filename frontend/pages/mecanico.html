@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGestion - Panel Mecánico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css?v=20261001">
+    <link rel="stylesheet" href="../css/animations.css?v=20261001">
+    <link rel="stylesheet" href="../css/redesign.css?v=20261001">
+    <link rel="stylesheet" href="../css/polish.css?v=20261001">
+    <script>
+        (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
+    </script>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="ag-page">
+        <div class="ag-page-header">
+            <div class="ag-d-flex ag-align-center ag-flex-wrap" style="gap:0.6rem;">
+                <h1 style="margin:0;">Panel del Mecánico</h1>
+                <span class="ag-badge ag-badge-primary">MECÁNICO</span>
+            </div>
+            <p id="mecanicoHello">Tus órdenes asignadas y control de ejecución</p>
+        </div>
+        <div class="ag-grid ag-grid-4 ag-mb-3">
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="otTotal">--</div>
+                    <div class="ag-indicator-label">OT Asignadas</div>
+                </div>
+            </div>
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="otProceso">--</div>
+                    <div class="ag-indicator-label">En Proceso</div>
+                </div>
+            </div>
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="otFinalizadas">--</div>
+                    <div class="ag-indicator-label">Finalizadas</div>
+                </div>
+            </div>
+            <div class="ag-indicator">
+                <div class="ag-indicator-icon ic-red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                </div>
+                <div>
+                    <div class="ag-indicator-value" id="otPendientes">--</div>
+                    <div class="ag-indicator-label">Pendientes</div>
+                </div>
+            </div>
+        </div>
+        <div class="ag-layout-main">
+            <div class="ag-layout-stack" style="flex:2;">
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                            Mis Órdenes de Trabajo
+                        </h3>
+                    </div>
+                    <div class="ag-section-body" id="misOrdenes" style="max-height:520px; overflow-y:auto;"><p class="ag-text-muted">Cargando...</p></div>
+                </div>
+            </div>
+            <div class="ag-layout-stack" style="flex:1;">
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            Acceso Rápido
+                        </h3>
+                    </div>
+                    <div class="ag-section-body" style="display:flex; flex-direction:column; gap:0.5rem;">
+                        <a href="orden_trabajo.html" class="ag-action-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                            Mis Órdenes
+                            <svg class="ag-action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <a href="inventario.html" class="ag-action-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                            Inventario
+                            <svg class="ag-action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                        <a href="tutorial.html" class="ag-action-link" style="border-style:dashed; color:var(--ag-oil); border-color:var(--ag-oil-border); background:var(--ag-oil-surface);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                            Tutorial del sistema
+                            <svg class="ag-action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="themeToggleWrap"></div>
+    <script src="../js/api.js?v=20261001"></script>
+    <script src="../js/animations.js?v=20261001"></script>
+    <script src="../js/ui-kit.js"></script>
+    <script>
+        (function() {
+            if (!guardPage('mecanico')) return;
+            document.getElementById('navbar').innerHTML = renderNavbar('mecanico');
+        document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
+        initTheme();
+        const user = getUser();
+        if (!user || user.rol !== 'MECANICO') { window.location.href = 'acceso_denegado.html'; return; }
+        document.getElementById('mecanicoHello').textContent = `Hola, ${user.nombre} — tus órdenes asignadas y control de ejecución`;
+        async function loadPanel() {
+            try {
+                const ordenes = await apiFetch(`/ordenes-trabajo/mecanico/${user.id}`);
+                const total = ordenes.length;
+                const proceso = ordenes.filter(o => o.estado === 'EN_PROCESO').length;
+                const finalizadas = ordenes.filter(o => o.estado === 'FINALIZADA').length;
+                const pendientes = ordenes.filter(o => o.estado === 'PENDIENTE').length;
+                document.getElementById('otTotal').textContent = total;
+                document.getElementById('otProceso').textContent = proceso;
+                document.getElementById('otFinalizadas').textContent = finalizadas;
+                document.getElementById('otPendientes').textContent = pendientes;
+                const c = document.getElementById('misOrdenes');
+                if (!ordenes.length) {
+                    agEmptyState(c, '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>', 'No hay ordenes asignadas', 'Cuando el administrador te asigne una OT aparecera aqui.');
+                    return;
+                }
+                const PROG = { PENDIENTE: 25, EN_PROCESO: 50, EN_PRUEBA: 75, FINALIZADA: 100 };
+                c.innerHTML = ordenes.map(ot => {
+                    const pct = PROG[ot.estado] ?? 50;
+                    return `
+                    <div class="ag-state-card sc-${(ot.estado || '').toLowerCase()}">
+                        <div class="ag-d-flex ag-justify-between ag-align-center ag-flex-wrap" style="gap:0.5rem;">
+                            <div class="ag-d-flex ag-align-center" style="gap:0.6rem; flex-wrap:wrap;">
+                                <span class="sc-id">#${ot.id}</span>
+                                ${estadoBadge(ot.estado)}
+                                <span class="sc-meta">Cot. #${ot.cotizacionId || '?'}</span>
+                            </div>
+                            <span class="sc-meta">${formatDate(ot.fechaCreacion)}</span>
+                        </div>
+                        <div class="ag-progress"><div class="ag-progress-fill ${ot.estado === 'FINALIZADA' ? 'pf-green' : ot.estado === 'PENDIENTE' ? 'pf-gray' : ''}" style="width:${pct}%"></div></div>
+                        <div class="ag-d-flex ag-gap-3 ag-mt-2">
+                            ${ot.estado !== 'FINALIZADA' && ot.estado !== 'CANCELADA' ? `<button class="ag-btn ag-btn-outline ag-btn-sm" onclick="cambiarEstado(${ot.id},'${getNext(ot.estado)}')">${getBtnText(ot.estado)}</button>` : ''}
+                            ${ot.estado === 'EN_PROCESO' || ot.estado === 'EN_PRUEBA' ? `<a href="orden_trabajo.html" class="ag-btn ag-btn-outline ag-btn-sm">Ver Detalle</a>` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (e) { console.error(e); document.getElementById('misOrdenes').innerHTML = '<p class="ag-text-muted">Error al cargar</p>'; }
+        }
+        function getNext(a) { return {PENDIENTE:'EN_PROCESO', EN_PROCESO:'EN_PRUEBA', EN_PRUEBA:'FINALIZADA'}[a] || 'FINALIZADA'; }
+        function getBtnText(a) { return {PENDIENTE:'Iniciar', EN_PROCESO:'Pasar a Prueba', EN_PRUEBA:'Finalizar'}[a] || 'Cambiar'; }
+        window.cambiarEstado = async function(id, ne) {
+            try {
+                await apiFetch(`/ordenes-trabajo/${id}/estado`, { method: 'PUT', body: JSON.stringify({ estado: ne }) });
+                toast(`OT #${id} paso a ${ne.replace(/_/g, ' ')}`, 'success');
+                loadPanel();
+            } catch (e) { toast('Error: ' + e.message, 'danger'); }
+        }
+        loadPanel();
+        })();
+    </script>
+</body>
+</html>

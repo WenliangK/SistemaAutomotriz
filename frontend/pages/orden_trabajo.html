@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGestion - Ordenes de Trabajo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css?v=20261001">
+    <link rel="stylesheet" href="../css/animations.css?v=20261001">
+    <link rel="stylesheet" href="../css/redesign.css">
+    <link rel="stylesheet" href="../css/polish.css?v=20261001">
+    <script>
+        (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
+    </script>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="ag-page">
+        <div class="ag-page-header"><h1>Ordenes de Trabajo</h1><p>Gestionar y dar seguimiento a las ordenes de trabajo</p></div>
+        <div id="alertContainer"></div>
+        <div class="ag-layout-sidebar">
+            <div class="ag-section">
+<div class="ag-section-header">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                        Lista de Ordenes
+                    </h3>
+                    <div class="ag-chip-filters" id="otFilters">
+                        <button type="button" class="ag-chip active" data-estado="">Todas</button>
+                        <button type="button" class="ag-chip" data-estado="PENDIENTE">Pendientes</button>
+                        <button type="button" class="ag-chip" data-estado="EN_PROCESO">En Proceso</button>
+                        <button type="button" class="ag-chip" data-estado="EN_PRUEBA">En Prueba</button>
+                        <button type="button" class="ag-chip" data-estado="FINALIZADA">Finalizadas</button>
+                    </div>
+                </div>
+                <div class="ag-section-body" style="max-height:600px; overflow-y:auto;" id="ordenesContainer"><p class="ag-text-muted">Cargando...</p></div>
+            </div>
+            <div class="ag-section" id="otCreateSection" hidden>
+                <div class="ag-section-header">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Crear Orden de Trabajo
+                    </h3>
+                </div>
+                <div class="ag-section-body">
+                    <form id="otForm">
+                        <div class="ag-form-group"><label class="ag-form-label">Cotizacion Aprobada *</label><select class="ag-form-control" id="cotizacionSelect" required><option value="">-- Seleccionar --</option></select></div>
+                        <div class="ag-form-group"><label class="ag-form-label">Mecanico Asignado *</label><select class="ag-form-control" id="mecanicoSelect" required><option value="2">Mecanico Uno (ID: 2)</option></select></div>
+                        <button type="submit" class="ag-btn ag-btn-primary ag-btn-block">Crear OT</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ag-modal-overlay" id="modalProducto">
+        <div class="ag-card ag-modal">
+            <div class="ag-card-header"><h3>Registrar Producto Usado</h3><button class="ag-btn ag-btn-outline ag-btn-sm" onclick="cerrarModal('modalProducto')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="ag-card-body">
+                <input type="hidden" id="otIdProducto">
+                <div class="ag-form-group"><label class="ag-form-label">Producto *</label><select class="ag-form-control" id="productoSelect" required><option value="">-- Seleccionar --</option></select></div>
+                <div class="ag-form-group"><label class="ag-form-label">Cantidad Usada *</label><div id="cantidadUsadaWrap"></div></div>
+                <button class="ag-btn ag-btn-primary ag-btn-block" onclick="registrarProductoUsado()">Registrar</button>
+            </div>
+        </div>
+    </div>
+    <div class="ag-modal-overlay" id="modalPago">
+        <div class="ag-card ag-modal">
+            <div class="ag-card-header"><h3>Registrar Pago</h3><button class="ag-btn ag-btn-outline ag-btn-sm" onclick="cerrarModal('modalPago')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="ag-card-body">
+                <input type="hidden" id="otIdPago">
+                <div class="ag-form-group"><label class="ag-form-label">Monto (S/)</label><input type="number" class="ag-form-control" id="montoPago" step="0.01" required></div>
+                <button class="ag-btn ag-btn-success ag-btn-block" onclick="registrarPago()">Registrar Pago</button>
+            </div>
+        </div>
+    </div>
+    <div id="themeToggleWrap"></div>
+    <script src="../js/api.js?v=20260920b"></script>
+    <script src="../js/animations.js?v=20260913b"></script>
+    <script src="../js/ui-kit.js"></script>
+    <script src="../js/confirm-modal.js?v=20261001"></script>
+    <script>
+        if (!guardPage('orden_trabajo')) throw new Error('Acceso denegado');
+        document.getElementById('navbar').innerHTML = renderNavbar('orden_trabajo');
+        document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
+        document.getElementById('cantidadUsadaWrap').innerHTML = agStepper('cantidadUsada', { value: 1, min: 1 });
+        document.getElementById('cantidadUsada').setAttribute('required', '');
+        initTheme();
+        const user = getUser();
+        /* Solo Admin y Recepcionista crean OTs desde cotizaciones aprobadas */
+        if (user.rol === 'ADMIN' || user.rol === 'RECEPCIONISTA') {
+            document.getElementById('otCreateSection').hidden = false;
+        }
+        let loadOrdenesSeq = 0;
+        function abrirModal(id) { document.getElementById(id).classList.add('show'); }
+        function cerrarModal(id) { document.getElementById(id).classList.remove('show'); }
+        async function loadData() {
+            try {
+                const cotizaciones = await apiFetch('/cotizaciones?estado=APROBADA');
+                const sel = document.getElementById('cotizacionSelect');
+                cotizaciones.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = `Cot. #${c.id} - ${formatCurrency(c.total)}`; sel.appendChild(o); });
+                const productos = await apiFetch('/productos');
+                const ps = document.getElementById('productoSelect');
+                productos.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = `${p.nombre} (Stock: ${p.stockActual})`; ps.appendChild(o); });
+                loadOrdenes();
+            } catch (e) { console.error(e); }
+        }
+        document.getElementById('otForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await apiFetch('/ordenes-trabajo/completa', { method: 'POST', body: JSON.stringify({ 
+                    cotizacionId: parseInt(document.getElementById('cotizacionSelect').value),
+                    mecanicoId: parseInt(document.getElementById('mecanicoSelect').value)
+                }) });
+                showSuccess('alertContainer', 'Orden de trabajo creada');
+                loadOrdenes();
+                const sel = document.getElementById('cotizacionSelect');
+                sel.innerHTML = '<option value="">-- Seleccionar --</option>';
+                const cotizaciones = await apiFetch('/cotizaciones?estado=APROBADA');
+                cotizaciones.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = `Cot. #${c.id} - ${formatCurrency(c.total)}`; sel.appendChild(o); });
+            } catch (e) { showError('alertContainer', e.message); }
+        });
+        async function loadOrdenes() {
+            const mySeq = ++loadOrdenesSeq;
+            const estado = document.querySelector('#otFilters .ag-chip.active')?.dataset.estado || '';
+            try {
+                const ordenes = user.rol === 'MECANICO' ? await apiFetch(`/ordenes-trabajo/mecanico/${user.id}`) : await apiFetch('/ordenes-trabajo');
+                if (mySeq !== loadOrdenesSeq) return;
+                /* Contadores por estado en los chips */
+                document.querySelectorAll('#otFilters .ag-chip').forEach(ch => {
+                    const k = ch.dataset.estado;
+                    const label = ch.dataset.label || (ch.dataset.label = ch.textContent.trim());
+                    const n = k ? ordenes.filter(o => o.estado === k).length : ordenes.length;
+                    ch.innerHTML = `${label}<span class="chip-count">${n}</span>`;
+                });
+                const filtradas = estado ? ordenes.filter(o => o.estado === estado) : ordenes;
+                const c = document.getElementById('ordenesContainer');
+                if (!filtradas.length) {
+                    agEmptyState(c, '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>', 'No hay ordenes de trabajo', 'No se encontraron OT para este filtro.');
+                    return;
+                }
+                const PROG = { PENDIENTE: 25, EN_PROCESO: 50, EN_PRUEBA: 75, FINALIZADA: 100 };
+                c.innerHTML = filtradas.map(ot => {
+                    const estadoSeguro = ot.estado || 'DESCONOCIDO';
+                    const pct = PROG[estadoSeguro] ?? 50;
+                    return `
+                    <div class="ag-state-card sc-${estadoSeguro.toLowerCase()}">
+                        <div class="ag-d-flex ag-justify-between ag-align-center ag-flex-wrap" style="gap:0.5rem;">
+                            <div class="ag-d-flex ag-align-center" style="gap:0.6rem; flex-wrap:wrap;">
+                                <span class="sc-id">#${ot.id}</span>
+                                ${estadoBadge(estadoSeguro)}
+                                <span class="sc-meta">Cot. #${ot.cotizacionId || '?'} · Mecanico: ${ot.mecanicoNombre || '-'} · ${formatDate(ot.fechaCreacion)}</span>
+                            </div>
+                            <div class="ag-d-flex ag-gap-3 ag-flex-wrap">
+                                ${estadoSeguro !== 'FINALIZADA' && estadoSeguro !== 'CANCELADA' ? `<button class="ag-btn ag-btn-outline ag-btn-sm" onclick="cambiarEstado(${ot.id},'${getNext(estadoSeguro)}')">${getBtnText(estadoSeguro)}</button>` : ''}
+                                ${estadoSeguro === 'EN_PROCESO' || estadoSeguro === 'EN_PRUEBA' ? `<button class="ag-btn ag-btn-outline ag-btn-sm" onclick="abrirModalProducto(${ot.id})">Producto Usado</button>` : ''}
+                                ${estadoSeguro === 'FINALIZADA' && user.rol === 'ADMIN' ? `<button class="ag-btn ag-btn-success ag-btn-sm" onclick="abrirModalPago(${ot.id})">Pago</button><button class="ag-btn ag-btn-accent ag-btn-sm" onclick="registrarEntrega(${ot.id})">Entregar</button>` : ''}
+                            </div>
+                        </div>
+                        <div class="ag-progress"><div class="ag-progress-fill ${estadoSeguro === 'FINALIZADA' ? 'pf-green' : estadoSeguro === 'PENDIENTE' ? 'pf-gray' : ''}" style="width:${pct}%"></div></div>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                if (mySeq !== loadOrdenesSeq) return;
+                document.getElementById('ordenesContainer').innerHTML = '<p class="ag-text-muted">Error al cargar</p>';
+            }
+        }
+        function getNext(a) { return {PENDIENTE:'EN_PROCESO',EN_PROCESO:'EN_PRUEBA',EN_PRUEBA:'FINALIZADA'}[a]||'FINALIZADA'; }
+        function getBtnText(a) { return {PENDIENTE:'Iniciar',EN_PROCESO:'Pasar a Prueba',EN_PRUEBA:'Finalizar'}[a]||'Cambiar'; }
+        async function cambiarEstado(id, ne) { try { await apiFetch(`/ordenes-trabajo/${id}/estado`, { method: 'PUT', body: JSON.stringify({ estado: ne }) }); showSuccess('alertContainer', `OT #${id} -> ${ne}`); loadOrdenes(); } catch (e) { showError('alertContainer', e.message); } }
+        function abrirModalProducto(otId) { document.getElementById('otIdProducto').value = otId; abrirModal('modalProducto'); }
+        async function registrarProductoUsado() {
+            const otId = document.getElementById('otIdProducto').value;
+            try {
+                await apiFetch(`/ordenes-trabajo/${otId}/productos-usados`, { method: 'POST', body: JSON.stringify({ productoId: parseInt(document.getElementById('productoSelect').value), cantidadUsada: parseInt(document.getElementById('cantidadUsada').value) }) });
+                cerrarModal('modalProducto');
+                showSuccess('alertContainer', 'Producto registrado y stock descontado');
+                loadOrdenes();
+            } catch (e) { showError('alertContainer', e.message); }
+        }
+        function abrirModalPago(otId) {
+            if (user.rol !== 'ADMIN') { showError('alertContainer', 'Solo el Administrador puede registrar pagos'); return; }
+            document.getElementById('otIdPago').value = otId; abrirModal('modalPago');
+        }
+        async function registrarPago() {
+            const otId = document.getElementById('otIdPago').value;
+            try { await apiFetch('/pagos', { method: 'POST', body: JSON.stringify({ ordenTrabajoId: parseInt(otId), monto: parseFloat(document.getElementById('montoPago').value) }) }); cerrarModal('modalPago'); showSuccess('alertContainer', 'Pago registrado'); loadOrdenes(); } catch (e) { showError('alertContainer', e.message); }
+        }
+        async function registrarEntrega(otId) {
+            if (user.rol !== 'ADMIN') { showError('alertContainer', 'Solo el Administrador puede registrar entregas'); return; }
+            if (!(await confirmarAccion('Confirmar entrega del vehiculo?', { tipo: 'danger' }))) return;
+            try { await apiFetch(`/entregas/${otId}`, { method: 'POST' }); showSuccess('alertContainer', 'Entrega registrada'); loadOrdenes(); } catch (e) { showError('alertContainer', e.message); }
+        }
+        loadData();
+        document.getElementById('otFilters').addEventListener('click', (e) => {
+            const chip = e.target.closest('.ag-chip');
+            if (!chip) return;
+            document.querySelectorAll('#otFilters .ag-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            loadOrdenes();
+        });
+        /* Cierre de modales con clic fuera y Esc */
+        document.querySelectorAll('.ag-modal-overlay').forEach(ov => {
+            ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('show'); });
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') document.querySelectorAll('.ag-modal-overlay.show').forEach(ov => ov.classList.remove('show'));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGestion - Pago y Entrega</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css?v=20261001">
+    <link rel="stylesheet" href="../css/animations.css?v=20261001">
+    <link rel="stylesheet" href="../css/redesign.css">
+    <link rel="stylesheet" href="../css/polish.css?v=20261001">
+    <script>
+        (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
+    </script>
+    <style>
+        #printArea { display:none; }
+        @page { size: auto; margin: 8mm; }
+        @media print {
+            body > *:not(#printArea) { display:none !important; }
+            #printArea { display:block !important; position:static !important; padding:0; }
+            .ag-ticket { max-width:100%; box-shadow:none; }
+            .ag-ticket, .ag-ticket * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+        @media print and (prefers-color-scheme: dark) {
+            .ag-ticket-body { background:#fff !important; }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="ag-page">
+        <div class="ag-head">
+            <div class="ag-head-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="ag-head-titles">
+                <h1>Pago y Entrega <span class="ag-badge ag-badge-primary">CAJA</span></h1>
+                <p>Cobra con boleta o factura, imprime la constancia y entrega el vehiculo</p>
+            </div>
+            <div class="ag-head-meta">
+                <span class="ag-badge ag-badge-success" id="headTotal">-- por cobrar</span>
+            </div>
+        </div>
+        <div id="alertContainer"></div>
+        <div class="ag-layout-main">
+            <div class="ag-section">
+                <div class="ag-section-header">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                        Ordenes Finalizadas
+                    </h3>
+                </div>
+                <div class="ag-section-body" style="max-height:600px; overflow-y:auto;" id="ordenesContainer">
+                    <p class="ag-text-muted">Cargando...</p>
+                </div>
+            </div>
+            <div class="ag-layout-stack">
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            Resumen del Dia
+                        </h3>
+                    </div>
+                    <div class="ag-section-body">
+                        <div class="ag-stat-row">
+                            <span class="ag-stat-label">Pagos pendientes</span>
+                            <span class="ag-stat-value text-caution" id="pagosPendientes">--</span>
+                        </div>
+                        <div class="ag-stat-row">
+                            <span class="ag-stat-label">Entregas pendientes</span>
+                            <span class="ag-stat-value text-active" id="entregasPendientes">--</span>
+                        </div>
+                        <hr class="ag-divider">
+                        <div class="ag-stat-row">
+                            <span class="ag-stat-label">Total a cobrar</span>
+                            <span class="ag-stat-value text-go" id="totalACobrar">--</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Flujo de Pago
+                        </h3>
+                    </div>
+                    <div class="ag-section-body">
+                        <div class="ag-flow-steps">
+                            <div class="ag-flow-step active">
+                                <div class="ag-flow-step-dot">1</div>
+                                OT Finalizada
+                            </div>
+                            <div class="ag-flow-step-line"></div>
+                            <div class="ag-flow-step">
+                                <div class="ag-flow-step-dot">2</div>
+                                Pago + Comprobante
+                            </div>
+                            <div class="ag-flow-step-line"></div>
+                            <div class="ag-flow-step">
+                                <div class="ag-flow-step-dot">3</div>
+                                Entrega
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: cobrar con boleta / factura (wizard en 3 pasos) -->
+    <div class="ag-modal-overlay" id="pagoModal">
+        <div class="ag-modal ag-modal--wide">
+            <div class="ag-modal-header">
+                <h3 id="pagoModalTitle">Cobrar OT</h3>
+                <button class="ag-modal-close" onclick="cerrarPagoModal()">&times;</button>
+            </div>
+            <div class="ag-modal-body">
+                <div class="ag-wizard" id="payWizard">
+                    <div class="ag-wz-step" data-s="1"><span class="ag-wz-dot">1</span>Comprobante</div>
+                    <div class="ag-wz-line"></div>
+                    <div class="ag-wz-step" data-s="2"><span class="ag-wz-dot">2</span>Cliente y pago</div>
+                    <div class="ag-wz-line"></div>
+                    <div class="ag-wz-step" data-s="3"><span class="ag-wz-dot">3</span>Confirmar</div>
+                </div>
+                <div class="ag-pay-grid">
+                    <div>
+                        <div class="pay-pane" data-pane="1">
+                            <div class="ag-doc-cards" role="radiogroup" aria-label="Tipo de comprobante">
+                                <label class="ag-doc-card">
+                                    <input type="radio" name="tipoComp" value="BOLETA" checked>
+                                    <span class="ag-doc-card-inner">
+                                        <span class="ag-doc-ico">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                                        </span>
+                                        <span><b>Boleta</b><small>Consumidor final · DNI 8 digitos</small></span>
+                                        <span class="ag-doc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    </span>
+                                </label>
+                                <label class="ag-doc-card">
+                                    <input type="radio" name="tipoComp" value="FACTURA">
+                                    <span class="ag-doc-card-inner">
+                                        <span class="ag-doc-ico">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        </span>
+                                        <span><b>Factura</b><small>Empresa · RUC 11 + razon social</small></span>
+                                        <span class="ag-doc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    </span>
+                                </label>
+                            </div>
+                            <p class="ag-field-hint">La serie se asigna sola: <b id="seriePreview">B001-000001</b> · Comprobante interno, no es facturacion electronica SUNAT.</p>
+                        </div>
+                        <div class="pay-pane" data-pane="2" hidden>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label" for="pagoDoc" id="pagoDocLabel">DNI (8 digitos)</label>
+                                <input class="ag-form-control" id="pagoDoc" placeholder="Ej. 12345678" maxlength="11" inputmode="numeric">
+                                <p class="ag-field-hint" id="pagoDocHint">Sin puntos ni guiones.</p>
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label" for="pagoNombre" id="pagoNombreLabel">Nombre del cliente</label>
+                                <input class="ag-form-control" id="pagoNombre" placeholder="Nombre y apellido">
+                            </div>
+                            <div class="ag-form-group" id="pagoDirGroup" hidden>
+                                <label class="ag-form-label" for="pagoDireccion">Direccion fiscal</label>
+                                <input class="ag-form-control" id="pagoDireccion" placeholder="Av. / Calle / Distrito">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label" for="pagoMetodo">Metodo de pago</label>
+                                <select class="ag-form-control" id="pagoMetodo">
+                                    <option value="EFECTIVO">Efectivo</option>
+                                    <option value="YAPE">Yape</option>
+                                    <option value="PLIN">Plin</option>
+                                    <option value="TRANSFERENCIA">Transferencia</option>
+                                    <option value="TARJETA">Tarjeta</option>
+                                </select>
+                            </div>
+                            <p class="ag-field-error" id="pagoError" hidden></p>
+                        </div>
+                        <div class="pay-pane" data-pane="3" hidden>
+                            <div id="payConfirmBox"></div>
+                            <p class="ag-field-hint">Al confirmar se registra el pago y se abre tu constancia lista para imprimir.</p>
+                        </div>
+                    </div>
+                    <aside class="ag-mini-ticket" aria-live="polite">
+                        <h4>Vista previa</h4>
+                        <div class="row"><span>Comprobante</span><b id="pvTipo">BOLETA B001-000001</b></div>
+                        <div class="row"><span>Cliente</span><b id="pvCliente">—</b></div>
+                        <div class="row"><span>Pago</span><b id="pvMetodo">EFECTIVO</b></div>
+                        <div class="row"><span>Subtotal</span><span id="pvSub">—</span></div>
+                        <div class="row"><span>IGV 18%</span><span id="pvIgv">—</span></div>
+                        <div class="row total"><span>Total</span><span id="pvTotal">—</span></div>
+                    </aside>
+                </div>
+            </div>
+            <div class="ag-modal-footer">
+                <button class="ag-btn ag-btn-outline" id="payBackBtn" onclick="payStep(-1)" hidden>Atrás</button>
+                <span style="flex:1"></span>
+                <button class="ag-btn ag-btn-outline" onclick="cerrarPagoModal()">Cancelar</button>
+                <button class="ag-btn ag-btn-primary" id="payNextBtn" onclick="payStep(1)">Continuar</button>
+                <button class="ag-btn ag-btn-success" id="pagoConfirmBtn" onclick="confirmarPago()" hidden>Confirmar pago</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: constancia del comprobante -->
+    <div class="ag-modal-overlay" id="compModal">
+        <div class="ag-modal" style="max-width:420px;">
+            <div class="ag-modal-header">
+                <h3>Constancia de pago</h3>
+                <button class="ag-modal-close" onclick="cerrarCompModal()">&times;</button>
+            </div>
+            <div class="ag-modal-body">
+                <div id="comprobanteTicket"></div>
+            </div>
+            <div class="ag-modal-footer">
+                <button class="ag-btn ag-btn-outline" onclick="cerrarCompModal()">Cerrar</button>
+                <button class="ag-btn ag-btn-outline" onclick="descargarComprobante()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Descargar</button>
+                <button class="ag-btn ag-btn-primary" onclick="imprimirComprobante()">Imprimir</button>
+            </div>
+        </div>
+    </div>
+    <div id="printArea"><div id="comprobanteTicketPrint"></div></div>
+
+    <div id="themeToggleWrap"></div>
+    <script src="../js/api.js?v=20261001"></script>
+    <script src="../js/animations.js?v=20261001"></script>
+    <script src="../js/ui-kit.js"></script>
+    <script src="../js/confirm-modal.js?v=20261001"></script>
+    <script>
+        if (!guardPage('pago_entrega')) throw new Error('Acceso denegado');
+        document.getElementById('navbar').innerHTML = renderNavbar('pago_entrega');
+        document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
+        initTheme();
+
+        /* ---- Comprobantes internos (frontend v1.3.0; el backend aun solo guarda monto) ---- */
+        const COMP_KEY = 'ag_comprobantes_v1';
+        const CORR_KEY = 'ag_correlativos_v1';
+        const SERIES = { BOLETA: 'B001', FACTURA: 'F001' };
+        let pagoActual = null;
+
+        function getComps() { try { return JSON.parse(localStorage.getItem(COMP_KEY) || '{}'); } catch (_) { return {}; } }
+        function saveComps(c) { localStorage.setItem(COMP_KEY, JSON.stringify(c)); }
+        function nextNumero(tipo) {
+            let corr = {};
+            try { corr = JSON.parse(localStorage.getItem(CORR_KEY) || '{}'); } catch (_) { corr = {}; }
+            const serie = SERIES[tipo];
+            corr[serie] = (corr[serie] || 0) + 1;
+            localStorage.setItem(CORR_KEY, JSON.stringify(corr));
+            return { serie, numero: String(corr[serie]).padStart(6, '0') };
+        }
+        function peekNumero(tipo) {
+            let corr = {};
+            try { corr = JSON.parse(localStorage.getItem(CORR_KEY) || '{}'); } catch (_) { corr = {}; }
+            const serie = SERIES[tipo];
+            return serie + '-' + String((corr[serie] || 0) + 1).padStart(6, '0');
+        }
+        function desglose(total) {
+            const sub = total / 1.18;
+            return { sub, igv: total - sub, total };
+        }
+
+        function countUp(el, to, fmt) {
+            if (!el) return;
+            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduce) { el.textContent = fmt(to); return; }
+            const t0 = performance.now(), dur = 600;
+            (function tick(t) {
+                const k = Math.min(1, (t - t0) / dur);
+                const v = to * (1 - Math.pow(1 - k, 3));
+                el.textContent = fmt(v);
+                if (k < 1) requestAnimationFrame(tick);
+            })(t0);
+        }
+        const fmtInt = v => Math.round(v).toString();
+
+        async function loadOrdenesFinalizadas() {
+            try {
+                const ordenes = await apiFetch('/ordenes-trabajo/finalizadas-completa');
+                const c = document.getElementById('ordenesContainer');
+                if (!ordenes.length) {
+                    c.innerHTML = `<div class="ag-empty">
+                        <div class="ag-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        <strong>Todo cobrado y entregado</strong>
+                        <p>No hay ordenes finalizadas pendientes. Cuando una OT se finalice, aparecera aqui lista para cobrar.</p>
+                        <a class="ag-cta" href="orden_trabajo.html">Ver ordenes de trabajo<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+                    </div>`;
+                    countUp(document.getElementById('pagosPendientes'), 0, fmtInt);
+                    countUp(document.getElementById('entregasPendientes'), 0, fmtInt);
+                    countUp(document.getElementById('totalACobrar'), 0, formatCurrency);
+                    document.getElementById('headTotal').textContent = 'caja al dia';
+                    return;
+                }
+                const comps = getComps();
+                let pp = 0, ep = 0, tc = 0;
+                const cards = ordenes.map((ot) => {
+                    const monto = ot.monto || 0;
+                    const tienePago = ot.tienePago;
+                    const tieneEntrega = ot.tieneEntrega;
+                    const comp = comps[ot.id];
+                    if (!tienePago) pp++; if (!tieneEntrega) ep++; if (!tienePago) tc += monto;
+                    return `
+                        <div class="ag-state-card sc-pagado">
+                            <div class="ag-d-flex ag-justify-between ag-align-center ag-flex-wrap" style="gap:0.5rem;">
+                                <div class="ag-d-flex ag-align-center" style="gap:0.6rem; flex-wrap:wrap;">
+                                    <span class="sc-id">#${ot.id}</span>
+                                    <span class="sc-meta">Cot. #${ot.cotizacionId || '?'} · ${ot.mecanicoNombre || '?'}</span>
+                                </div>
+                                <div class="ag-d-flex ag-align-center ag-gap-3 ag-flex-wrap">
+                                    <span class="sc-amount">${formatCurrency(monto)}</span>
+                                    <span class="ag-badge ${tienePago ? 'ag-badge-success' : 'ag-badge-warning'}">${tienePago ? 'Pagado' : 'Pendiente Pago'}</span>
+                                    <span class="ag-badge ${tieneEntrega ? 'ag-badge-success' : 'ag-badge-info'}">${tieneEntrega ? 'Entregado' : 'Pendiente Entrega'}</span>
+                                </div>
+                            </div>
+                            ${comp ? `<div class="ag-d-flex ag-align-center ag-gap-3 ag-mt-2" style="font-size:0.78rem;">
+                                <span class="ag-badge ${comp.tipo === 'FACTURA' ? 'ag-badge-primary' : 'ag-badge-info'}">${comp.tipo} ${comp.serie}-${comp.numero}</span>
+                                <span class="ag-text-muted">${comp.metodo} · ${comp.docNombre || ''}</span>
+                            </div>` : ''}
+                            <div class="ag-d-flex ag-gap-3 ag-mt-2 ag-flex-wrap">
+                                ${!tienePago ? `<button class="ag-btn ag-btn-success ag-btn-sm" onclick="abrirPagoModal(${ot.id},${monto})">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                    Registrar Pago</button>` : ''}
+                                ${(tienePago || comp) ? `<button class="ag-btn ag-btn-outline ag-btn-sm" onclick="verComprobante(${ot.id},${monto})">Ver comprobante</button>` : ''}
+                                ${tienePago && !tieneEntrega ? `<button class="ag-btn ag-btn-accent ag-btn-sm" onclick="registrarEntrega(${ot.id})">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                                    Registrar Entrega</button>` : ''}
+                            </div>
+                        </div>`;
+                });
+                c.innerHTML = cards.join('');
+                countUp(document.getElementById('pagosPendientes'), pp, fmtInt);
+                countUp(document.getElementById('entregasPendientes'), ep, fmtInt);
+                countUp(document.getElementById('totalACobrar'), tc, formatCurrency);
+                document.getElementById('headTotal').textContent = `${formatCurrency(tc)} por cobrar`;
+            } catch (e) { document.getElementById('ordenesContainer').innerHTML = '<p class="ag-text-muted">Error al cargar</p>'; }
+        }
+
+        let payPane = 1;
+        function tipoCompSel() {
+            const el = document.querySelector('input[name="tipoComp"]:checked');
+            return el ? el.value : 'BOLETA';
+        }
+        function collectPay() {
+            return {
+                tipo: tipoCompSel(),
+                doc: document.getElementById('pagoDoc').value.trim(),
+                nombre: document.getElementById('pagoNombre').value.trim(),
+                direccion: document.getElementById('pagoDireccion').value.trim(),
+                metodo: document.getElementById('pagoMetodo').value
+            };
+        }
+        function onTipoCompChange() {
+            const tipo = tipoCompSel();
+            const isFac = tipo === 'FACTURA';
+            document.getElementById('pagoDirGroup').hidden = !isFac;
+            document.getElementById('pagoDocLabel').textContent = isFac ? 'RUC (11 digitos)' : 'DNI (8 digitos)';
+            document.getElementById('pagoNombreLabel').textContent = isFac ? 'Razon social' : 'Nombre del cliente';
+            document.getElementById('pagoDoc').placeholder = isFac ? 'Ej. 20123456789' : 'Ej. 12345678';
+            document.getElementById('pagoDocHint').textContent = isFac ? 'RUC de 11 digitos, sin puntos ni guiones.' : 'DNI de 8 digitos, sin puntos ni guiones.';
+            updatePayPreview();
+        }
+        function setPayStep(n) {
+            payPane = Math.min(3, Math.max(1, n));
+            document.querySelectorAll('#payWizard .ag-wz-step').forEach(s => {
+                const k = parseInt(s.dataset.s, 10);
+                s.classList.toggle('now', k === payPane);
+                s.classList.toggle('done', k < payPane);
+                s.querySelector('.ag-wz-dot').textContent = k < payPane ? '✓' : k;
+            });
+            document.querySelectorAll('.pay-pane').forEach(p => { p.hidden = parseInt(p.dataset.pane, 10) !== payPane; });
+            document.getElementById('payBackBtn').hidden = payPane === 1;
+            document.getElementById('payNextBtn').hidden = payPane === 3;
+            document.getElementById('pagoConfirmBtn').hidden = payPane !== 3;
+            if (payPane === 3) renderConfirmBox();
+        }
+        function payStep(dir) {
+            if (dir > 0 && payPane === 2 && !validatePayStep2()) return;
+            setPayStep(payPane + dir);
+        }
+        function payError(msg, badId) {
+            const e = document.getElementById('pagoError');
+            ['pagoDoc', 'pagoNombre', 'pagoDireccion'].forEach(id => document.getElementById(id).classList.remove('is-bad'));
+            if (!msg) { e.hidden = true; return true; }
+            e.textContent = msg;
+            e.hidden = false;
+            if (badId) { document.getElementById(badId).classList.add('is-bad'); document.getElementById(badId).focus(); }
+            return false;
+        }
+        function validatePayStep2() {
+            const f = collectPay();
+            if (f.tipo === 'FACTURA') {
+                if (!/^\d{11}$/.test(f.doc)) return !payError('La factura exige un RUC de 11 digitos.', 'pagoDoc'), false;
+                if (!f.nombre) return !payError('La factura exige la razon social.', 'pagoNombre'), false;
+                if (!f.direccion) return !payError('La factura exige la direccion fiscal.', 'pagoDireccion'), false;
+            } else {
+                if (!/^\d{8}$/.test(f.doc)) return !payError('La boleta exige un DNI de 8 digitos.', 'pagoDoc'), false;
+                if (!f.nombre) return !payError('Escribe el nombre del cliente.', 'pagoNombre'), false;
+            }
+            return payError(null);
+        }
+        function updatePayPreview() {
+            if (!pagoActual) return;
+            const f = collectPay();
+            const d = desglose(pagoActual.monto);
+            const folio = peekNumero(f.tipo);
+            document.getElementById('seriePreview').textContent = folio;
+            document.getElementById('pvTipo').textContent = `${f.tipo} ${folio}`;
+            document.getElementById('pvCliente').textContent = f.nombre || '—';
+            document.getElementById('pvMetodo').textContent = f.metodo;
+            document.getElementById('pvSub').textContent = formatCurrency(d.sub);
+            document.getElementById('pvIgv').textContent = formatCurrency(d.igv);
+            document.getElementById('pvTotal').textContent = formatCurrency(d.total);
+            document.getElementById('pagoModalTitle').textContent = `Cobrar OT #${pagoActual.otId} · ${formatCurrency(pagoActual.monto)}`;
+        }
+        function renderConfirmBox() {
+            if (!pagoActual) return;
+            const f = collectPay();
+            const d = desglose(pagoActual.monto);
+            document.getElementById('payConfirmBox').innerHTML = `
+                <div class="ag-mini-ticket" style="position:static;">
+                    <h4>Revisa antes de cobrar</h4>
+                    <div class="row"><span>Comprobante</span><b>${f.tipo} ${peekNumero(f.tipo)}</b></div>
+                    <div class="row"><span>${f.tipo === 'FACTURA' ? 'RUC' : 'DNI'}</span><b>${f.doc}</b></div>
+                    <div class="row"><span>Cliente</span><b>${f.nombre}</b></div>
+                    ${f.direccion ? `<div class="row"><span>Direccion</span><b>${f.direccion}</b></div>` : ''}
+                    <div class="row"><span>Pago</span><b>${f.metodo}</b></div>
+                    <div class="row"><span>Subtotal</span><span>${formatCurrency(d.sub)}</span></div>
+                    <div class="row"><span>IGV 18%</span><span>${formatCurrency(d.igv)}</span></div>
+                    <div class="row total"><span>Total</span><span>${formatCurrency(d.total)}</span></div>
+                </div>`;
+        }
+        function abrirPagoModal(otId, monto) {
+            pagoActual = { otId, monto };
+            document.querySelector('input[name="tipoComp"][value="BOLETA"]').checked = true;
+            document.getElementById('pagoDoc').value = '';
+            document.getElementById('pagoNombre').value = '';
+            document.getElementById('pagoDireccion').value = '';
+            document.getElementById('pagoMetodo').value = 'EFECTIVO';
+            payError(null);
+            onTipoCompChange();
+            setPayStep(1);
+            document.getElementById('pagoModal').classList.add('show');
+        }
+        function cerrarPagoModal() { document.getElementById('pagoModal').classList.remove('show'); pagoActual = null; }
+
+        document.querySelectorAll('input[name="tipoComp"]').forEach(r => r.addEventListener('change', onTipoCompChange));
+        ['pagoDoc', 'pagoNombre', 'pagoDireccion', 'pagoMetodo'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updatePayPreview);
+            document.getElementById(id).addEventListener('change', updatePayPreview);
+        });
+
+        async function confirmarPago() {
+            if (!pagoActual) return;
+            if (!validatePayStep2()) { setPayStep(2); return; }
+            const { tipo, doc, nombre, direccion, metodo } = collectPay();
+            const btn = document.getElementById('pagoConfirmBtn');
+            btn.disabled = true;
+            /* Se captura todo antes de cerrar: cerrarPagoModal() pone pagoActual en null */
+            const otId = pagoActual.otId;
+            const monto = pagoActual.monto;
+            try {
+                await apiFetch('/pago-entrega/completa', { method: 'POST', body: JSON.stringify({ ordenTrabajoId: otId, monto }) });
+                const { serie, numero } = nextNumero(tipo);
+                const d = desglose(monto);
+                const comps = getComps();
+                comps[otId] = { tipo, serie, numero, doc, docNombre: nombre, direccion: tipo === 'FACTURA' ? direccion : '', metodo, subtotal: d.sub, igv: d.igv, total: d.total, fecha: new Date().toISOString(), otId };
+                saveComps(comps);
+                cerrarPagoModal();
+                toast(`Pago registrado · ${tipo} ${serie}-${numero}`, 'success');
+                mostrarComprobante(comps[otId]);
+                loadOrdenesFinalizadas();
+            } catch (e) { toast('Error: ' + e.message, 'danger'); }
+            finally { btn.disabled = false; }
+        }
+
+        function ticketHTML(comp) {
+            const isFac = comp.tipo === 'FACTURA';
+            return `<div class="ag-ticket">
+                <div class="ag-ticket-top">
+                    <div class="ag-ticket-brand">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <div><h2>TALLER SAN MARTIN</h2><small>AutoGestion · Servicio automotriz</small></div>
+                    <div class="ag-ticket-folio">
+                        <span class="folio-tipo">${comp.tipo}</span>
+                        <span class="folio-num">${comp.serie}-${comp.numero}</span>
+                        <span class="folio-fecha">${formatDate(comp.fecha)}</span>
+                    </div>
+                </div>
+                <div class="ag-ticket-body">
+                    <div class="ag-ticket-client">
+                        <div class="row"><span>${isFac ? 'RUC' : 'DNI'}</span><b>${comp.doc}</b></div>
+                        <div class="row"><span>Cliente</span><b>${comp.docNombre}</b></div>
+                        ${comp.direccion ? `<div class="row"><span>Direccion</span><b>${comp.direccion}</b></div>` : ''}
+                        <div class="row"><span>OT</span><b>#${comp.otId}</b></div>
+                        <div class="row"><span>Pago</span><b>${comp.metodo}</b></div>
+                    </div>
+                    <table class="ag-ticket-items">
+                        <tr><td>Servicio de taller · OT #${comp.otId}</td><td>${formatCurrency(comp.total)}</td></tr>
+                    </table>
+                    <table class="ag-ticket-totals">
+                        <tr><td>Subtotal</td><td>${formatCurrency(comp.subtotal)}</td></tr>
+                        <tr><td>IGV 18%</td><td>${formatCurrency(comp.igv)}</td></tr>
+                        <tr class="grand"><td>TOTAL</td><td>${formatCurrency(comp.total)}</td></tr>
+                    </table>
+                </div>
+                <div class="ag-ticket-foot">
+                    <span class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>PAGO REGISTRADO</span><br>
+                    Gracias por su preferencia<br>Constancia interna · No es comprobante electronico SUNAT
+                </div>
+            </div>`;
+        }
+        let compShown = null;
+        function mostrarComprobante(comp) {
+            compShown = comp;
+            document.getElementById('comprobanteTicket').innerHTML = ticketHTML(comp);
+            document.getElementById('comprobanteTicketPrint').innerHTML = ticketHTML(comp);
+            document.getElementById('compModal').classList.add('show');
+        }
+        const TICKET_FILE_CSS = `
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #f1f5f9; padding: 2rem 1rem; }
+            .ag-ticket { max-width: 380px; margin: 0 auto; background: #fff; color: #1e293b; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; font-size: 14px; }
+            .ag-ticket-top { background: #0f172a; color: #f8fafc; padding: 18px 20px; display: flex; align-items: center; gap: 12px; }
+            .ag-ticket-brand { width: 42px; height: 42px; border-radius: 10px; background: rgba(217,119,6,.2); border: 1px solid rgba(217,119,6,.5); display: flex; align-items: center; justify-content: center; color: #fbbf24; }
+            .ag-ticket-brand svg { width: 22px; height: 22px; }
+            .ag-ticket-top h2 { font-size: 16px; }
+            .ag-ticket-top small { color: rgba(248,250,252,.6); font-size: 11px; }
+            .ag-ticket-folio { margin-left: auto; text-align: right; }
+            .ag-ticket-folio .folio-tipo { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; background: #d97706; color: #fff; border-radius: 6px; padding: 2px 8px; }
+            .ag-ticket-folio .folio-num { display: block; font-weight: 700; font-size: 15px; margin-top: 4px; }
+            .ag-ticket-folio .folio-fecha { display: block; font-size: 11px; color: rgba(248,250,252,.6); }
+            .ag-ticket-body { padding: 16px 20px; }
+            .ag-ticket-client { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; }
+            .ag-ticket-client .row { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
+            .ag-ticket-client .row span:first-child { color: #64748b; }
+            .ag-ticket-items, .ag-ticket-totals { width: 100%; border-collapse: collapse; font-size: 13px; }
+            .ag-ticket-items td { padding: 5px 0; border-bottom: 1px dashed #e2e8f0; }
+            .ag-ticket-items td:last-child, .ag-ticket-totals td:last-child { text-align: right; }
+            .ag-ticket-totals td { padding: 3px 0; }
+            .ag-ticket-totals tr.grand td { font-size: 17px; font-weight: 800; color: #0f172a; border-top: 2px solid #0f172a; padding-top: 7px; }
+            .ag-ticket-foot { text-align: center; padding: 12px 20px 16px; font-size: 11px; color: #64748b; border-top: 1px dashed #e2e8f0; }
+            .ag-ticket-foot .ok { display: inline-block; color: #059669; font-weight: 700; font-size: 12px; }
+            @media print { body { background: #fff; padding: 0; } .ag-ticket { max-width: 100%; } }</style>`;
+        function descargarComprobante() {
+            if (!compShown) { toast('No hay comprobante para descargar', 'warning'); return; }
+            const doc = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${compShown.tipo} ${compShown.serie}-${compShown.numero} - Taller San Martin</title><style>${TICKET_FILE_CSS}`;
+            const blob = new Blob([doc + ticketHTML(compShown) + '</body></html>'], { type: 'text/html;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${compShown.tipo}-${compShown.serie}-${compShown.numero}.html`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+            toast('Constancia descargada', 'success');
+        }
+        function cerrarCompModal() { document.getElementById('compModal').classList.remove('show'); }
+        function verComprobante(otId, monto) {
+            const comp = getComps()[otId];
+            if (comp) { mostrarComprobante(comp); return; }
+            const d = desglose(monto || 0);
+            mostrarComprobante({ tipo: 'BOLETA', serie: SERIES.BOLETA, numero: '------', doc: '-', docNombre: 'Registrado sin comprobante (anterior a v1.3.0)', direccion: '', metodo: '-', subtotal: d.sub, igv: d.igv, total: d.total, fecha: new Date().toISOString(), otId });
+        }
+        function imprimirComprobante() { window.print(); }
+        document.getElementById('pagoModal').addEventListener('click', (e) => { if (e.target.id === 'pagoModal') cerrarPagoModal(); });
+        document.getElementById('compModal').addEventListener('click', (e) => { if (e.target.id === 'compModal') cerrarCompModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { cerrarPagoModal(); cerrarCompModal(); } });
+
+        async function registrarEntrega(otId) {
+            if (!(await confirmarAccion(`Confirmar entrega del vehiculo para OT #${otId}?`, { tipo: 'danger' }))) return;
+            try { await apiFetch(`/entregas/${otId}`, { method: 'POST' }); toast(`Entrega registrada para OT #${otId}`, 'success'); loadOrdenesFinalizadas(); } catch (e) { toast('Error: ' + e.message, 'danger'); }
+        }
+        loadOrdenesFinalizadas();
+    </script>
+</body>
+</html>

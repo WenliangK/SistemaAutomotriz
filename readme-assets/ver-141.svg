@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="40" viewBox="0 0 360 40" role="img" aria-label="version 1.4.1 impresion fiel y descarga">
+  <defs>
+    <linearGradient id="g141a" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1e293b"/><stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="g141b" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  <g font-family="'Segoe UI', system-ui, -apple-system, Arial, sans-serif" font-size="13" font-weight="600">
+    <rect x="1" y="4" width="152" height="32" rx="16" fill="url(#g141a)" stroke="#334155"/>
+    <circle cx="20" cy="20" r="5" fill="#38bdf8">
+      <animate attributeName="opacity" values="1;0.35;1" keyTimes="0;0.5;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="32" y="25" fill="#f8fafc">v1.4.1 · ticket</text>
+    <rect x="161" y="4" width="194" height="32" rx="16" fill="url(#g141b)"/>
+    <text x="177" y="25" fill="#ffffff">imprime + descarga</text>
+  </g>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="40" viewBox="0 0 150 40" role="img" aria-label="version 1.0.0 base">
+  <defs>
+    <linearGradient id="g100a" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#475569"/><stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <g font-family="'Segoe UI', system-ui, -apple-system, Arial, sans-serif" font-size="13" font-weight="600">
+    <rect x="1" y="4" width="142" height="32" rx="16" fill="url(#g100a)" stroke="#334155"/>
+    <circle cx="20" cy="20" r="5" fill="#94a3b8">
+      <animate attributeName="opacity" values="1;0.35;1" keyTimes="0;0.5;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="32" y="25" fill="#f8fafc">v1.0.0 · base</text>
+  </g>
+</svg>

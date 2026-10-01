@@ -1,0 +1,262 @@
+const API_BASE = new URLSearchParams(window.location.search).get('apiBase')
+    || localStorage.getItem('apiBase')
+    || 'http://localhost:8080/api';
+function getToken() { return localStorage.getItem('token'); }
+function setToken(token) { localStorage.setItem('token', token); }
+function clearToken() { localStorage.removeItem('token'); localStorage.removeItem('user'); }
+function getUser() { const u = localStorage.getItem('user'); return u ? JSON.parse(u) : null; }
+function setUser(user) { localStorage.setItem('user', JSON.stringify(user)); }
+function isLoggedIn() { return !!getToken(); }
+/* Rutas base: el login vive en frontend/index.html, las paginas en frontend/pages/.
+   Desde pages/ hay que subir un nivel (../index.html); desde la raiz no. */
+function agIsInPages() { return window.location.pathname.replace(/\\/g, '/').includes('/pages/'); }
+function agLoginPath() { return agIsInPages() ? '../index.html' : 'index.html'; }
+function logout() { clearToken(); window.location.href = agLoginPath(); }
+function checkAuth() { if (!isLoggedIn()) { window.location.href = agLoginPath(); return false; } return true; }
+
+/* =========================================================
+   PERMISOS POR ROL
+   Define que paginas puede ver cada rol. El navbar, los
+   guards de pagina, el buscador Ctrl+K y el tutorial usan
+   este mismo mapa como unica fuente de verdad.
+   ========================================================= */
+const ROLE_PAGES = {
+    dashboard:     ['ADMIN', 'ALMACENERO'],
+    recepcion:     ['ADMIN', 'RECEPCIONISTA'],
+    cotizacion:    ['ADMIN', 'RECEPCIONISTA'],
+    orden_trabajo: ['ADMIN', 'RECEPCIONISTA', 'MECANICO'],
+    inventario:    ['ADMIN', 'ALMACENERO', 'MECANICO'],
+    pago_entrega:  ['ADMIN'],
+    mecanico:      ['MECANICO'],
+    recepcionista: ['RECEPCIONISTA'],
+    tutorial:      ['ADMIN', 'MECANICO', 'ALMACENERO', 'RECEPCIONISTA'],
+};
+window.AG_ROLE_PAGES = ROLE_PAGES;
+
+/* Guard de pagina: exige sesion y que el rol tenga acceso.
+   Sin sesion -> login; con sesion pero rol sin permiso -> pagina de acceso denegado.
+   Uso: if (!guardPage('inventario')) return; */
+function guardPage(page) {
+    if (!checkAuth()) return false;
+    const user = getUser();
+    const allowed = ROLE_PAGES[page] || [];
+    if (user && allowed.includes(user.rol)) return true;
+    window.location.href = 'acceso_denegado.html';
+    return false;
+}
+
+/* Pagina de inicio segun el rol (post-login y redirecciones).
+   Desde el login (raiz) incluye 'pages/'; desde dentro de pages/ es relativo. */
+function homePageForRol(rol, fromPages) {
+    const inPages = typeof fromPages === 'boolean' ? fromPages : agIsInPages();
+    const page = rol === 'MECANICO' ? 'mecanico.html'
+        : rol === 'RECEPCIONISTA' ? 'recepcionista.html'
+        : rol === 'ALMACENERO' ? 'inventario.html'
+        : 'dashboard.html';
+    return inPages ? page : 'pages/' + page;
+}
+
+async function apiFetch(endpoint, options = {}) {
+    const token = getToken();
+    const headers = { 'Content-Type': 'application/json', ...options.headers };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+        const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+        if (response.status === 401) {
+            // Token invalido o expirado: cerrar sesion y volver al login.
+            clearToken();
+            throw new Error('Sesion expirada. Inicia sesion nuevamente');
+        }
+        if (response.status === 403) {
+            // Autenticado pero sin permisos por rol: NO cerrar sesion, solo informar.
+            throw new Error('No tienes permisos para realizar esta accion con tu rol');
+        }
+        if (!response.ok) {
+            let msg = `Error ${response.status}`;
+            try {
+                const body = await response.json();
+                if (body?.error) msg = body.error;
+                else if (body?.message) msg = body.message;
+            } catch (_) { const err = await response.text(); msg = err || msg; }
+            throw new Error(msg);
+        }
+        const ct = response.headers.get('content-type');
+        if (ct && ct.includes('application/json')) return await response.json();
+        return null;
+    } catch (error) { console.error('API Error:', error); throw error; }
+}
+function showAlert(containerId, message, type = 'danger') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const svgMap = {
+        success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+        danger: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+        warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+    };
+    container.innerHTML = `
+        <div class="ag-alert ag-alert-${type}">
+            ${svgMap[type] || svgMap.info}
+            <span>${message}</span>
+            <button class="ag-alert-close" onclick="this.parentElement.remove()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>`;
+    setTimeout(() => { const a = container.querySelector('.ag-alert'); if (a) a.remove(); }, 5000);
+}
+function showSuccess(id, msg) { showAlert(id, msg, 'success'); }
+function showError(id, msg) { showAlert(id, msg, 'danger'); }
+
+/* =========================================================
+   STEPPER DE CANTIDAD ( - / input / + )
+   Reemplaza los spinners nativos de input[type=number].
+   Uso: container.innerHTML = agStepper('miInput', { value: 1, min: 1, size: 'sm' });
+   ========================================================= */
+function agStepper(inputId, { value = 1, min = 1, max = 9999, step = 1, size = '' } = {}) {
+    const sizeClass = size === 'sm' ? ' ag-stepper--sm' : size === 'lg' ? ' ag-stepper--lg' : '';
+    const iconMinus = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+    const iconPlus = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+    const btn = (dir, label, icon) => `<button type="button" class="ag-stepper-btn" aria-label="${label}" onclick="agStepperStep('${inputId}', ${dir})">${icon}</button>`;
+    return `<span class="ag-stepper${sizeClass}">
+        ${btn(-1, 'Disminuir', iconMinus)}
+        <input type="number" class="ag-stepper-value" id="${inputId}" value="${value}" min="${min}" max="${max}" step="${step}" inputmode="numeric">
+        ${btn(1, 'Aumentar', iconPlus)}
+    </span>`;
+}
+window.agStepper = agStepper;
+window.agStepperStep = function (inputId, dir) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const step = parseFloat(input.step) || 1;
+    const min = input.min !== '' ? parseFloat(input.min) : -Infinity;
+    const max = input.max !== '' ? parseFloat(input.max) : Infinity;
+    const current = parseFloat(input.value);
+    const base = isNaN(current) ? (min === -Infinity ? 0 : min) : current;
+    input.value = Math.min(max, Math.max(min, base + dir * step));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+};
+
+/* =========================================================
+   NAVBAR SEGUN ROL
+   ========================================================= */
+const NAV_ICONS = {
+    dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>',
+    recepcion: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>',
+    cotizacion: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    orden_trabajo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
+    inventario: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+    pago_entrega: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+    mecanico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>',
+    recepcionista: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>',
+};
+const NAV_LABELS = {
+    dashboard: 'Dashboard', recepcion: 'Recepcion', cotizacion: 'Cotizacion',
+    orden_trabajo: 'Ordenes', inventario: 'Inventario', pago_entrega: 'Pago / Entrega',
+    mecanico: 'Panel Mecanico', recepcionista: 'Panel Recepcionista',
+};
+const ROLE_NAV = {
+    ADMIN: ['dashboard', 'recepcion', 'cotizacion', 'orden_trabajo', 'inventario', 'pago_entrega'],
+    MECANICO: ['mecanico', 'orden_trabajo', 'inventario'],
+    ALMACENERO: ['dashboard', 'inventario'],
+    RECEPCIONISTA: ['recepcionista', 'recepcion', 'cotizacion', 'orden_trabajo'],
+};
+
+function renderNavbar(activePage) {
+    const user = getUser();
+    if (!user) return '';
+    const roleLabel = user.rol === 'ADMIN' ? 'Administrador' : user.rol === 'MECANICO' ? 'Mecanico' : user.rol === 'RECEPCIONISTA' ? 'Recepcionista' : 'Almacenero';
+    const dotClass = user.rol === 'ADMIN' ? 'dot-admin' : user.rol === 'MECANICO' ? 'dot-mecanico' : user.rol === 'RECEPCIONISTA' ? 'dot-recepcionista' : 'dot-almacenero';
+    const links = (ROLE_NAV[user.rol] || []).map(page => {
+        let label = NAV_LABELS[page] || page;
+        if (page === 'mecanico' && user.rol === 'MECANICO') label = 'Panel';
+        if (page === 'recepcionista' && user.rol === 'RECEPCIONISTA') label = 'Panel';
+        return `<a href="${page}.html" class="${activePage === page ? 'active' : ''}">${NAV_ICONS[page] || ''} ${label}</a>`;
+    }).join('');
+    const helpLink = `<a href="tutorial.html" class="${activePage === 'tutorial' ? 'active' : ''}" title="Tutorial del sistema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Tutorial
+    </a>`;
+    return `
+    <nav class="ag-navbar">
+        <a class="ag-navbar-brand" href="${homePageForRol(user.rol)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            AutoGestion
+        </a>
+        <div class="ag-navbar-nav">${links}${helpLink}</div>
+        <div class="ag-navbar-right">
+            <div class="ag-user-pill">
+                <span class="ag-user-pill-dot ${dotClass}"></span>
+                <span class="ag-user-pill-name">${user.nombre}</span>
+                <span class="ag-user-pill-role">${roleLabel}</span>
+            </div>
+            <button class="ag-btn-ghost" onclick="logout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Salir
+            </button>
+        </div>
+    </nav>`;
+}
+function renderThemeToggle() {
+    const stored = localStorage.getItem('ag-theme') || 'system';
+    const icons = {
+        system: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+        light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+        dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+    };
+    return `<button class="ag-theme-toggle" id="themeToggle" title="Cambiar tema" aria-label="Cambiar tema">${icons[stored]}</button>`;
+}
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(amount);
+}
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('es-PE') + ' ' + d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+}
+function estadoBadge(estado) {
+    const map = {
+        'PENDIENTE': 'secondary', 'EN_DIAGNOSTICO': 'info', 'COTIZADA': 'warning',
+        'EN_TRABAJO': 'primary', 'EN_PROCESO': 'warning', 'EN_PRUEBA': 'info',
+        'FINALIZADA': 'success', 'CANCELADA': 'danger', 'APROBADA': 'success',
+        'RECHAZADA': 'danger', 'ENTREGADA': 'success',
+    };
+    return `<span class="ag-badge ag-badge-${map[estado] || 'secondary'}">${estado.replace(/_/g, ' ')}</span>`;
+}
+function tipoBadge(tipo) {
+    return `<span class="ag-badge ag-badge-${tipo === 'REPUESTO' ? 'repuesto' : 'insumo'}">${tipo}</span>`;
+}
+function stockClass(actual, minimo) {
+    if (actual === 0) return 'row-danger';
+    if (actual < minimo) return 'row-danger';
+    return '';
+}
+function initTheme() {
+    const stored = localStorage.getItem('ag-theme') || 'system';
+    applyTheme(stored);
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    const order = ['system', 'light', 'dark'];
+    const iconMap = {
+        system: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+        light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+        dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+    };
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    mq.addEventListener('change', () => {
+        if (localStorage.getItem('ag-theme') === 'system') applyTheme('system');
+    });
+    btn.addEventListener('click', () => {
+        const current = localStorage.getItem('ag-theme') || 'system';
+        const next = order[(order.indexOf(current) + 1) % order.length];
+        localStorage.setItem('ag-theme', next);
+        applyTheme(next);
+        btn.innerHTML = iconMap[next];
+        btn.title = `Tema: ${next}`;
+    });
+}
+function applyTheme(mode) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const resolved = mode === 'system' ? (mq.matches ? 'dark' : 'light') : mode;
+    document.documentElement.setAttribute('data-bs-theme', resolved);
+}

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGestion - Recepcion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css?v=20260920b">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="../css/redesign.css">
+    <link rel="stylesheet" href="../css/polish.css?v=20261001">
+    <script>
+        (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
+    </script>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="ag-page">
+        <div class="ag-page-header">
+            <h1>Recepcion de Vehiculos</h1>
+            <p>Registrar ingreso de vehiculo al taller</p>
+        </div>
+        <div id="alertContainer"></div>
+        <div class="ag-layout-sidebar">
+            <div class="ag-section">
+                <div class="ag-section-header">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Datos del Cliente y Vehiculo
+                    </h3>
+                </div>
+                <div class="ag-section-body">
+                    <form id="recepcionForm">
+                        <div class="ag-section-title">Cliente</div>
+                        <div class="ag-grid ag-grid-2 ag-mb-2">
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Nombre *</label>
+                                <input type="text" class="ag-form-control" id="clienteNombre" required>
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Telefono</label>
+                                <input type="text" class="ag-form-control" id="clienteTelefono">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Email</label>
+                                <input type="email" class="ag-form-control" id="clienteEmail">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Documento</label>
+                                <input type="text" class="ag-form-control" id="clienteDocumento">
+                            </div>
+                        </div>
+                        <div class="ag-form-group">
+                            <label class="ag-form-label">O seleccionar cliente existente</label>
+                            <select class="ag-form-control" id="clienteExistente">
+                                <option value="">-- Nuevo cliente --</option>
+                            </select>
+                        </div>
+                        <div class="ag-section-title" style="margin-top: 1.25rem;">Vehiculo</div>
+                        <div class="ag-grid ag-grid-2 ag-mb-2">
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Placa *</label>
+                                <input type="text" class="ag-form-control" id="vehiculoPlaca" required placeholder="ABC-123" style="text-transform:uppercase;">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Marca</label>
+                                <input type="text" class="ag-form-control" id="vehiculoMarca">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Modelo</label>
+                                <input type="text" class="ag-form-control" id="vehiculoModelo">
+                            </div>
+                            <div class="ag-form-group">
+                                <label class="ag-form-label">Anio</label>
+                                <input type="number" class="ag-form-control" id="vehiculoAnio" min="1900" max="2030">
+                            </div>
+                        </div>
+                        <div class="ag-section-title" style="margin-top: 1.25rem;">Problema Reportado</div>
+                        <div class="ag-form-group">
+                            <textarea class="ag-form-control" id="problemaReportado" rows="3" placeholder="Describa el problema que presenta el vehiculo..." required></textarea>
+                        </div>
+                        <button type="submit" class="ag-btn ag-btn-primary ag-btn-block ag-btn-lg" style="margin-top: 0.5rem;">
+                            Registrar Recepcion
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="ag-layout-stack">
+                <div class="ag-section">
+                    <div class="ag-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                            Recepciones
+                        </h3>
+                        <div class="ag-chip-filters" id="estadoFilters">
+                            <button type="button" class="ag-chip" data-estado="">Todos</button>
+                            <button type="button" class="ag-chip active" data-estado="PENDIENTE">Pendientes</button>
+                            <button type="button" class="ag-chip" data-estado="EN_DIAGNOSTICO">Diagnostico</button>
+                            <button type="button" class="ag-chip" data-estado="COTIZADA">Cotizada</button>
+                            <button type="button" class="ag-chip" data-estado="EN_TRABAJO">En Trabajo</button>
+                            <button type="button" class="ag-chip" data-estado="FINALIZADA">Finalizada</button>
+                        </div>
+                    </div>
+                    <div class="ag-section-body" style="max-height:600px; overflow-y:auto;" id="recepcionesContainer">
+                        <p class="ag-text-muted ag-text-center">Cargando recepciones...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="themeToggleWrap"></div>
+    <script src="../js/api.js?v=20260920b"></script>
+    <script src="../js/animations.js"></script>
+    <script src="../js/ui-kit.js"></script>
+    <script>
+        (function() {
+            if (!guardPage('recepcion')) return;
+            document.getElementById('navbar').innerHTML = renderNavbar('recepcion');
+        document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
+        initTheme();
+        async function loadClientes() {
+            try {
+                const clientes = await apiFetch('/clientes');
+                const sel = document.getElementById('clienteExistente');
+                clientes.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = `${c.nombre} (${c.documento || 'Sin doc'})`; sel.appendChild(o); });
+            } catch (e) { console.error(e); }
+        }
+        window.loadRecepciones = async function() {
+            const estado = document.querySelector('#estadoFilters .ag-chip.active')?.dataset.estado || '';
+            try {
+                const todas = await apiFetch('/recepciones');
+                /* Contadores por estado en los chips */
+                document.querySelectorAll('#estadoFilters .ag-chip').forEach(ch => {
+                    const k = ch.dataset.estado;
+                    const label = ch.dataset.label || (ch.dataset.label = ch.textContent.trim());
+                    const n = k ? todas.filter(r => r.estado === k).length : todas.length;
+                    ch.innerHTML = `${label}<span class="chip-count">${n}</span>`;
+                });
+                const recepciones = estado ? todas.filter(r => r.estado === estado) : todas;
+                const c = document.getElementById('recepcionesContainer');
+                if (!recepciones.length) {
+                    agEmptyState(c, '<path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/>', 'No hay recepciones', 'No se encontraron recepciones para este filtro.');
+                    return;
+                }
+                const PROGRESS = { PENDIENTE: 15, EN_DIAGNOSTICO: 32, COTIZADA: 50, EN_TRABAJO: 70, FINALIZADA: 100 };
+                c.innerHTML = recepciones.map(r => {
+                    const pct = PROGRESS[r.estado] ?? 50;
+                    return `
+                    <div class="ag-state-card sc-${(r.estado || '').toLowerCase()}">
+                        <div class="ag-d-flex ag-justify-between ag-align-center ag-flex-wrap">
+                            <div class="ag-d-flex ag-align-center" style="gap:0.6rem; flex-wrap:wrap;">
+                                <span class="sc-id">#${r.id}</span>
+                                ${estadoBadge(r.estado)}
+                                <span class="sc-title">${r.vehiculo?.placa || '-'}</span>
+                            </div>
+                            <span class="sc-meta">${formatDate(r.fechaIngreso)}</span>
+                        </div>
+                        <p class="sc-meta ag-mt-1" style="margin-bottom:0;">${r.problemaReportado}</p>
+                        <div class="ag-progress"><div class="ag-progress-fill ${r.estado === 'FINALIZADA' ? 'pf-green' : ''}" style="width:${pct}%;"></div></div>
+                    </div>`;
+                }).join('');
+            } catch (e) { console.error('API Error:', e); document.getElementById('recepcionesContainer').innerHTML = '<p class="ag-text-muted">Error al cargar recepciones</p>'; }
+        }
+        document.getElementById('estadoFilters').addEventListener('click', (e) => {
+            const chip = e.target.closest('.ag-chip');
+            if (!chip) return;
+            document.querySelectorAll('#estadoFilters .ag-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            loadRecepciones();
+        });
+        document.getElementById('recepcionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await apiFetch('/recepciones/completa', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        clienteNombre: document.getElementById('clienteNombre').value,
+                        clienteTelefono: document.getElementById('clienteTelefono').value,
+                        clienteEmail: document.getElementById('clienteEmail').value,
+                        clienteDocumento: document.getElementById('clienteDocumento').value,
+                        vehiculoPlaca: document.getElementById('vehiculoPlaca').value.toUpperCase(),
+                        vehiculoMarca: document.getElementById('vehiculoMarca').value,
+                        vehiculoModelo: document.getElementById('vehiculoModelo').value,
+                        vehiculoAnio: document.getElementById('vehiculoAnio').value ? parseInt(document.getElementById('vehiculoAnio').value) : null,
+                        problemaReportado: document.getElementById('problemaReportado').value
+                    })
+                });
+                showSuccess('alertContainer', 'Recepcion registrada exitosamente');
+                document.getElementById('recepcionForm').reset();
+                document.getElementById('clienteExistente').value = '';
+                loadRecepciones();
+            } catch (error) { showError('alertContainer', 'Error: ' + error.message); }
+        });
+        loadClientes();
+        agSkeleton(document.getElementById('recepcionesContainer'), 'cards');
+        loadRecepciones();
+        })();
+    </script>
+</body>
+</html>
