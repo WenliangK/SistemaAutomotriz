@@ -241,7 +241,7 @@ stateDiagram-v2
 | 💬 **Cotizacion** | Diagnostico + cotizacion con calculo en vivo + cotizaciones existentes |
 | 🔧 **Ordenes de Trabajo** | Lista de OT con badges de estado + modal productos usados |
 | 📦 **Inventario** | Tabla de productos + entrada/ajuste + alertas de stock |
-| 💳 **Pago/Entrega** | Ordenes finalizadas + resumen animado + wizard BOLETA/FACTURA en 3 pasos con vista previa + constancia estilo ticket que imprime igual que en pantalla y se descarga en HTML (v1.4.1) |
+| 💳 **Pago/Entrega** | Ordenes finalizadas + resumen animado + wizard BOLETA/FACTURA en 3 pasos + constancia ticket que imprime limpio (sin encabezados del navegador) y se descarga en PDF real (v1.4.2) |
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 

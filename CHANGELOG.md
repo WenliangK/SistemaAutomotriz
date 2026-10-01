@@ -20,6 +20,7 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
 
 | Version | Fecha | Lo destacado |
 | :-- | :-- | :-- |
+| [1.4.2](#-142---2026-10-01) | 2026-10-01 | 📄 Descarga PDF real + impresion sin encabezados del navegador |
 | [1.4.1](#-141---2026-10-01) | 2026-10-01 | 🎫 Impresion fiel a pantalla + descarga de constancia |
 | [1.4.0](#-140---2026-10-01) | 2026-10-01 | ✨ Rediseño visual guiado · wizard de pago · ticket pro · responsive real |
 | [1.3.1](#-131---2026-10-01) | 2026-10-01 | 🐛 Fix crash boleta/factura · paneles exclusivos por rol |
@@ -27,6 +28,18 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
 | [1.2.0](#-120---2026-09-20) | 2026-09-20 | 🛡️ Permisos por rol + pagina 403 + stepper propio |
 | [1.1.0](#-110---2026-09-20) | 2026-09-20 | ✨ Rediseño visual completo + tutorial + tour guiado |
 | [1.0.0](#-100---2026-09-14) | 2026-09-14 | 🐛 Correccion de errores fundacionales (DTOs, pagos, cache) |
+
+<img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
+
+## 🔴 1.4.2 — 2026-10-01
+
+<img src="./readme-assets/ver-142.svg" width="360" alt="v1.4.2 pdf real sin encabezados" />
+
+### 📄 Descargar baja un PDF de verdad + imprimir sale limpio
+
+- **Problema 1:** al imprimir aparecian el titulo/URL de la pagina arriba y `1/1 + fecha` abajo. Eso lo pone el navegador, no el ticket. **Fix:** `@page { margin: 0 }` (con eso Chrome/Edge ya no imprimen su encabezado ni pie) + relleno propio en el area de impresion.
+- **Problema 2:** Descargar abria un `blob:` en el navegador en vez de un archivo. **Fix:** boton Descargar ahora genera un **PDF real** (`BOLETA-B001-000001.pdf`) con generador propio en JS, sin librerias ni internet: ticket de 80mm con cabecera oscura, banda de folio, bloque cliente, concepto, Subtotal/IGV/Total y sello PAGO REGISTRADO. Estructura verificada en Node (cabecera `%PDF-1.4`, xref, trailer, `%%EOF` y longitud del stream exactas, con Ñ y tildes).
+- La constancia queda con **Cerrar / Descargar PDF / Imprimir**, las tres fieles al diseño de pantalla.
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 

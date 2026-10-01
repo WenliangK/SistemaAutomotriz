@@ -15,10 +15,11 @@
     </script>
     <style>
         #printArea { display:none; }
-        @page { size: auto; margin: 8mm; }
+        /* Margen 0 en @page = el navegador NO imprime su header (titulo/URL) ni footer (pagina/fecha) */
+        @page { size: auto; margin: 0; }
         @media print {
             body > *:not(#printArea) { display:none !important; }
-            #printArea { display:block !important; position:static !important; padding:0; }
+            #printArea { display:block !important; position:static !important; padding:8mm; }
             .ag-ticket { max-width:100%; box-shadow:none; }
             .ag-ticket, .ag-ticket * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
@@ -519,42 +520,91 @@
             document.getElementById('comprobanteTicketPrint').innerHTML = ticketHTML(comp);
             document.getElementById('compModal').classList.add('show');
         }
-        const TICKET_FILE_CSS = `
-            * { box-sizing: border-box; margin: 0; padding: 0; }
-            body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #f1f5f9; padding: 2rem 1rem; }
-            .ag-ticket { max-width: 380px; margin: 0 auto; background: #fff; color: #1e293b; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; font-size: 14px; }
-            .ag-ticket-top { background: #0f172a; color: #f8fafc; padding: 18px 20px; display: flex; align-items: center; gap: 12px; }
-            .ag-ticket-brand { width: 42px; height: 42px; border-radius: 10px; background: rgba(217,119,6,.2); border: 1px solid rgba(217,119,6,.5); display: flex; align-items: center; justify-content: center; color: #fbbf24; }
-            .ag-ticket-brand svg { width: 22px; height: 22px; }
-            .ag-ticket-top h2 { font-size: 16px; }
-            .ag-ticket-top small { color: rgba(248,250,252,.6); font-size: 11px; }
-            .ag-ticket-folio { margin-left: auto; text-align: right; }
-            .ag-ticket-folio .folio-tipo { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; background: #d97706; color: #fff; border-radius: 6px; padding: 2px 8px; }
-            .ag-ticket-folio .folio-num { display: block; font-weight: 700; font-size: 15px; margin-top: 4px; }
-            .ag-ticket-folio .folio-fecha { display: block; font-size: 11px; color: rgba(248,250,252,.6); }
-            .ag-ticket-body { padding: 16px 20px; }
-            .ag-ticket-client { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; }
-            .ag-ticket-client .row { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
-            .ag-ticket-client .row span:first-child { color: #64748b; }
-            .ag-ticket-items, .ag-ticket-totals { width: 100%; border-collapse: collapse; font-size: 13px; }
-            .ag-ticket-items td { padding: 5px 0; border-bottom: 1px dashed #e2e8f0; }
-            .ag-ticket-items td:last-child, .ag-ticket-totals td:last-child { text-align: right; }
-            .ag-ticket-totals td { padding: 3px 0; }
-            .ag-ticket-totals tr.grand td { font-size: 17px; font-weight: 800; color: #0f172a; border-top: 2px solid #0f172a; padding-top: 7px; }
-            .ag-ticket-foot { text-align: center; padding: 12px 20px 16px; font-size: 11px; color: #64748b; border-top: 1px dashed #e2e8f0; }
-            .ag-ticket-foot .ok { display: inline-block; color: #059669; font-weight: 700; font-size: 12px; }
-            @media print { body { background: #fff; padding: 0; } .ag-ticket { max-width: 100%; } }</style>`;
+        /* Generador PDF propio (sin librerias): ticket de 80mm con fuentes base PDF */
+        function buildComprobantePDF(comp) {
+            const W = 226.8, H = 620;
+            const isFac = comp.tipo === 'FACTURA';
+            const money = v => 'S/ ' + Number(v).toFixed(2);
+            const d = new Date(comp.fecha);
+            const fecha = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            const esc = s => String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+            const ops = [];
+            const col = c => ops.push(`${c} rg`);
+            const rect = (x, yTop, w, h, c) => { col(c); ops.push(`${x.toFixed(1)} ${(H - yTop - h).toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)} re f`); };
+            const hline = (x1, x2, yTop, c, w) => { col(c); ops.push(`${w} w ${x1.toFixed(1)} ${(H - yTop).toFixed(1)} m ${x2.toFixed(1)} ${(H - yTop).toFixed(1)} l S`); };
+            const txt = (x, yTop, font, size, c, t) => { col(c); ops.push(`BT /${font} ${size} Tf ${x.toFixed(1)} ${(H - yTop).toFixed(1)} Td (${esc(t)}) Tj ET`); };
+            const wEst = (t, font, size) => String(t).length * size * (font === 'F2' ? 0.55 : 0.5);
+            const centered = (yTop, font, size, c, t) => txt((W - wEst(t, font, size)) / 2, yTop, font, size, c, t);
+            const right = (xR, yTop, font, size, c, t) => txt(xR - wEst(t, font, size), yTop, font, size, c, t);
+            const M = 16, R = W - 16;
+            const DARK = '0.06 0.09 0.16', AMBER = '0.85 0.47 0.02', GREEN = '0.02 0.59 0.41',
+                  GRAY = '0.39 0.45 0.55', LINE = '0.89 0.91 0.94', WHITE = '1 1 1';
+            /* Cabecera */
+            rect(0, 0, W, 58, DARK);
+            txt(M, 26, 'F2', 12.5, WHITE, 'TALLER SAN MARTIN');
+            txt(M, 41, 'F1', 7.5, '0.75 0.8 0.86', 'AutoGestion - Servicio automotriz');
+            /* Folio */
+            rect(0, 58, W, 30, AMBER);
+            centered(70, 'F2', 11, WHITE, `${comp.tipo} - ${comp.serie}-${comp.numero}`);
+            centered(81, 'F1', 7.5, WHITE, fecha);
+            /* Cliente */
+            let y = 106;
+            const row = (label, value) => {
+                txt(M, y, 'F1', 8.5, GRAY, label);
+                right(R, y, 'F2', 8.5, DARK, value);
+                y += 13;
+            };
+            row(isFac ? 'RUC' : 'DNI', comp.doc);
+            row(isFac ? 'Razon social' : 'Cliente', comp.docNombre);
+            if (comp.direccion) row('Direccion', comp.direccion);
+            row('OT', '#' + comp.otId);
+            row('Pago', comp.metodo);
+            y += 4;
+            hline(M, R, y, LINE, 0.7); y += 12;
+            /* Concepto */
+            txt(M, y, 'F1', 9, DARK, `Servicio de taller - OT #${comp.otId}`);
+            right(R, y, 'F2', 9, DARK, money(comp.total)); y += 12;
+            hline(M, R, y, LINE, 0.7); y += 13;
+            /* Totales */
+            txt(M, y, 'F1', 9, GRAY, 'Subtotal'); right(R, y, 'F1', 9, DARK, money(comp.subtotal)); y += 13;
+            txt(M, y, 'F1', 9, GRAY, 'IGV 18%'); right(R, y, 'F1', 9, DARK, money(comp.igv)); y += 15;
+            hline(M, R, y, DARK, 1.2); y += 15;
+            txt(M, y, 'F2', 12, DARK, 'TOTAL'); right(R, y, 'F2', 13, DARK, money(comp.total)); y += 26;
+            /* Pie */
+            centered(y, 'F2', 9.5, GREEN, 'PAGO REGISTRADO'); y += 14;
+            centered(y, 'F1', 8, GRAY, 'Gracias por su preferencia'); y += 12;
+            centered(y, 'F1', 6.5, GRAY, 'Constancia interna - No es comprobante electronico SUNAT');
+            /* Ensamblar PDF */
+            const stream = ops.join('\n');
+            const objs = [
+                '<< /Type /Catalog /Pages 2 0 R >>',
+                '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+                `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>`,
+                '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
+                '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>',
+                `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`
+            ];
+            let pdf = '%PDF-1.4\n';
+            const offs = [0];
+            objs.forEach((o, i) => { offs.push(pdf.length); pdf += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+            const xPos = pdf.length;
+            pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n`;
+            offs.slice(1).forEach(o => { pdf += `${String(o).padStart(10, '0')} 00000 n \n`; });
+            pdf += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xPos}\n%%EOF`;
+            const bytes = new Uint8Array(pdf.length);
+            for (let i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 0xFF;
+            return new Blob([bytes], { type: 'application/pdf' });
+        }
         function descargarComprobante() {
             if (!compShown) { toast('No hay comprobante para descargar', 'warning'); return; }
-            const doc = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${compShown.tipo} ${compShown.serie}-${compShown.numero} - Taller San Martin</title><style>${TICKET_FILE_CSS}`;
-            const blob = new Blob([doc + ticketHTML(compShown) + '</body></html>'], { type: 'text/html;charset=utf-8' });
+            const blob = buildComprobantePDF(compShown);
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `${compShown.tipo}-${compShown.serie}-${compShown.numero}.html`;
+            a.download = `${compShown.tipo}-${compShown.serie}-${compShown.numero}.pdf`;
             document.body.appendChild(a);
             a.click();
-            setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
-            toast('Constancia descargada', 'success');
+            setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+            toast('Constancia PDF descargada', 'success');
         }
         function cerrarCompModal() { document.getElementById('compModal').classList.remove('show'); }
         function verComprobante(otId, monto) {
