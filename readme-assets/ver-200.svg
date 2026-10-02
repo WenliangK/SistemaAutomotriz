@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="380" height="40" viewBox="0 0 380 40" role="img" aria-label="version 2.0.0 fases 1 a 9 en una sola version">
+  <defs>
+    <linearGradient id="g200a" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1e293b"/><stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="g200b" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f59e0b"/><stop offset="1" stop-color="#b45309"/>
+    </linearGradient>
+  </defs>
+  <g font-family="'Segoe UI', system-ui, -apple-system, Arial, sans-serif" font-size="13" font-weight="600">
+    <rect x="1" y="4" width="182" height="32" rx="16" fill="url(#g200a)" stroke="#f59e0b"/>
+    <circle cx="20" cy="20" r="5" fill="#f59e0b">
+      <animate attributeName="opacity" values="1;0.35;1" keyTimes="0;0.5;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="32" y="25" fill="#f8fafc">v2.0.0 · fases 1-9</text>
+    <rect x="189" y="4" width="186" height="32" rx="16" fill="url(#g200b)"/>
+    <text x="205" y="25" fill="#ffffff">todo en uno</text>
+  </g>
+</svg>

@@ -1,0 +1,608 @@
+/* =========================================================
+   AutoGestion - Paneles premium (lenguaje del login)
+   Lleva el rediseño del login a los paneles internos:
+   iconos ambar con glow, tarjetas con barra degradada,
+   eyebrows, titulares Space Grotesk y entrada escalonada.
+   Carga despues de polish.css. Solo suma estilos.
+   ========================================================= */
+
+/* ---------- 1. AMBIENTE: continuidad con el login ---------- */
+body {
+  background:
+    radial-gradient(900px 320px at 50% -8%, rgba(217, 119, 6, 0.07), transparent 62%),
+    radial-gradient(1200px 600px at 85% -10%, rgba(217, 119, 6, 0.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(34, 211, 238, 0.045), transparent 60%),
+    var(--ag-ground);
+  background-attachment: fixed;
+}
+[data-bs-theme="dark"] body {
+  background:
+    radial-gradient(900px 320px at 50% -8%, rgba(245, 158, 11, 0.08), transparent 62%),
+    radial-gradient(1200px 600px at 85% -10%, rgba(245, 158, 11, 0.06), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(56, 189, 248, 0.05), transparent 60%),
+    var(--ag-ground);
+  background-attachment: fixed;
+}
+
+/* ---------- 2. COREOGRAFIA DE ENTRADA (como el login) ---------- */
+.ag-head,
+.ag-page-header { animation: ppFadeUp 0.45s ease backwards; }
+.ag-guide { animation: ppFadeUp 0.45s ease 0.08s backwards; }
+.ag-tabs { animation: ppFadeUp 0.45s ease 0.1s backwards; }
+.ag-grid > * { animation: ppFadeUp 0.45s ease backwards; }
+.ag-grid > *:nth-child(2) { animation-delay: 0.07s; }
+.ag-grid > *:nth-child(3) { animation-delay: 0.14s; }
+.ag-grid > *:nth-child(4) { animation-delay: 0.21s; }
+.ag-layout-stack > * { animation: ppFadeUp 0.5s ease backwards; }
+.ag-layout-stack > *:nth-child(2) { animation-delay: 0.1s; }
+.ag-layout-stack > *:nth-child(3) { animation-delay: 0.18s; }
+.ag-layout-main > *,
+.ag-layout-wide > *,
+.ag-layout-sidebar > * { animation: ppFadeUp 0.5s ease 0.06s backwards; }
+@keyframes ppFadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- 3. TOPBAR: linea ambar como la tarjeta del login ---------- */
+.ag-topbar { position: sticky; }
+.ag-topbar::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 35%, #f59e0b 65%, #d97706 100%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+.ag-topbar .ag-navbar-brand svg {
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border-radius: 9px;
+  color: #fffbeb;
+  background: linear-gradient(145deg, #fbbf24 0%, #d97706 100%);
+  box-shadow: 0 6px 16px -6px rgba(217, 119, 6, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  opacity: 1;
+}
+.ag-hamburger:hover {
+  border-color: rgba(251, 191, 36, 0.55);
+  color: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+.ag-user-pill { transition: border-color 0.25s ease, box-shadow 0.25s ease; }
+.ag-user-pill:hover { border-color: rgba(251, 191, 36, 0.4); box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15); }
+
+/* ---------- 4. SIDEBAR: marca con reticula + grupos eyebrow ---------- */
+.ag-sidebar { box-shadow: var(--ag-shadow-lg); }
+.ag-sb-brand {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(220px 120px at 110% -20%, rgba(217, 119, 6, 0.22), transparent 65%),
+    linear-gradient(160deg, #0b1220 0%, #0f172a 60%, #111827 100%);
+  color: #f8fafc;
+}
+.ag-sb-brand::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(90% 100% at 20% 50%, #000 0%, transparent 100%);
+  mask-image: radial-gradient(90% 100% at 20% 50%, #000 0%, transparent 100%);
+  pointer-events: none;
+}
+.ag-sb-brand svg {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border-radius: 9px;
+  color: #fffbeb;
+  background: linear-gradient(145deg, #fbbf24 0%, #d97706 100%);
+  box-shadow: 0 6px 16px -6px rgba(217, 119, 6, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.ag-sb-brand span { position: relative; z-index: 1; }
+.ag-sb-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.ag-sb-title::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--ag-oil);
+  box-shadow: 0 0 0 3px var(--ag-oil-surface);
+}
+.ag-sb-nav a:hover { transform: translateX(3px); }
+.ag-sb-nav a.active {
+  box-shadow: 0 4px 14px -6px rgba(217, 119, 6, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.ag-sb-foot {
+  border-top-style: dashed;
+  background: var(--ag-ground);
+}
+
+/* ---------- 5. CABECERAS UNIFICADAS (estilo lg-card-head) ---------- */
+.ag-head-titles::before,
+.ag-page-header::before {
+  content: 'Panel del taller';
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--ag-font-heading);
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ag-oil-text);
+  background: var(--ag-oil-surface);
+  border: 1px solid var(--ag-oil-border);
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  margin-bottom: 0.6rem;
+}
+.ag-head-titles h1,
+.ag-page-header h1 {
+  letter-spacing: -0.02em;
+  font-size: clamp(1.4rem, 1.1rem + 1vw, 1.7rem);
+}
+.ag-page-header { position: relative; }
+.ag-page-header h1::after {
+  content: '';
+  display: block;
+  width: 52px;
+  height: 4px;
+  margin-top: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 50%, #f59e0b 100%);
+  box-shadow: 0 2px 10px rgba(217, 119, 6, 0.45);
+}
+.ag-head-icon {
+  background: linear-gradient(145deg, #fbbf24 0%, #d97706 100%);
+  color: #fffbeb;
+  border: none;
+  box-shadow: 0 10px 26px -8px rgba(217, 119, 6, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.ag-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--ag-font-heading);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ag-oil-text);
+  background: var(--ag-surface);
+  border: 1px solid var(--ag-oil-border);
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  box-shadow: var(--ag-shadow-sm);
+  white-space: nowrap;
+}
+.ag-live-badge i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ag-oil);
+  box-shadow: 0 0 0 4px var(--ag-oil-surface);
+  animation: ppPulse 2.4s ease-in-out infinite;
+}
+@keyframes ppPulse {
+  0%, 100% { box-shadow: 0 0 0 4px var(--ag-oil-surface); }
+  50% { box-shadow: 0 0 0 7px transparent; }
+}
+
+/* ---------- 6. GUIA: tarjeta con barra degradada (eco del login) ---------- */
+.ag-guide {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 1rem 1.2rem;
+  background: var(--ag-surface);
+  box-shadow: 0 20px 45px -30px rgba(15, 23, 42, 0.35), 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+.ag-guide::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 35%, #f59e0b 65%, #d97706 100%);
+}
+.ag-guide-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #fbbf24 0%, #d97706 100%);
+  box-shadow: 0 8px 20px -8px rgba(217, 119, 6, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.ag-guide-icon svg { width: 20px; height: 20px; }
+.ag-guide-steps b {
+  background: linear-gradient(145deg, #fbbf24, #d97706);
+  box-shadow: 0 3px 8px -3px rgba(217, 119, 6, 0.7);
+}
+
+/* ---------- 7. KPIs: tarjetas premium con iconos degradados ---------- */
+.ag-indicator {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 1.2rem 1.3rem;
+  box-shadow: 0 20px 45px -30px rgba(15, 23, 42, 0.35), 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+.ag-indicator::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 35%, #f59e0b 65%, #d97706 100%);
+  opacity: 0.9;
+}
+.ag-indicator:hover { transform: translateY(-3px); }
+.ag-indicator-icon { width: 48px; height: 48px; border-radius: 14px; border: none; color: #fff; }
+.ag-indicator-icon svg { width: 22px; height: 22px; }
+.ag-indicator-icon.ic-blue {
+  background: linear-gradient(145deg, #38bdf8 0%, #0284c7 100%);
+  box-shadow: 0 8px 20px -8px rgba(2, 132, 199, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.ag-indicator-icon.ic-amber {
+  background: linear-gradient(145deg, #fbbf24 0%, #d97706 100%);
+  box-shadow: 0 8px 20px -8px rgba(217, 119, 6, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.ag-indicator-icon.ic-green {
+  background: linear-gradient(145deg, #34d399 0%, #059669 100%);
+  box-shadow: 0 8px 20px -8px rgba(5, 150, 105, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.ag-indicator-icon.ic-red {
+  background: linear-gradient(145deg, #f87171 0%, #dc2626 100%);
+  box-shadow: 0 8px 20px -8px rgba(220, 38, 38, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.ag-indicator:has(.ic-blue):hover { border-color: #0284c7; }
+.ag-indicator:has(.ic-amber):hover { border-color: var(--ag-oil); }
+.ag-indicator:has(.ic-green):hover { border-color: #059669; }
+.ag-indicator:has(.ic-red):hover { border-color: #dc2626; }
+
+/* ---------- 8. SECCIONES: tarjetas con presencia (eco lg-card) ---------- */
+.ag-section,
+.ag-card {
+  border-radius: 18px;
+  box-shadow: 0 20px 45px -30px rgba(15, 23, 42, 0.35), 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+.ag-section { position: relative; overflow: hidden; }
+.ag-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 35%, #f59e0b 65%, #d97706 100%);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.ag-section:hover, .ag-card:hover { border-color: var(--ag-oil-border); }
+.ag-section-header h3 { letter-spacing: -0.01em; }
+.ag-section-header h3 svg,
+.ag-card-header h3 svg {
+  width: 26px;
+  height: 26px;
+  padding: 5px;
+  border-radius: 8px;
+  color: var(--ag-oil-text);
+  background: var(--ag-oil-surface);
+  border: 1px solid var(--ag-oil-border);
+}
+
+/* ---------- 9. TABLAS: cabecera fija + fila con guia ambar ---------- */
+.ag-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--ag-ground);
+  box-shadow: inset 0 -2px 0 var(--ag-border);
+}
+.ag-table tbody tr:hover { box-shadow: inset 3px 0 0 var(--ag-oil); }
+.ag-table tbody tr.row-danger:hover { box-shadow: inset 3px 0 0 var(--ag-signal-stop); }
+
+/* ---------- 10. ACCESOS RAPIDOS: chips con icono destacado ---------- */
+.ag-action-link { border-radius: 14px; }
+.ag-action-link svg:not(.ag-action-arrow) {
+  width: 30px;
+  height: 30px;
+  padding: 6px;
+  border-radius: 9px;
+  color: var(--ag-oil-text);
+  background: var(--ag-oil-surface);
+  border: 1px solid var(--ag-oil-border);
+  opacity: 1;
+  flex-shrink: 0;
+}
+.ag-action-link:hover svg:not(.ag-action-arrow) {
+  background: linear-gradient(145deg, #fbbf24, #d97706);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 14px -6px rgba(217, 119, 6, 0.7);
+}
+
+/* ---------- 11. TARJETAS DE ESTADO: montos con degradado login ---------- */
+.ag-state-card {
+  border-radius: 14px;
+  box-shadow: 0 12px 28px -20px rgba(15, 23, 42, 0.4), 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+.sc-amount {
+  background: linear-gradient(100deg, #d97706 0%, #f59e0b 45%, #b45309 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+[data-bs-theme="dark"] .sc-amount {
+  background: linear-gradient(100deg, #fbbf24 0%, #f59e0b 45%, #fb923c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.ag-kanban-col { border-radius: 18px; }
+.ag-kanban-count {
+  background: linear-gradient(145deg, #fbbf24, #d97706);
+  box-shadow: 0 4px 10px -4px rgba(217, 119, 6, 0.7);
+}
+
+/* ---------- 12. MODALES: misma firma que la tarjeta del login ---------- */
+.ag-modal { position: relative; border-radius: 20px; overflow: hidden; }
+.ag-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 35%, #f59e0b 65%, #d97706 100%);
+  z-index: 1;
+}
+
+/* ---------- 13. FLUJO DEL TALLER + WIZARD: acento ambar ---------- */
+.ag-flow-step-dot {
+  transition: all 0.25s ease;
+  font-family: var(--ag-font-heading);
+}
+.ag-flow-step.active .ag-flow-step-dot {
+  background: linear-gradient(145deg, #fbbf24, #d97706);
+  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.18), 0 4px 12px -4px rgba(217, 119, 6, 0.7);
+}
+.ag-wz-step.now .ag-wz-dot {
+  background: linear-gradient(145deg, #fbbf24, #d97706);
+  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.18), 0 4px 12px -4px rgba(217, 119, 6, 0.7);
+}
+
+/* ---------- 14. BOTONES FLOTANTES: entrada suave ---------- */
+.ag-theme-toggle, .ag-fab { animation: ppFadeUp 0.45s ease 0.4s backwards; }
+.ag-theme-toggle:hover {
+  border-color: #d97706;
+  color: #d97706;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.25);
+}
+
+/* ---------- 15. RESPONSIVE ---------- */
+@media (max-width: 768px) {
+  .ag-indicator { padding: 0.95rem 1.05rem; border-radius: 16px; }
+  .ag-indicator-icon { width: 42px; height: 42px; }
+  .ag-section, .ag-card, .ag-guide { border-radius: 16px; }
+  .ag-live-badge { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ag-head, .ag-page-header, .ag-guide, .ag-tabs,
+  .ag-grid > *, .ag-layout-stack > *,
+  .ag-layout-main > *, .ag-layout-wide > *, .ag-layout-sidebar > *,
+  .ag-theme-toggle, .ag-fab { animation: none !important; }
+  .ag-indicator:hover, .ag-action-link:hover, .ag-sb-nav a:hover { transform: none !important; }
+  .ag-live-badge i { animation: none !important; }
+}
+
+/* =========================================================
+   16. LAYOUT FLUIDO ESTILO LOGIN: sin max-width ni huecos.
+   La pagina ocupa todo el viewport (menos el sidebar) y las
+   columnas crecen/encogen con minmax: al colapsar el menu o
+   achicar la ventana ya no quedan franjas vacias.
+   ========================================================= */
+.ag-page {
+  max-width: none;
+  /* width:auto (no 100%): la pagina ya lleva margin-left del sidebar;
+     con 100% el total supera el viewport y la columna derecha se corta. */
+  width: auto;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem);
+}
+.ag-layout-main {
+  grid-template-columns: minmax(0, 1fr) 390px;
+}
+.ag-layout-wide {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 5fr);
+}
+.ag-layout-sidebar {
+  grid-template-columns: minmax(0, 1fr) 330px;
+}
+/* Los hijos de grid jamas empujan el ancho (las tablas largas
+   se quedan dentro de su scroll horizontal). */
+.ag-layout-main > *,
+.ag-layout-wide > *,
+.ag-layout-sidebar > *,
+.ag-layout-stack > *,
+.ag-grid > *,
+.ag-section-body,
+.ag-card-body {
+  min-width: 0;
+}
+.ag-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ag-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ag-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* =========================================================
+   17. TILES ESTILO LOGIN (Acceso Rapido del dashboard).
+   Tarjeta vertical: icono degradado arriba, titulo,
+   descripcion y flecha, como las .lg-tile del login.
+   ========================================================= */
+.ag-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.7rem;
+}
+.ag-tiles > * { animation: ppFadeUp 0.45s ease backwards; }
+.ag-tiles > *:nth-child(2) { animation-delay: 0.05s; }
+.ag-tiles > *:nth-child(3) { animation-delay: 0.1s; }
+.ag-tiles > *:nth-child(4) { animation-delay: 0.15s; }
+.ag-tiles > *:nth-child(5) { animation-delay: 0.2s; }
+.ag-tiles > *:nth-child(n+6) { animation-delay: 0.25s; }
+.ag-action-link.ag-tile {
+  position: relative;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 1rem 1rem 0.95rem;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.ag-action-link.ag-tile::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 35%, #f59e0b 65%, #d97706 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.ag-action-link.ag-tile:hover::before { opacity: 0.9; }
+.ag-action-link.ag-tile svg:not(.ag-action-arrow) {
+  width: 38px;
+  height: 38px;
+  padding: 8px;
+  border-radius: 12px;
+}
+.ag-action-link.ag-tile:hover svg:not(.ag-action-arrow) {
+  background: linear-gradient(145deg, #fbbf24, #d97706);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 14px -6px rgba(217, 119, 6, 0.7);
+}
+.ag-tile-title {
+  font-family: var(--ag-font-heading);
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: -0.01em;
+  color: var(--ag-text-heading);
+}
+.ag-tile-desc {
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--ag-text-muted);
+}
+.ag-action-link.ag-tile .ag-action-arrow {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  margin: 0;
+}
+.ag-action-link.ag-tile:hover { transform: translateY(-3px); }
+.ag-action-link.ag-tile:hover .ag-action-arrow { transform: translate(2px, -2px); }
+
+/* =========================================================
+   18. FLUJO DEL TALLER COMO CHIPS (eco lg-flow del login).
+   Pildoras que se envuelven: nada se corta en pantallas
+   angostas y el paso activo brilla en ambar.
+   ========================================================= */
+#dashFlow {
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  row-gap: 0.55rem;
+  border-bottom: none;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+#dashFlow > span { display: contents; }
+#dashFlow .ag-flow-step {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--ag-text-mid);
+  background: var(--ag-ground);
+  border: 1px solid var(--ag-border);
+  padding: 0.34rem 0.75rem 0.34rem 0.4rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+#dashFlow .ag-flow-step:hover { border-color: var(--ag-oil); transform: translateY(-1px); }
+#dashFlow .ag-flow-step.active {
+  color: #451a03;
+  background: linear-gradient(145deg, #fbbf24, #f59e0b);
+  border-color: transparent;
+  box-shadow: 0 6px 16px -6px rgba(245, 158, 11, 0.7);
+}
+#dashFlow .ag-flow-step.active .ag-flow-step-dot {
+  background: rgba(69, 26, 3, 0.18);
+  border-color: transparent;
+  color: #451a03;
+  box-shadow: none;
+}
+#dashFlow .ag-flow-step-line { display: none; }
+
+/* El pill sin nombre personal: solo rol, mas respiro */
+.ag-user-pill { gap: 0.45rem; }
+
+/* Las grillas fluidas respetan los mismos cortes responsive
+   que styles/polish (esta hoja carga ultima y ganaria sin esto). */
+@media (max-width: 1400px) {
+  .ag-layout-main { grid-template-columns: minmax(0, 1fr) 340px; }
+}
+/* Pantallas medianas: el riel lateral conserva aire, los formularios
+   y el kanban pasan a una columna / scroll antes de romperse. */
+@media (max-width: 1250px) {
+  .ag-layout-sidebar, .ag-layout-wide { grid-template-columns: 1fr; }
+  .ag-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ag-guide { flex-wrap: wrap; }
+  .ag-kanban {
+    grid-template-columns: repeat(4, minmax(250px, 85vw));
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+}
+@media (max-width: 1100px) {
+  .ag-layout-main, .ag-layout-wide, .ag-layout-sidebar { grid-template-columns: 1fr; }
+  .ag-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .ag-page { padding: 1rem; }
+  .ag-grid-2, .ag-grid-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  .ag-grid-4 { grid-template-columns: 1fr; }
+}
+
+/* Moviles chicos: tiles a una columna y tablas con scroll suave. */
+@media (max-width: 480px) {
+  .ag-tiles { grid-template-columns: 1fr; }
+  .ag-head-icon { width: 42px; height: 42px; border-radius: 12px; }
+}
+.ag-table-wrap { -webkit-overflow-scrolling: touch; }
+
+/* Buscadores dentro de cabeceras: fluidos, a fila completa en movil
+   (el !important pisa el width fijo inline de algunas paginas). */
+.ag-section-header .ag-search-box { max-width: 100%; min-width: 0; }
+.ag-section-header .ag-form-control { min-width: 0; }
+@media (max-width: 560px) {
+  .ag-section-header { align-items: stretch; }
+  .ag-section-header .ag-search-box { width: 100% !important; flex: 1 1 100%; }
+}
+
+/* Topbar compacta en moviles angostos: todo entra en 360px
+   (hamburguesa + marca + tutorial + rol + salir solo-icono). */
+@media (max-width: 560px) {
+  .ag-topbar { padding: 0 0.8rem; gap: 0.5rem; }
+  .ag-topbar .ag-navbar-brand { margin-right: 0.25rem; font-size: 0.95rem; }
+  .ag-topbar .ag-btn-ghost { font-size: 0; gap: 0; padding: 0.4rem 0.55rem; }
+  .ag-topbar .ag-btn-ghost svg { width: 16px; height: 16px; }
+  .ag-user-pill { padding: 0.25rem 0.55rem 0.25rem 0.3rem; gap: 0.35rem; }
+  .ag-user-pill-role { font-size: 0.65rem; }
+  .ag-topbar .ag-navbar-help { padding: 0.35rem 0.5rem; }
+}

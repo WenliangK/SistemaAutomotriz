@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+        <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoGestion - Pago y Entrega</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/styles.css?v=20261001">
-    <link rel="stylesheet" href="../css/animations.css?v=20261001">
+    <link rel="stylesheet" href="../css/styles.css?v=20261005">
+    <link rel="stylesheet" href="../css/animations.css?v=20261005">
     <link rel="stylesheet" href="../css/redesign.css">
-    <link rel="stylesheet" href="../css/polish.css?v=20261001">
+    <link rel="stylesheet" href="../css/polish.css?v=20261005">
+    <link rel="stylesheet" href="../css/panels-premium.css?v=20261002">
     <script>
         (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
     </script>
@@ -33,7 +38,7 @@
     <div class="ag-page">
         <div class="ag-head">
             <div class="ag-head-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="7" width="18.4" height="11" rx="2.5" fill="currentColor" stroke="none" opacity=".22"/><rect x="2.8" y="7" width="18.4" height="11" rx="2.5"/><circle cx="12" cy="12.5" r="2.6"/><path d="M6.3 10.3h.01M17.7 14.7h.01"/></svg>
             </div>
             <div class="ag-head-titles">
                 <h1>Pago y Entrega <span class="ag-badge ag-badge-primary">CAJA</span></h1>
@@ -48,7 +53,7 @@
             <div class="ag-section">
                 <div class="ag-section-header">
                     <h3>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/><circle cx="16.6" cy="7.4" r="1.4" fill="currentColor" stroke="none" opacity=".28"/></svg>
                         Ordenes Finalizadas
                     </h3>
                 </div>
@@ -104,6 +109,38 @@
                                 Entrega
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ag-section ag-mt-3">
+            <div class="ag-section-header">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="7" width="18.4" height="11" rx="2.5" fill="currentColor" stroke="none" opacity=".22"/><rect x="2.8" y="7" width="18.4" height="11" rx="2.5"/><circle cx="12" cy="12.5" r="2.6"/><path d="M6.3 10.3h.01M17.7 14.7h.01"/></svg>
+                    Comprobantes emitidos
+                </h3>
+                <div class="ag-d-flex ag-gap-3 ag-flex-wrap">
+                    <select class="ag-form-control" id="histTipo" onchange="histBuscar()" style="width:auto;">
+                        <option value="">Boletas y facturas</option>
+                        <option value="BOLETA">Boletas</option>
+                        <option value="FACTURA">Facturas</option>
+                    </select>
+                    <input class="ag-form-control" id="histQ" placeholder="Cliente, documento o folio" style="width:220px;" onkeydown="if(event.key==='Enter')histBuscar()">
+                    <button class="ag-btn ag-btn-outline ag-btn-sm" onclick="histBuscar()">Buscar</button>
+                </div>
+            </div>
+            <div class="ag-section-body">
+                <div class="ag-table-wrap">
+                    <table class="ag-table">
+                        <thead><tr><th>Folio</th><th>Emisión</th><th>Cliente</th><th class="col-num">Total</th><th>Estado</th><th></th></tr></thead>
+                        <tbody id="histBody"><tr><td colspan="6" class="ag-text-center ag-text-muted">Cargando...</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="ag-d-flex ag-justify-between ag-align-center ag-mt-2 ag-flex-wrap" style="gap:0.5rem;">
+                    <span class="ag-text-muted ag-text-sm" id="histInfo"></span>
+                    <div class="ag-d-flex ag-gap-3">
+                        <button class="ag-btn ag-btn-outline ag-btn-sm" id="histPrev" onclick="histGo(-1)">Anterior</button>
+                        <button class="ag-btn ag-btn-outline ag-btn-sm" id="histNext" onclick="histGo(1)">Siguiente</button>
                     </div>
                 </div>
             </div>
@@ -206,13 +243,21 @@
 
     <!-- Modal: constancia del comprobante -->
     <div class="ag-modal-overlay" id="compModal">
-        <div class="ag-modal" style="max-width:420px;">
+        <div class="ag-modal" style="max-width:440px;">
             <div class="ag-modal-header">
                 <h3>Constancia de pago</h3>
                 <button class="ag-modal-close" onclick="cerrarCompModal()">&times;</button>
             </div>
             <div class="ag-modal-body">
                 <div id="comprobanteTicket"></div>
+                <div id="anularBox" hidden style="margin-top:0.9rem; border-top:1px dashed var(--ag-border); padding-top:0.8rem;">
+                    <label class="ag-form-label" for="motivoAnulacion">Anular comprobante (solo ADMIN)</label>
+                    <div class="ag-d-flex ag-gap-3">
+                        <input class="ag-form-control" id="motivoAnulacion" placeholder="Motivo de la anulación" style="flex:1;">
+                        <button class="ag-btn ag-btn-danger ag-btn-sm" onclick="anularComprobante()">Anular</button>
+                    </div>
+                    <p class="ag-field-hint">El número no se reutiliza; la OT podrá emitir otro.</p>
+                </div>
             </div>
             <div class="ag-modal-footer">
                 <button class="ag-btn ag-btn-outline" onclick="cerrarCompModal()">Cerrar</button>
@@ -226,41 +271,25 @@
     <div id="printArea"><div id="comprobanteTicketPrint"></div></div>
 
     <div id="themeToggleWrap"></div>
-    <script src="../js/api.js?v=20261001"></script>
-    <script src="../js/animations.js?v=20261001"></script>
+    <script src="../js/api.js?v=20261006"></script>
+    <script src="../js/animations.js?v=20261005"></script>
     <script src="../js/ui-kit.js"></script>
-    <script src="../js/confirm-modal.js?v=20261001"></script>
+    <script src="../js/confirm-modal.js?v=20261005"></script>
     <script>
         if (!guardPage('pago_entrega')) throw new Error('Acceso denegado');
         document.getElementById('navbar').innerHTML = renderNavbar('pago_entrega');
         document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
         initTheme();
 
-        /* ---- Comprobantes internos (frontend v1.3.0; el backend aun solo guarda monto) ---- */
-        const COMP_KEY = 'ag_comprobantes_v1';
-        const CORR_KEY = 'ag_correlativos_v1';
+        /* ---- Comprobantes desde el backend (Fase 1): sin localStorage de negocio ---- */
+        let pagoActual = null;      // { otId }
+        let previewData = null;     // totales + adquirente sugerido, todo del servidor
         const SERIES = { BOLETA: 'B001', FACTURA: 'F001' };
-        let pagoActual = null;
+        const CAMPO_A_INPUT = { numDoc: 'pagoDoc', nombre: 'pagoNombre', direccion: 'pagoDireccion', metodoPago: 'pagoMetodo', tipo: null, ordenTrabajoId: null };
 
-        function getComps() { try { return JSON.parse(localStorage.getItem(COMP_KEY) || '{}'); } catch (_) { return {}; } }
-        function saveComps(c) { localStorage.setItem(COMP_KEY, JSON.stringify(c)); }
-        function nextNumero(tipo) {
-            let corr = {};
-            try { corr = JSON.parse(localStorage.getItem(CORR_KEY) || '{}'); } catch (_) { corr = {}; }
-            const serie = SERIES[tipo];
-            corr[serie] = (corr[serie] || 0) + 1;
-            localStorage.setItem(CORR_KEY, JSON.stringify(corr));
-            return { serie, numero: String(corr[serie]).padStart(6, '0') };
-        }
-        function peekNumero(tipo) {
-            let corr = {};
-            try { corr = JSON.parse(localStorage.getItem(CORR_KEY) || '{}'); } catch (_) { corr = {}; }
-            const serie = SERIES[tipo];
-            return serie + '-' + String((corr[serie] || 0) + 1).padStart(6, '0');
-        }
-        function desglose(total) {
-            const sub = total / 1.18;
-            return { sub, igv: total - sub, total };
+        function debounce(fn, ms) {
+            let t = null;
+            return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
         }
 
         function countUp(el, to, fmt) {
@@ -294,13 +323,12 @@
                     document.getElementById('headTotal').textContent = 'caja al dia';
                     return;
                 }
-                const comps = getComps();
                 let pp = 0, ep = 0, tc = 0;
                 const cards = ordenes.map((ot) => {
                     const monto = ot.monto || 0;
                     const tienePago = ot.tienePago;
                     const tieneEntrega = ot.tieneEntrega;
-                    const comp = comps[ot.id];
+                    const folio = ot.comprobanteFolio;
                     if (!tienePago) pp++; if (!tieneEntrega) ep++; if (!tienePago) tc += monto;
                     return `
                         <div class="ag-state-card sc-pagado">
@@ -315,15 +343,15 @@
                                     <span class="ag-badge ${tieneEntrega ? 'ag-badge-success' : 'ag-badge-info'}">${tieneEntrega ? 'Entregado' : 'Pendiente Entrega'}</span>
                                 </div>
                             </div>
-                            ${comp ? `<div class="ag-d-flex ag-align-center ag-gap-3 ag-mt-2" style="font-size:0.78rem;">
-                                <span class="ag-badge ${comp.tipo === 'FACTURA' ? 'ag-badge-primary' : 'ag-badge-info'}">${comp.tipo} ${comp.serie}-${comp.numero}</span>
-                                <span class="ag-text-muted">${comp.metodo} · ${comp.docNombre || ''}</span>
+                            ${folio ? `<div class="ag-d-flex ag-align-center ag-gap-3 ag-mt-2" style="font-size:0.78rem;">
+                                <span class="ag-badge ${ot.comprobanteTipo === 'FACTURA' ? 'ag-badge-primary' : 'ag-badge-info'}">${ot.comprobanteTipo} ${folio}</span>
                             </div>` : ''}
                             <div class="ag-d-flex ag-gap-3 ag-mt-2 ag-flex-wrap">
-                                ${!tienePago ? `<button class="ag-btn ag-btn-success ag-btn-sm" onclick="abrirPagoModal(${ot.id},${monto})">
+                                ${!tienePago && !folio ? `<button class="ag-btn ag-btn-success ag-btn-sm" onclick="abrirPagoModal(${ot.id})">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                                    Registrar Pago</button>` : ''}
-                                ${(tienePago || comp) ? `<button class="ag-btn ag-btn-outline ag-btn-sm" onclick="verComprobante(${ot.id},${monto})">Ver comprobante</button>` : ''}
+                                    Cobrar</button>` : ''}
+                                ${tienePago && !folio ? `<button class="ag-btn ag-btn-success ag-btn-sm" onclick="abrirPagoModal(${ot.id})">Emitir comprobante</button>` : ''}
+                                ${folio ? `<button class="ag-btn ag-btn-outline ag-btn-sm" onclick="verComprobante(${ot.id})">Ver comprobante</button>` : ''}
                                 ${tienePago && !tieneEntrega ? `<button class="ag-btn ag-btn-accent ag-btn-sm" onclick="registrarEntrega(${ot.id})">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                                     Registrar Entrega</button>` : ''}
@@ -358,10 +386,28 @@
             document.getElementById('pagoDirGroup').hidden = !isFac;
             document.getElementById('pagoDocLabel').textContent = isFac ? 'RUC (11 digitos)' : 'DNI (8 digitos)';
             document.getElementById('pagoNombreLabel').textContent = isFac ? 'Razon social' : 'Nombre del cliente';
-            document.getElementById('pagoDoc').placeholder = isFac ? 'Ej. 20123456789' : 'Ej. 12345678';
+            document.getElementById('pagoDoc').placeholder = isFac ? 'Ej. 20123456786' : 'Ej. 45123698';
             document.getElementById('pagoDocHint').textContent = isFac ? 'RUC de 11 digitos, sin puntos ni guiones.' : 'DNI de 8 digitos, sin puntos ni guiones.';
+            document.getElementById('seriePreview').textContent = `${SERIES[tipo]} - número al emitir`;
+            if (previewData) previewData.serie = SERIES[tipo];
+            validarDocEnVivo();
             updatePayPreview();
         }
+        /* Validación en vivo contra el backend (la misma regla que acepta la emisión) */
+        const validarDocEnVivo = debounce(async () => {
+            const tipo = tipoCompSel();
+            const num = document.getElementById('pagoDoc').value.trim();
+            const hint = document.getElementById('pagoDocHint');
+            const tipoDoc = tipo === 'FACTURA' ? 'RUC' : 'DNI';
+            if (!num) { hint.textContent = tipo === 'FACTURA' ? 'RUC de 11 digitos, sin puntos ni guiones.' : 'DNI de 8 digitos, sin puntos ni guiones.'; return; }
+            try {
+                const r = await apiFetch(`/documentos/validar?tipo=${tipoDoc}&numero=${encodeURIComponent(num)}`);
+                hint.textContent = (r.valido ? '✔ ' : '✖ ') + r.mensaje;
+                hint.style.color = r.valido ? 'var(--ag-signal-go)' : 'var(--ag-signal-stop)';
+                document.getElementById('pagoDoc').classList.toggle('is-bad', !r.valido);
+            } catch (_) { /* sin conexión: el backend valida al emitir */ }
+            updatePayPreview();
+        }, 450);
         function setPayStep(n) {
             payPane = Math.min(3, Math.max(1, n));
             document.querySelectorAll('#payWizard .ag-wz-step').forEach(s => {
@@ -390,50 +436,65 @@
             return false;
         }
         function validatePayStep2() {
+            /* Chequeo rápido local; la verdad la dice el backend al emitir */
             const f = collectPay();
             if (f.tipo === 'FACTURA') {
-                if (!/^\d{11}$/.test(f.doc)) return !payError('La factura exige un RUC de 11 digitos.', 'pagoDoc'), false;
+                if (!f.doc) return !payError('Escribe el RUC del cliente.', 'pagoDoc'), false;
                 if (!f.nombre) return !payError('La factura exige la razon social.', 'pagoNombre'), false;
                 if (!f.direccion) return !payError('La factura exige la direccion fiscal.', 'pagoDireccion'), false;
             } else {
-                if (!/^\d{8}$/.test(f.doc)) return !payError('La boleta exige un DNI de 8 digitos.', 'pagoDoc'), false;
+                if (!f.doc) return !payError('Escribe el DNI del cliente (u omítelo solo si la boleta es de S/ 700 o menos).', 'pagoDoc'), false;
                 if (!f.nombre) return !payError('Escribe el nombre del cliente.', 'pagoNombre'), false;
             }
             return payError(null);
         }
         function updatePayPreview() {
-            if (!pagoActual) return;
+            if (!pagoActual || !previewData) return;
             const f = collectPay();
-            const d = desglose(pagoActual.monto);
-            const folio = peekNumero(f.tipo);
-            document.getElementById('seriePreview').textContent = folio;
-            document.getElementById('pvTipo').textContent = `${f.tipo} ${folio}`;
-            document.getElementById('pvCliente').textContent = f.nombre || '—';
+            document.getElementById('pvTipo').textContent = `${f.tipo} ${previewData.serie} - número al emitir`;
+            document.getElementById('pvCliente').textContent = f.nombre || previewData.clienteNombre || '—';
             document.getElementById('pvMetodo').textContent = f.metodo;
-            document.getElementById('pvSub').textContent = formatCurrency(d.sub);
-            document.getElementById('pvIgv').textContent = formatCurrency(d.igv);
-            document.getElementById('pvTotal').textContent = formatCurrency(d.total);
-            document.getElementById('pagoModalTitle').textContent = `Cobrar OT #${pagoActual.otId} · ${formatCurrency(pagoActual.monto)}`;
+            document.getElementById('pvSub').textContent = formatCurrency(previewData.totalGravado);
+            document.getElementById('pvIgv').textContent = formatCurrency(previewData.igv);
+            document.getElementById('pvTotal').textContent = formatCurrency(previewData.total);
+            document.getElementById('pagoModalTitle').textContent = `Cobrar OT #${pagoActual.otId} · ${formatCurrency(previewData.total)}`;
         }
         function renderConfirmBox() {
-            if (!pagoActual) return;
+            if (!pagoActual || !previewData) return;
             const f = collectPay();
-            const d = desglose(pagoActual.monto);
             document.getElementById('payConfirmBox').innerHTML = `
                 <div class="ag-mini-ticket" style="position:static;">
                     <h4>Revisa antes de cobrar</h4>
-                    <div class="row"><span>Comprobante</span><b>${f.tipo} ${peekNumero(f.tipo)}</b></div>
-                    <div class="row"><span>${f.tipo === 'FACTURA' ? 'RUC' : 'DNI'}</span><b>${f.doc}</b></div>
-                    <div class="row"><span>Cliente</span><b>${f.nombre}</b></div>
-                    ${f.direccion ? `<div class="row"><span>Direccion</span><b>${f.direccion}</b></div>` : ''}
-                    <div class="row"><span>Pago</span><b>${f.metodo}</b></div>
-                    <div class="row"><span>Subtotal</span><span>${formatCurrency(d.sub)}</span></div>
-                    <div class="row"><span>IGV 18%</span><span>${formatCurrency(d.igv)}</span></div>
-                    <div class="row total"><span>Total</span><span>${formatCurrency(d.total)}</span></div>
+                    <div class="row"><span>Comprobante</span><b>${f.tipo} ${previewData.serie} - número al emitir</b></div>
+                    <div class="row"><span>${f.tipo === 'FACTURA' ? 'RUC' : 'DNI'}</span><b>${f.doc || previewData.clienteNumDoc || '-'}</b></div>
+                    <div class="row"><span>Cliente</span><b>${f.nombre || previewData.clienteNombre}</b></div>
+                    ${(f.direccion || previewData.clienteDireccion) ? `<div class="row"><span>Direccion</span><b>${f.direccion || previewData.clienteDireccion}</b></div>` : ''}
+                    <div class="row"><span>Pago</span><b>${f.metodo} · CONTADO</b></div>
+                    <div class="row"><span>Op. gravada</span><span>${formatCurrency(previewData.totalGravado)}</span></div>
+                    <div class="row"><span>IGV 18%</span><span>${formatCurrency(previewData.igv)}</span></div>
+                    <div class="row total"><span>Total</span><span>${formatCurrency(previewData.total)}</span></div>
+                    <div class="row"><span>En letras</span><span style="text-align:right; max-width:60%;">${previewData.totalLetras}</span></div>
                 </div>`;
         }
-        function abrirPagoModal(otId, monto) {
-            pagoActual = { otId, monto };
+        async function cargarPreview() {
+            if (!pagoActual) return;
+            try {
+                previewData = await apiFetch(`/comprobantes/previsualizar?ordenTrabajoId=${pagoActual.otId}&tipo=${tipoCompSel()}`);
+                if (!document.getElementById('pagoDoc').value && previewData.clienteNumDoc) {
+                    document.getElementById('pagoDoc').value = previewData.clienteNumDoc;
+                }
+                if (!document.getElementById('pagoNombre').value && previewData.clienteNombre) {
+                    document.getElementById('pagoNombre').value = previewData.clienteNombre;
+                }
+                if (!document.getElementById('pagoDireccion').value && previewData.clienteDireccion) {
+                    document.getElementById('pagoDireccion').value = previewData.clienteDireccion;
+                }
+                updatePayPreview();
+            } catch (e) { payError('No se pudo cargar el total: ' + e.message); }
+        }
+        async function abrirPagoModal(otId) {
+            pagoActual = { otId };
+            previewData = null;
             document.querySelector('input[name="tipoComp"][value="BOLETA"]').checked = true;
             document.getElementById('pagoDoc').value = '';
             document.getElementById('pagoNombre').value = '';
@@ -443,6 +504,7 @@
             onTipoCompChange();
             setPayStep(1);
             document.getElementById('pagoModal').classList.add('show');
+            await cargarPreview();
         }
         function cerrarPagoModal() { document.getElementById('pagoModal').classList.remove('show'); pagoActual = null; }
 
@@ -455,61 +517,78 @@
         async function confirmarPago() {
             if (!pagoActual) return;
             if (!validatePayStep2()) { setPayStep(2); return; }
-            const { tipo, doc, nombre, direccion, metodo } = collectPay();
+            const f = collectPay();
             const btn = document.getElementById('pagoConfirmBtn');
             btn.disabled = true;
-            /* Se captura todo antes de cerrar: cerrarPagoModal() pone pagoActual en null */
             const otId = pagoActual.otId;
-            const monto = pagoActual.monto;
             try {
-                await apiFetch('/pago-entrega/completa', { method: 'POST', body: JSON.stringify({ ordenTrabajoId: otId, monto }) });
-                const { serie, numero } = nextNumero(tipo);
-                const d = desglose(monto);
-                const comps = getComps();
-                comps[otId] = { tipo, serie, numero, doc, docNombre: nombre, direccion: tipo === 'FACTURA' ? direccion : '', metodo, subtotal: d.sub, igv: d.igv, total: d.total, fecha: new Date().toISOString(), otId };
-                saveComps(comps);
+                /* El monto lo calcula el backend desde la cotización; aquí no se envía */
+                const sinDoc = f.tipo === 'BOLETA' && !f.doc;
+                const comp = await apiFetch('/comprobantes', { method: 'POST', body: JSON.stringify({
+                    ordenTrabajoId: otId,
+                    tipo: f.tipo,
+                    tipoDoc: f.tipo === 'FACTURA' ? 'RUC' : (sinDoc ? 'SIN_DOC' : 'DNI'),
+                    numDoc: sinDoc ? '-' : (f.doc || undefined),
+                    nombre: f.nombre || undefined,
+                    direccion: f.direccion || undefined,
+                    metodoPago: f.metodo,
+                    formaPago: 'CONTADO',
+                    registrarEntrega: false
+                }) });
                 cerrarPagoModal();
-                toast(`Pago registrado · ${tipo} ${serie}-${numero}`, 'success');
-                mostrarComprobante(comps[otId]);
+                toast(`Cobrado · ${comp.tipo} ${comp.folio}`, 'success');
+                mostrarComprobante(comp);
                 loadOrdenesFinalizadas();
-            } catch (e) { toast('Error: ' + e.message, 'danger'); }
+                loadHistorial();
+            } catch (e) {
+                const inputId = CAMPO_A_INPUT[e.campo];
+                payError(e.message, inputId || undefined);
+                setPayStep(inputId ? 2 : 1);
+            }
             finally { btn.disabled = false; }
         }
 
         function ticketHTML(comp) {
             const isFac = comp.tipo === 'FACTURA';
+            const titulo = isFac ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA';
+            const anulado = comp.estado === 'ANULADO';
+            const lineas = (comp.detalle || []).map(d => `
+                        <tr><td>${d.cantidad} ${d.unidadMedida} · ${d.descripcion}</td><td>${formatCurrency(d.importeTotal)}</td></tr>`).join('');
             return `<div class="ag-ticket">
                 <div class="ag-ticket-top">
                     <div class="ag-ticket-brand">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
                     </div>
-                    <div><h2>TALLER SAN MARTIN</h2><small>AutoGestion · Servicio automotriz</small></div>
+                    <div><h2>${comp.emisorNombreComercial || comp.emisorRazonSocial}</h2><small>RUC ${comp.emisorRuc} · ${comp.emisorDireccion || ''}</small></div>
                     <div class="ag-ticket-folio">
                         <span class="folio-tipo">${comp.tipo}</span>
-                        <span class="folio-num">${comp.serie}-${comp.numero}</span>
-                        <span class="folio-fecha">${formatDate(comp.fecha)}</span>
+                        <span class="folio-num">${comp.folio}</span>
+                        <span class="folio-fecha">${formatDate(comp.fechaEmision)}</span>
                     </div>
                 </div>
                 <div class="ag-ticket-body">
+                    <p class="ag-text-center ag-fw-700" style="margin:0 0 0.5rem;">${titulo}</p>
+                    ${anulado ? `<p class="ag-text-center"><span class="ag-badge ag-badge-danger">ANULADO: ${comp.motivoAnulacion || ''}</span></p>` : ''}
                     <div class="ag-ticket-client">
-                        <div class="row"><span>${isFac ? 'RUC' : 'DNI'}</span><b>${comp.doc}</b></div>
-                        <div class="row"><span>Cliente</span><b>${comp.docNombre}</b></div>
-                        ${comp.direccion ? `<div class="row"><span>Direccion</span><b>${comp.direccion}</b></div>` : ''}
-                        <div class="row"><span>OT</span><b>#${comp.otId}</b></div>
-                        <div class="row"><span>Pago</span><b>${comp.metodo}</b></div>
+                        <div class="row"><span>Señor(es)</span><b>${comp.clienteNombre}</b></div>
+                        <div class="row"><span>${comp.clienteTipoDoc}</span><b>${comp.clienteNumDoc}</b></div>
+                        ${comp.clienteDireccion ? `<div class="row"><span>Direccion</span><b>${comp.clienteDireccion}</b></div>` : ''}
+                        <div class="row"><span>Moneda</span><b>${comp.moneda} · ${comp.formaPago} · ${comp.metodoPago}</b></div>
+                        ${comp.observacion ? `<div class="row"><span>Observación</span><b>${comp.observacion}</b></div>` : ''}
                     </div>
-                    <table class="ag-ticket-items">
-                        <tr><td>Servicio de taller · OT #${comp.otId}</td><td>${formatCurrency(comp.total)}</td></tr>
-                    </table>
+                    <table class="ag-ticket-items">${lineas}</table>
                     <table class="ag-ticket-totals">
-                        <tr><td>Subtotal</td><td>${formatCurrency(comp.subtotal)}</td></tr>
+                        <tr><td>Op. gravada</td><td>${formatCurrency(comp.totalGravado)}</td></tr>
                         <tr><td>IGV 18%</td><td>${formatCurrency(comp.igv)}</td></tr>
-                        <tr class="grand"><td>TOTAL</td><td>${formatCurrency(comp.total)}</td></tr>
+                        <tr class="grand"><td>IMPORTE TOTAL</td><td>${formatCurrency(comp.total)}</td></tr>
                     </table>
+                    <p style="font-size:0.72rem; margin:0.5rem 0 0;">${comp.totalLetras}</p>
+                    <p style="font-size:0.68rem; color:#64748b; word-break:break-all; margin:0.4rem 0 0;">QR: ${comp.qrContenido}<br>Hash: -</p>
                 </div>
                 <div class="ag-ticket-foot">
-                    <span class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>PAGO REGISTRADO</span><br>
-                    Gracias por su preferencia<br>Constancia interna · No es comprobante electronico SUNAT
+                    <span class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>${anulado ? 'COMPROBANTE ANULADO' : 'PAGO REGISTRADO'}</span><br>
+                    Gracias por su preferencia<br>
+                    Documento generado por AutoGestion – representación impresa de carácter académico, no válido ante SUNAT
                 </div>
             </div>`;
         }
@@ -520,98 +599,45 @@
             document.getElementById('comprobanteTicketPrint').innerHTML = ticketHTML(comp);
             document.getElementById('compModal').classList.add('show');
         }
-        /* Generador PDF propio (sin librerias): ticket de 80mm con fuentes base PDF */
-        function buildComprobantePDF(comp) {
-            const W = 226.8, H = 620;
-            const isFac = comp.tipo === 'FACTURA';
-            const money = v => 'S/ ' + Number(v).toFixed(2);
-            const d = new Date(comp.fecha);
-            const fecha = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-            const esc = s => String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
-            const ops = [];
-            const col = c => ops.push(`${c} rg`);
-            const rect = (x, yTop, w, h, c) => { col(c); ops.push(`${x.toFixed(1)} ${(H - yTop - h).toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)} re f`); };
-            const hline = (x1, x2, yTop, c, w) => { col(c); ops.push(`${w} w ${x1.toFixed(1)} ${(H - yTop).toFixed(1)} m ${x2.toFixed(1)} ${(H - yTop).toFixed(1)} l S`); };
-            const txt = (x, yTop, font, size, c, t) => { col(c); ops.push(`BT /${font} ${size} Tf ${x.toFixed(1)} ${(H - yTop).toFixed(1)} Td (${esc(t)}) Tj ET`); };
-            const wEst = (t, font, size) => String(t).length * size * (font === 'F2' ? 0.55 : 0.5);
-            const centered = (yTop, font, size, c, t) => txt((W - wEst(t, font, size)) / 2, yTop, font, size, c, t);
-            const right = (xR, yTop, font, size, c, t) => txt(xR - wEst(t, font, size), yTop, font, size, c, t);
-            const M = 16, R = W - 16;
-            const DARK = '0.06 0.09 0.16', AMBER = '0.85 0.47 0.02', GREEN = '0.02 0.59 0.41',
-                  GRAY = '0.39 0.45 0.55', LINE = '0.89 0.91 0.94', WHITE = '1 1 1';
-            /* Cabecera */
-            rect(0, 0, W, 58, DARK);
-            txt(M, 26, 'F2', 12.5, WHITE, 'TALLER SAN MARTIN');
-            txt(M, 41, 'F1', 7.5, '0.75 0.8 0.86', 'AutoGestion - Servicio automotriz');
-            /* Folio */
-            rect(0, 58, W, 30, AMBER);
-            centered(70, 'F2', 11, WHITE, `${comp.tipo} - ${comp.serie}-${comp.numero}`);
-            centered(81, 'F1', 7.5, WHITE, fecha);
-            /* Cliente */
-            let y = 106;
-            const row = (label, value) => {
-                txt(M, y, 'F1', 8.5, GRAY, label);
-                right(R, y, 'F2', 8.5, DARK, value);
-                y += 13;
-            };
-            row(isFac ? 'RUC' : 'DNI', comp.doc);
-            row(isFac ? 'Razon social' : 'Cliente', comp.docNombre);
-            if (comp.direccion) row('Direccion', comp.direccion);
-            row('OT', '#' + comp.otId);
-            row('Pago', comp.metodo);
-            y += 4;
-            hline(M, R, y, LINE, 0.7); y += 12;
-            /* Concepto */
-            txt(M, y, 'F1', 9, DARK, `Servicio de taller - OT #${comp.otId}`);
-            right(R, y, 'F2', 9, DARK, money(comp.total)); y += 12;
-            hline(M, R, y, LINE, 0.7); y += 13;
-            /* Totales */
-            txt(M, y, 'F1', 9, GRAY, 'Subtotal'); right(R, y, 'F1', 9, DARK, money(comp.subtotal)); y += 13;
-            txt(M, y, 'F1', 9, GRAY, 'IGV 18%'); right(R, y, 'F1', 9, DARK, money(comp.igv)); y += 15;
-            hline(M, R, y, DARK, 1.2); y += 15;
-            txt(M, y, 'F2', 12, DARK, 'TOTAL'); right(R, y, 'F2', 13, DARK, money(comp.total)); y += 26;
-            /* Pie */
-            centered(y, 'F2', 9.5, GREEN, 'PAGO REGISTRADO'); y += 14;
-            centered(y, 'F1', 8, GRAY, 'Gracias por su preferencia'); y += 12;
-            centered(y, 'F1', 6.5, GRAY, 'Constancia interna - No es comprobante electronico SUNAT');
-            /* Ensamblar PDF */
-            const stream = ops.join('\n');
-            const objs = [
-                '<< /Type /Catalog /Pages 2 0 R >>',
-                '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-                `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>`,
-                '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
-                '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>',
-                `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`
-            ];
-            let pdf = '%PDF-1.4\n';
-            const offs = [0];
-            objs.forEach((o, i) => { offs.push(pdf.length); pdf += `${i + 1} 0 obj\n${o}\nendobj\n`; });
-            const xPos = pdf.length;
-            pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n`;
-            offs.slice(1).forEach(o => { pdf += `${String(o).padStart(10, '0')} 00000 n \n`; });
-            pdf += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xPos}\n%%EOF`;
-            const bytes = new Uint8Array(pdf.length);
-            for (let i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 0xFF;
-            return new Blob([bytes], { type: 'application/pdf' });
-        }
-        function descargarComprobante() {
+        /* El ticket 80 mm lo dibuja el backend (TicketPdf): el navegador solo
+           descarga el archivo desde GET /api/comprobantes/{id}/pdf. */
+        async function descargarComprobante() {
             if (!compShown) { toast('No hay comprobante para descargar', 'warning'); return; }
-            const blob = buildComprobantePDF(compShown);
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `${compShown.tipo}-${compShown.serie}-${compShown.numero}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
-            toast('Constancia PDF descargada', 'success');
+            try {
+                /* El PDF lo arma el backend (TicketPdf) con los mismos datos validados */
+                await apiDescargar(`/comprobantes/${compShown.id}/pdf`, `${compShown.tipo}-${compShown.folio}.pdf`);
+                toast('Constancia PDF descargada', 'success');
+            } catch (e) { toast('No se pudo generar el PDF: ' + e.message, 'danger'); }
         }
-        function cerrarCompModal() { document.getElementById('compModal').classList.remove('show'); }
-        function verComprobante(otId, monto) {
-            const comp = getComps()[otId];
-            if (comp) { mostrarComprobante(comp); return; }
-            const d = desglose(monto || 0);
-            mostrarComprobante({ tipo: 'BOLETA', serie: SERIES.BOLETA, numero: '------', doc: '-', docNombre: 'Registrado sin comprobante (anterior a v1.3.0)', direccion: '', metodo: '-', subtotal: d.sub, igv: d.igv, total: d.total, fecha: new Date().toISOString(), otId });
+        function cerrarCompModal() { document.getElementById('compModal').classList.remove('show'); compShown = null; }
+        async function verComprobante(otId) {
+            try {
+                const comp = await apiFetch(`/ordenes-trabajo/${otId}/comprobante`);
+                mostrarCompConAnulacion(comp);
+            } catch (e) {
+                toast('Esta OT aún no tiene comprobante electrónico. Usa "Emitir comprobante".', 'warning');
+            }
+        }
+        function mostrarCompConAnulacion(comp) {
+            mostrarComprobante(comp);
+            const box = document.getElementById('anularBox');
+            const u = (typeof getUser === 'function') ? getUser() : null;
+            const puede = u && u.rol === 'ADMIN' && comp.estado === 'EMITIDO';
+            box.hidden = !puede;
+            if (puede) document.getElementById('motivoAnulacion').value = '';
+        }
+        async function anularComprobante() {
+            if (!compShown) return;
+            const motivo = document.getElementById('motivoAnulacion').value.trim();
+            if (!motivo) { toast('Escribe el motivo: queda registrado para auditoría.', 'warning'); return; }
+            if (!(await confirmarAccion(`Anular ${compShown.tipo} ${compShown.folio}? El número NO se reutiliza y la OT podrá emitir otro.`, { tipo: 'danger' }))) return;
+            try {
+                const comp = await apiFetch(`/comprobantes/${compShown.id}/anular`, { method: 'POST', body: JSON.stringify({ motivo }) });
+                toast(`${comp.folio} anulado`, 'success');
+                mostrarCompConAnulacion(comp);
+                loadOrdenesFinalizadas();
+                loadHistorial();
+            } catch (e) { toast('Error: ' + e.message, 'danger'); }
         }
         function imprimirComprobante() { window.print(); }
         document.getElementById('pagoModal').addEventListener('click', (e) => { if (e.target.id === 'pagoModal') cerrarPagoModal(); });
@@ -622,7 +648,42 @@
             if (!(await confirmarAccion(`Confirmar entrega del vehiculo para OT #${otId}?`, { tipo: 'danger' }))) return;
             try { await apiFetch(`/entregas/${otId}`, { method: 'POST' }); toast(`Entrega registrada para OT #${otId}`, 'success'); loadOrdenesFinalizadas(); } catch (e) { toast('Error: ' + e.message, 'danger'); }
         }
+
+        /* ---- Historial de comprobantes emitidos ---- */
+        let histPage = 0;
+        const HIST_SIZE = 8;
+async function loadHistorial() {
+    const tipo = document.getElementById('histTipo').value || null;
+    const q = document.getElementById('histQ').value.trim() || '';
+    try {
+        /* Parámetros limpios: sin tipo vacío y con la búsqueda q de verdad enviada */
+        const params = new URLSearchParams({ page: histPage, size: HIST_SIZE, sort: 'fechaEmision,desc' });
+        if (tipo) params.set('tipo', tipo);
+        if (q) params.set('q', q);
+        const p = await apiFetch(`/comprobantes?${params.toString()}`);
+                const rows = (p.content || []).map(c => `
+                    <tr>
+                        <td class="ag-fw-600">${c.tipo} ${c.folio}</td>
+                        <td>${formatDate(c.fechaEmision)}</td>
+                        <td>${c.clienteNombre}<br><span class="ag-text-muted ag-text-sm">${c.clienteTipoDoc} ${c.clienteNumDoc}</span></td>
+                        <td class="col-num">${formatCurrency(c.total)}</td>
+                        <td>${c.estado === 'EMITIDO' ? '<span class="ag-badge ag-badge-success">EMITIDO</span>' : '<span class="ag-badge ag-badge-danger">ANULADO</span>'}</td>
+                        <td><button class="ag-btn ag-btn-outline ag-btn-sm" onclick="verComprobantePorId(${c.id})">Ver</button></td>
+                    </tr>`).join('');
+                document.getElementById('histBody').innerHTML = rows || '<tr><td colspan="6" class="ag-text-center ag-text-muted">Sin comprobantes con ese filtro</td></tr>';
+                document.getElementById('histInfo').textContent = `Página ${p.number + 1} de ${Math.max(1, p.totalPages)} · ${p.totalElements} comprobantes`;
+                document.getElementById('histPrev').disabled = p.first;
+                document.getElementById('histNext').disabled = p.last;
+            } catch (e) { document.getElementById('histBody').innerHTML = '<tr><td colspan="6" class="ag-text-center ag-text-muted">Error al cargar</td></tr>'; }
+        }
+        async function verComprobantePorId(id) {
+            try { mostrarCompConAnulacion(await apiFetch(`/comprobantes/${id}`)); }
+            catch (e) { toast('Error: ' + e.message, 'danger'); }
+        }
+        function histGo(d) { histPage = Math.max(0, histPage + d); loadHistorial(); }
+        function histBuscar() { histPage = 0; loadHistorial(); }
         loadOrdenesFinalizadas();
+        loadHistorial();
     </script>
 </body>
 </html>

@@ -21,8 +21,10 @@ public class OrdenTrabajo {
     @JoinColumn(name = "mecanico_id", nullable = false)
     private Usuario mecanico;
 
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String estado = "PENDIENTE";
+    private EstadoOT estado = EstadoOT.PENDIENTE;
 
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();

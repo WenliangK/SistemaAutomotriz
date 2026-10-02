@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface CotizacionRepository extends JpaRepository<Cotizacion, Long> {
 
     @Query("SELECT c FROM Cotizacion c LEFT JOIN FETCH c.diagnostico d LEFT JOIN FETCH d.mecanico LEFT JOIN FETCH d.recepcion r LEFT JOIN FETCH r.vehiculo v LEFT JOIN FETCH v.cliente WHERE c.estado = :estado")
-    List<Cotizacion> findByEstado(String estado);
+    List<Cotizacion> findByEstado(com.autogestion.entity.EstadoCotizacion estado);
 
     @Query("SELECT c FROM Cotizacion c LEFT JOIN FETCH c.diagnostico d LEFT JOIN FETCH d.mecanico LEFT JOIN FETCH d.recepcion r LEFT JOIN FETCH r.vehiculo v LEFT JOIN FETCH v.cliente")
     List<Cotizacion> findAll();

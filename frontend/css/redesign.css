@@ -400,13 +400,20 @@ select.ag-form-control:hover:not(:focus) { border-color: var(--ag-steel-light); 
   inset: 0;
   z-index: 14000;
   pointer-events: auto;
+  background: transparent;
 }
 .ag-tour-overlay.hidden { display: none; }
+/* Paso sin objetivo visible: se oscurece toda la pantalla */
+.ag-tour-overlay.no-target { background: rgba(2, 6, 23, 0.62); }
 .ag-tour-highlight {
   position: fixed;
   border: 2px solid var(--ag-oil);
   border-radius: var(--ag-radius-lg);
-  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.2), 0 0 40px rgba(217, 119, 6, 0.25);
+  /* Spotlight: la primera sombra (alcance gigante) oscurece todo menos
+     el hueco del recuadro; el anillo ambar y el glow quedan en el borde. */
+  box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.62),
+    0 0 0 4px rgba(217, 119, 6, 0.2),
+    0 0 40px rgba(217, 119, 6, 0.25);
   pointer-events: none;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 14001;

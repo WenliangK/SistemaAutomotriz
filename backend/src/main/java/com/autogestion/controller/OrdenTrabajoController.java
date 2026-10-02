@@ -14,8 +14,10 @@ import com.autogestion.entity.Vehiculo;
 import com.autogestion.entity.OrdenTrabajo;
 import com.autogestion.service.OrdenTrabajoService;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,8 +58,17 @@ public class OrdenTrabajoController {
     @PostMapping("/{id}/productos-usados")
     public ResponseEntity<OtProductoUsadoResponseDTO> registrarProductoUsado(
             @PathVariable Long id,
-            @RequestBody ProductoUsadoRequest request) {
-        return ResponseEntity.ok(ordenTrabajoService.registrarProductoUsado(id, request));
+            @Valid @RequestBody ProductoUsadoRequest request,
+            Authentication auth) {
+        return ResponseEntity.ok(ordenTrabajoService.registrarProductoUsado(id, request, Long.valueOf(auth.getName())));
+    }
+
+    @RolesAllowed({"ADMIN", "RECEPCIONISTA"})
+    @PutMapping("/{id}/mecanico")
+    public ResponseEntity<OrdenTrabajoResponseDTO> reasignarMecanico(
+            @PathVariable Long id,
+            @RequestBody Map<String, Long> body) {
+        return ResponseEntity.ok(ordenTrabajoService.reasignarMecanico(id, body.get("mecanicoId")));
     }
 
     @GetMapping
@@ -93,12 +104,14 @@ public class OrdenTrabajoController {
                 .id(ot.getId())
                 .cotizacionId(cotizacion.getId())
                 .mecanicoId(ot.getMecanico().getId())
-                .mecanicoNombre(mecanico.getNombre())
-                .estado(ot.getEstado())
+                .mecanicoNombre(mecanico.getNombreCompleto())
+                .estado(ot.getEstado().name())
                 .fechaCreacion(ot.getFechaCreacion())
                 .fechaFin(ot.getFechaFin())
                 .vehiculoPlaca(recepcion.getVehiculo().getPlaca())
                 .clienteNombre(recepcion.getVehiculo().getCliente().getNombre())
+                .recepcionId(recepcion.getId())
+                .problemaReportado(recepcion.getProblemaReportado())
                 .build();
     }
 }

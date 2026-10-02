@@ -5,6 +5,7 @@ import com.autogestion.dto.CotizacionRequest;
 import com.autogestion.dto.CotizacionResponseDTO;
 import com.autogestion.entity.*;
 import com.autogestion.repository.*;
+import com.autogestion.util.AppTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,14 +37,14 @@ public class CotizacionService {
         Cotizacion cotizacion = Cotizacion.builder()
                 .diagnostico(diagnostico)
                 .total(BigDecimal.ZERO)
-                .estado("PENDIENTE")
-                .fecha(LocalDateTime.now())
+                .estado(EstadoCotizacion.PENDIENTE)
+                .fecha(AppTime.ahora())
                 .build();
         cotizacion = cotizacionRepository.save(cotizacion);
 
         BigDecimal total = BigDecimal.ZERO;
 
-        
+
         if (request.getServicios() != null) {
             for (CotizacionRequest.ServicioCotizacion sc : request.getServicios()) {
                 Servicio servicio = servicioRepository.findById(sc.getServicioId())
@@ -120,11 +121,13 @@ public class CotizacionService {
             .id(saved.getId())
             .diagnosticoId(saved.getDiagnostico().getId())
             .diagnosticoDescripcion(saved.getDiagnostico().getDescripcion())
+            .mecanicoId(saved.getDiagnostico().getMecanico() != null ? saved.getDiagnostico().getMecanico().getId() : null)
+            .mecanicoNombre(saved.getDiagnostico().getMecanico() != null ? saved.getDiagnostico().getMecanico().getNombreCompleto() : null)
             .recepcionId(String.valueOf(saved.getDiagnostico().getRecepcion().getId()))
             .vehiculoPlaca(saved.getDiagnostico().getRecepcion().getVehiculo().getPlaca())
             .clienteNombre(saved.getDiagnostico().getRecepcion().getVehiculo().getCliente().getNombre())
             .total(saved.getTotal())
-            .estado(saved.getEstado())
+            .estado(saved.getEstado().name())
             .fecha(saved.getFecha())
             .servicios(servicios)
             .productos(productos)
@@ -143,8 +146,8 @@ public class CotizacionService {
         Cotizacion cotizacion = Cotizacion.builder()
                 .diagnostico(diagnostico)
                 .total(BigDecimal.ZERO)
-                .estado("PENDIENTE")
-                .fecha(LocalDateTime.now())
+                .estado(EstadoCotizacion.PENDIENTE)
+                .fecha(AppTime.ahora())
                 .build();
         cotizacion = cotizacionRepository.save(cotizacion);
 
@@ -224,11 +227,13 @@ public class CotizacionService {
             .id(cotizacion.getId())
             .diagnosticoId(cotizacion.getDiagnostico().getId())
             .diagnosticoDescripcion(cotizacion.getDiagnostico().getDescripcion())
+            .mecanicoId(cotizacion.getDiagnostico().getMecanico() != null ? cotizacion.getDiagnostico().getMecanico().getId() : null)
+            .mecanicoNombre(cotizacion.getDiagnostico().getMecanico() != null ? cotizacion.getDiagnostico().getMecanico().getNombreCompleto() : null)
             .recepcionId(String.valueOf(cotizacion.getDiagnostico().getRecepcion().getId()))
             .vehiculoPlaca(cotizacion.getDiagnostico().getRecepcion().getVehiculo().getPlaca())
             .clienteNombre(cotizacion.getDiagnostico().getRecepcion().getVehiculo().getCliente().getNombre())
             .total(cotizacion.getTotal())
-            .estado(cotizacion.getEstado())
+            .estado(cotizacion.getEstado().name())
             .fecha(cotizacion.getFecha())
             .servicios(servicios)
             .productos(productos)
@@ -243,16 +248,16 @@ public class CotizacionService {
         Cotizacion cotizacion = cotizacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
 
-        if (!"PENDIENTE".equals(cotizacion.getEstado())) {
+        if (cotizacion.getEstado() != EstadoCotizacion.PENDIENTE) {
             throw new RuntimeException("Solo se pueden aprobar cotizaciones pendientes");
         }
 
-        cotizacion.setEstado("APROBADA");
+        cotizacion.setEstado(EstadoCotizacion.APROBADA);
         cotizacion = cotizacionRepository.save(cotizacion);
 
         Diagnostico diagnostico = cotizacion.getDiagnostico();
         Recepcion recepcion = diagnostico.getRecepcion();
-        recepcion.setEstado("COTIZADA");
+        recepcion.setEstado(EstadoRecepcion.COTIZADA);
         recepcionRepository.save(recepcion);
 
         Cotizacion saved = cotizacionRepository.findById(cotizacion.getId())
@@ -265,11 +270,11 @@ public class CotizacionService {
         Cotizacion cotizacion = cotizacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
 
-        if (!"PENDIENTE".equals(cotizacion.getEstado())) {
+        if (cotizacion.getEstado() != EstadoCotizacion.PENDIENTE) {
             throw new RuntimeException("Solo se pueden rechazar cotizaciones pendientes");
         }
 
-        cotizacion.setEstado("RECHAZADA");
+        cotizacion.setEstado(EstadoCotizacion.RECHAZADA);
         cotizacion = cotizacionRepository.save(cotizacion);
 
         Cotizacion saved = cotizacionRepository.findById(cotizacion.getId())
@@ -286,9 +291,13 @@ public class CotizacionService {
 
     @Transactional(readOnly = true)
     public List<CotizacionResponseDTO> listar(String estado) {
-        List<Cotizacion> cotizaciones = (estado != null && !estado.isEmpty())
-                ? cotizacionRepository.findByEstado(estado)
-                : cotizacionRepository.findAll();
+        List<Cotizacion> cotizaciones;
+        if (estado == null || estado.isEmpty()) {
+            cotizaciones = cotizacionRepository.findAll();
+        } else {
+            EstadoCotizacion est = EstadoCotizacion.desde(estado);
+            cotizaciones = (est != null) ? cotizacionRepository.findByEstado(est) : List.of();
+        }
         return cotizaciones.stream().map(this::toResponseDTO).collect(Collectors.toList());
     }
 
@@ -344,11 +353,13 @@ public class CotizacionService {
             .id(cotizacion.getId())
             .diagnosticoId(cotizacion.getDiagnostico().getId())
             .diagnosticoDescripcion(cotizacion.getDiagnostico().getDescripcion())
+            .mecanicoId(cotizacion.getDiagnostico().getMecanico() != null ? cotizacion.getDiagnostico().getMecanico().getId() : null)
+            .mecanicoNombre(cotizacion.getDiagnostico().getMecanico() != null ? cotizacion.getDiagnostico().getMecanico().getNombreCompleto() : null)
             .recepcionId(String.valueOf(cotizacion.getDiagnostico().getRecepcion().getId()))
             .vehiculoPlaca(cotizacion.getDiagnostico().getRecepcion().getVehiculo().getPlaca())
             .clienteNombre(cotizacion.getDiagnostico().getRecepcion().getVehiculo().getCliente().getNombre())
             .total(cotizacion.getTotal())
-            .estado(cotizacion.getEstado())
+            .estado(cotizacion.getEstado().name())
             .fecha(cotizacion.getFecha())
             .servicios(servicios)
             .productos(productos)

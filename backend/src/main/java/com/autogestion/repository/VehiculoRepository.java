@@ -12,4 +12,7 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Long> {
 
     @EntityGraph(attributePaths = {"cliente"})
     List<Vehiculo> findAll();
+
+    @EntityGraph(attributePaths = {"cliente"})
+    List<Vehiculo> findByClienteId(Long clienteId);
 }

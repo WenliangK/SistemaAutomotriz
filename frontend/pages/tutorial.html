@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+        <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoGestion - Tutorial</title>
@@ -9,7 +13,8 @@
     <link rel="stylesheet" href="../css/styles.css?v=20260920b">
     <link rel="stylesheet" href="../css/animations.css">
     <link rel="stylesheet" href="../css/redesign.css">
-    <link rel="stylesheet" href="../css/polish.css?v=20261001">
+    <link rel="stylesheet" href="../css/polish.css?v=20261005">
+    <link rel="stylesheet" href="../css/panels-premium.css?v=20261002">
     <script>
         (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
     </script>
@@ -156,11 +161,34 @@
             </div>
             <div class="ag-section-body" style="padding-top:0.25rem;" id="faqBox"></div>
         </div>
+
+        <!-- CASO GUIADO -->
+        <div class="ag-section ag-mt-3">
+            <div class="ag-section-header">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    Caso guiado: un vehículo de principio a fin
+                </h3>
+                <span class="ag-progress-ring" id="casoProgress">0 / 8</span>
+            </div>
+            <div class="ag-section-body" id="casoBox"></div>
+        </div>
+
+        <!-- GLOSARIO -->
+        <div class="ag-section ag-mt-3">
+            <div class="ag-section-header">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    Glosario del taller
+                </h3>
+            </div>
+            <div class="ag-section-body" id="glosarioBox"></div>
+        </div>
     </div>
     <div id="themeToggleWrap"></div>
-    <script src="../js/api.js?v=20260920b"></script>
-    <script src="../js/animations.js"></script>
-    <script src="../js/ui-kit.js"></script>
+    <script src="../js/api.js?v=20261006"></script>
+    <script src="../js/animations.js?v=20261005"></script>
+    <script src="../js/ui-kit.js?v=20261005"></script>
     <script>
         (function() {
             /* Navbar: si hay sesion usa el normal; si no, una barra minima (el tutorial es publico) */
@@ -244,7 +272,13 @@
                   steps: ['Crea OT desde cotizacion aprobada', 'Avanza: Iniciar, Prueba, Finalizar', 'Registra repuestos usados'] },
                 { href: 'inventario.html', cls: 'tut-ic-green', title: 'Inventario', pages: ['inventario'], desc: 'Repuestos e insumos con control de stock minimo.',
                   steps: ['Crea y busca productos', 'Registra entradas y ajustes', 'Atiende las alertas de stock'] },
-                { href: 'pago_entrega.html', cls: 'tut-ic-red', title: 'Pago y Entrega', pages: ['pago_entrega'], desc: 'Cobra las OT finalizadas y entrega los vehiculos.',
+                { href: 'clientes.html', cls: 'tut-ic-cyan', title: 'Clientes', pages: ['clientes'], desc: 'Personas y empresas con vehículos, visitas y comprobantes.',
+                  steps: ['Busca por documento o nombre', 'Abre la ficha completa', 'Lanza recepciones precargadas'] },
+                { href: 'reportes.html', cls: 'tut-ic-violet', title: 'Reportes', pages: ['reportes'], desc: 'Clientes, ingresos, inventario, gastos y resultado con gráficos.',
+                  steps: ['Elige el rango de fechas', 'Lee el recuadro de cada pestaña', 'Exporta a CSV'] },
+                { href: 'equipo.html', cls: 'tut-ic-green', title: 'Equipo', pages: ['equipo'], desc: 'Mecánicos con nombre real, especialidad y carga de trabajo.',
+                  steps: ['Crea personal con DNI validado', 'Mira la carga por mecánico', 'Desactiva sin borrar'] },
+{ href: 'pago_entrega.html', cls: 'tut-ic-red', title: 'Pago y Entrega', pages: ['pago_entrega'], desc: 'Cobra las OT finalizadas y entrega los vehiculos.',
                   steps: ['Revisa OTs finalizadas', 'Registra el pago', 'Confirma la entrega'] }
             ];
             document.getElementById('moduleGrid').innerHTML = MODULES
@@ -352,6 +386,59 @@
                 const open = q.classList.toggle('open');
                 a.classList.toggle('open', open);
             });
+
+            /* ---------- Caso guiado ---------- */
+            const CASO = [
+                { t: 'Registra la recepción', d: 'Cliente, vehículo y problema.', href: 'recepcion.html' },
+                { t: 'Crea el diagnóstico', d: 'Hallazgos del mecánico.', href: 'cotizacion.html' },
+                { t: 'Arma la cotización', d: 'Servicios + repuestos con total.', href: 'cotizacion.html' },
+                { t: 'Aprueba la cotización', d: 'El cliente acepta el precio.', href: 'cotizacion.html' },
+                { t: 'Crea la OT', d: 'Nace del aprobado, asigna mecánico.', href: 'orden_trabajo.html' },
+                { t: 'Registra repuestos usados', d: 'Descuentan stock al instante.', href: 'orden_trabajo.html' },
+                { t: 'Cobra con comprobante', d: 'Boleta o factura con constancia.', href: 'pago_entrega.html' },
+                { t: 'Entrega el vehículo', d: 'Cierra el ciclo.', href: 'pago_entrega.html' }
+            ];
+            const casoKey = 'ag-caso-' + ((typeof getUser === 'function' && getUser()) ? getUser().rol : 'invitado');
+            let casoDone = [];
+            try { casoDone = JSON.parse(localStorage.getItem(casoKey) || '[]'); } catch (_) { casoDone = []; }
+            function renderCaso() {
+                document.getElementById('casoBox').innerHTML = CASO.map((s, i) => `
+                    <label class="ag-d-flex ag-align-center" style="gap:0.7rem; padding:0.45rem 0; border-bottom:1px solid var(--ag-border); cursor:pointer;">
+                        <input type="checkbox" data-caso="${i}" ${casoDone.includes(i) ? 'checked' : ''} style="width:17px; height:17px; accent-color:var(--ag-oil);">
+                        <span class="ag-wz-dot" style="${casoDone.includes(i) ? 'background:var(--ag-signal-go); border-color:var(--ag-signal-go); color:#fff;' : ''}">${i + 1}</span>
+                        <span style="flex:1;"><b>${s.t}</b><br><span class="ag-text-muted ag-text-sm">${s.d}</span></span>
+                        <a class="ag-btn ag-btn-outline ag-btn-sm" href="${s.href}">Ir →</a>
+                    </label>`).join('');
+                document.getElementById('casoProgress').textContent = `${casoDone.length} / ${CASO.length}`;
+            }
+            document.getElementById('casoBox').addEventListener('change', (e) => {
+                const i = +e.target.dataset.caso;
+                if (isNaN(i)) return;
+                if (e.target.checked && !casoDone.includes(i)) casoDone.push(i);
+                if (!e.target.checked) casoDone = casoDone.filter(x => x !== i);
+                try { localStorage.setItem(casoKey, JSON.stringify(casoDone)); } catch (_) { /* noop */ }
+                renderCaso();
+            });
+            renderCaso();
+
+            /* ---------- Glosario ---------- */
+            const GLOSARIO = [
+                ['OT', 'Orden de Trabajo: la orden que dice qué se le hace al auto, quién y en qué estado va.'],
+                ['RUC', 'Registro Único de Contribuyente: 11 dígitos de una empresa o negocio. Sin RUC válido no hay factura.'],
+                ['DNI', 'Documento de identidad peruano: 8 dígitos. Con boletas mayores a S/ 700 es obligatorio.'],
+                ['Boleta', 'Comprobante para consumidor final (tú, yo). Lleva DNI, no da crédito fiscal.'],
+                ['Factura', 'Comprobante para empresas (RUC + razón social + dirección). Da crédito fiscal.'],
+                ['Serie y correlativo', 'La matrícula del comprobante: serie B001/F001 + número que nunca se repite ni reutiliza.'],
+                ['IGV', 'Impuesto General a las Ventas: 18 % incluido en los precios del taller.'],
+                ['Kardex', 'La cuenta corriente de un producto: saldo inicial + entradas − salidas = saldo final.'],
+                ['Merma', 'Pérdida de almacén (vencido, roto, derrame). Se registra con motivo y queda auditada.'],
+                ['Stock mínimo', 'El nivel que dispara la alerta: debajo de él, hay que comprar.'],
+                ['Cotización', 'El presupuesto que aprueba el cliente. Aprobada → nace la OT.'],
+                ['Utilidad estimada', 'Ingresos sin IGV menos costo consumido menos gastos. Estimación académica, no contabilidad.']
+            ];
+            document.getElementById('glosarioBox').innerHTML =
+                '<div class="ag-grid ag-grid-2">' + GLOSARIO.map(([t, d]) => `
+                    <div class="ag-state-card" style="margin:0;"><b>${t}</b><p class="ag-text-sm ag-text-muted" style="margin:0.25rem 0 0;">${d}</p></div>`).join('') + '</div>';
         })();
     </script>
 </body>

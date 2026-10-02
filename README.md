@@ -46,18 +46,18 @@ sistema-de-autogestion/
 ├── backend/
 │   ├── Dockerfile
 │   ├── pom.xml
-│   └── src/main/java/com/autogestion/
-│       ├── AutogestionApplication.java
-│       ├── config/                (Security, JWT, CORS, DataInitializer)
-│       ├── entity/                (13 entidades JPA)
-│       ├── repository/            (14 repositorios Spring Data)
-│       ├── service/               (9 servicios con logica de negocio)
-│       ├── controller/            (10 endpoints REST)
-│       └── dto/                   (11 request/response DTOs)
+│   ├── src/main/java/com/autogestion/
+│   │   ├── AutogestionApplication.java
+│   │   ├── config/                (Security, JWT, CORS, DataInitializer, EmpresaProperties)
+│   │   ├── entity/                (30 entidades JPA)
+│   │   ├── repository/            (18 repositorios Spring Data)
+│   │   ├── service/               (14 servicios con logica de negocio)
+│   │   ├── controller/            (17 controladores REST)
+│   │   ├── dto/                   (37 request/response DTOs)
+│   │   └── util/                  (AppTime, DocumentoValidator, NumeroALetras, Rangos, TicketPdf)
+│   └── src/main/resources/db/migration/    (Flyway: V1 esquema inicial, V2 fiscal/inventario/gastos)
 ├── database/
-│   ├── Dockerfile
-│   ├── init.sql                   (Schema PostgreSQL + datos semilla)
-│   └── migrations/                (parches SQL para volumenes existentes)
+│   └── Dockerfile                 (Imagen Postgres 16; el esquema lo versiona Flyway)
 ├── frontend/
 │   ├── Dockerfile
 │   ├── nginx.conf
@@ -70,8 +70,7 @@ sistema-de-autogestion/
 │   │   ├── api.js                 (Cliente API, navbar, helpers, permisos por rol)
 │   │   ├── animations.js          (Transiciones, ripples, stagger)
 │   │   ├── ui-kit.js              (Toasts, buscador Ctrl+K, tour guiado)
-│   │   ├── confirm-modal.js       (Modal de confirmacion reutilizable)
-│   │   └── icons.js               (Iconografia SVG)
+│   │   └── confirm-modal.js       (Modal de confirmacion reutilizable)
 │   └── pages/
 │       ├── dashboard.html         (Indicadores)
 │       ├── recepcion.html         (Recepcion de vehiculos)
@@ -111,10 +110,11 @@ sistema-de-autogestion/
 ### Paso 1 — Levantar el sistema
 
 ```bash
+cp .env.example .env   # opcional: ajusta claves y demo (nunca subas .env)
 docker compose up --build
 ```
 
-Esto construye e inicia 3 contenedores:
+Esto construye e inicia 3 contenedores. Flyway crea/actualiza el esquema solo al arrancar el backend (conserva tus datos):
 
 | Contenedor | Servicio | Puerto |
 | :-- | :-- | :-- |
@@ -133,7 +133,7 @@ Esto construye e inicia 3 contenedores:
 ### Paso 3 — Iniciar sesion
 
 - **Email:** `admin@sanmartin.pe`
-- **Contrasena:** `admin123`
+- **Contrasena:** `Admin-2026*` (demo; cámbiala con `APP_ADMIN_PASSWORD` en tu `.env`)
 
 ### Paso 4 — Recorrer el flujo del negocio
 
@@ -155,27 +155,32 @@ Actores: **Cliente, Recepcionista, Mecanico, Administrador**.
 
 | Usuario | Email | Contrasena | Rol |
 | :-- | :-- | :-- | :-- |
-| Admin Taller | `admin@sanmartin.pe` | `admin123` | `ADMIN` |
-| Mecanico Uno | `mecanico1@sanmartin.pe` | `admin123` | `MECANICO` |
-| Recepcionista | `recepcionista@sanmartin.pe` | `admin123` | `RECEPCIONISTA` |
-| Almacenero | `almacen@sanmartin.pe` | `admin123` | `ALMACENERO` |
+| Administrador | `admin@sanmartin.pe` | `Admin-2026*` | `ADMIN` |
+| Luis Ramírez (Motor) | `mecanico1@sanmartin.pe` | `Meca-2026*` | `MECANICO` |
+| Jorge Castillo (Frenos) | `jcastillo@sanmartin.pe` | `Meca-2026*` | `MECANICO` |
+| Marco Delgado (Electricidad) | `mdelgado@sanmartin.pe` | `Meca-2026*` | `MECANICO` |
+| Rosa Chávez | `recepcionista@sanmartin.pe` | `Recep-2026*` | `RECEPCIONISTA` |
+| Pedro Quispe | `almacen@sanmartin.pe` | `Alma-2026*` | `ALMACENERO` |
+
+> [!WARNING]
+> Claves **distintas por rol** solo para demo local (v2.0.0). En producción define las tuyas en `.env` (`APP_ADMIN_PASSWORD`, `APP_SEED_PASSWORD_*`) y pon `APP_SEED_DEMO=false` para no sembrar datos de prueba.
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
 ## 🗄️ Que Hay en la Base de Datos (Automatico)
 
-Al levantar Docker, se insertan automaticamente estos datos:
+Con `APP_SEED_DEMO=true` (valor demo) se insertan automaticamente estos datos. Con `false` solo se crea el ADMIN de arranque:
 
 | Dato | Cantidad |
 | :-- | :-- |
-| 👥 Usuarios | 3 (admin, mecanico, almacenero) |
-| 🧑‍💼 Clientes | 3 (Juan Perez, Maria Lopez, Carlos Garcia) |
-| 🚗 Vehiculos | 3 (Toyota Corolla, Hyundai Accent, Nissan Sentra) |
+| 👥 Usuarios | 6 (admin, 3 mecánicos con especialidad, almacén, recepción) |
+| 🧑‍💼 Clientes | 5 (3 con DNI + 2 empresas con RUC válido) |
+| 🚗 Vehiculos | 4 (Corolla, Accent, Sentra, Hilux) |
 | 🛠️ Servicios | 8 (cambio de aceite, alineacion, frenos, etc.) |
 | 📦 Productos | 12 (aceite, filtros, pastillas, discos, etc.) |
 
 > [!IMPORTANT]
-> Los datos se mantienen en PostgreSQL dentro del contenedor Docker. Si eliminas el volumen `pgdata`, se perderan y se volveran a insertar al reiniciar.
+> Los datos se mantienen en PostgreSQL dentro del contenedor Docker. Si eliminas el volumen `pgdata`, se pierden y (con demo activado) se vuelven a insertar al reiniciar.
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
@@ -237,18 +242,22 @@ stateDiagram-v2
 | :-- | :-- |
 | 🔐 **Login** | Split-screen: identidad de marca (izq) + formulario (der), toggle de temas |
 | 📊 **Dashboard** | 4 indicadores animados + flujo visual + alertas de stock + accesos rapidos |
-| 🧾 **Recepcion** | Formulario cliente/vehiculo (izq) + lista recepciones (der) |
-| 💬 **Cotizacion** | Diagnostico + cotizacion con calculo en vivo + cotizaciones existentes |
-| 🔧 **Ordenes de Trabajo** | Lista de OT con badges de estado + modal productos usados |
-| 📦 **Inventario** | Tabla de productos + entrada/ajuste + alertas de stock |
-| 💳 **Pago/Entrega** | Ordenes finalizadas + resumen animado + wizard BOLETA/FACTURA en 3 pasos + constancia ticket que imprime limpio (sin encabezados del navegador) y se descarga en PDF real (v1.4.2) |
+| 🧾 **Recepcion** | Wizard en 4 pasos (cliente con buscador, vehículo, problema, confirmar) + lista con filtros (v1.8.0) |
+| 👥 **Clientes** | Buscador, filtros, ficha con visitas/vehículos/comprobantes, activar sin borrar (v1.8.0) |
+| 💬 **Cotizacion** | Wizard Diagnóstico → Cotización → Aprobar, cálculo en vivo, mecánicos por carga (v1.9.0) |
+| 🔧 **Ordenes de Trabajo** | Kanban por estado con buscador + reasignar mecánico + cobro directo (v1.9.0) |
+| 📦 **Inventario** | Pestañas: stock con costo/margen, movimientos auditados, compra multi-línea, mermas, proveedores, alertas (v1.10.0) |
+| 💳 **Pago/Entrega** | Ordenes finalizadas + resumen animado + wizard BOLETA/FACTURA con totales del servidor + ticket/PDF legítimos (emisor, detalle, IGV, letras, QR) + historial con filtros + anulación ADMIN (v1.5.0) |
+| 👥 **Equipo** | Personal con nombre real, avatar de iniciales, especialidad y carga de OT; crear/editar/desactivar/restablecer clave (solo ADMIN, v1.7.0) |
+| 📊 **Reportes** | 7 pestañas por rol (resumen, clientes, ingresos, inventario, gastos, resultado, mecánicos) con gráficos propios, CSV y fórmula visible (v1.11.0) |
+| 🎓 **Tutorial y docs** | Caso guiado de 8 pasos, glosario, tours por pantalla + `docs/` (guía, manual, preguntas de defensa, v1.12.0) |
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
 ## 🧾 Facturacion (Boleta/Factura) — v1.3.0
 
 > [!NOTE]
-> **Frontend implementado** en `frontend/pages/pago_entrega.html`: modal de pago con selector BOLETA/FACTURA, validacion DNI/RUC, metodo de pago, desglose IGV y constancia imprimible (boton Imprimir + Reimprimir). El comprobante se guarda en `localStorage` (`ag_comprobantes_v1`, series `B001`/`F001` con correlativo). **Backend pendiente**: `pago_entrega` en BD aun solo guarda `monto` + fechas, asi que el comprobante todavia no persiste en servidor (ver gap 1-3).
+> **Implementado (v1.5.0, Fase 1)**: el comprobante vive en la BD (`comprobante` + `serie_comprobante` con bloqueo pesimista). El wizard de `pago_entrega.html` consume `POST /api/comprobantes`; el total sale de la cotización en el servidor. RUC con dígito verificador, IGV 18 %, total en letras, folio `F001-00000001`, QR y anulación con motivo (solo ADMIN). Comprobante académico: no firma XML ni envía a SUNAT.
 
 ### Gaps que quedan en backend
 
@@ -343,17 +352,19 @@ flowchart LR
 ## 🔒 Seguridad
 
 - **Autenticacion:** JWT (JSON Web Token)
-- **Roles:** ADMIN, MECANICO, ALMACENERO
-- **Endpoints protegidos** por rol con `@PreAuthorize`
-- **Passwords** hasheados con BCrypt
+- **Roles:** ADMIN, MECANICO, ALMACENERO, RECEPCIONISTA
+- **Endpoints protegidos** por rol con `@RolesAllowed` (backend) + `ROLE_PAGES`/`ROLE_NAV` (frontend)
+- **Passwords** hasheados con BCrypt, distintos por rol en demo
+- **Secretos fuera del repo:** `.env` (ver `.env.example`); JWT, claves y demo por variables. Consola H2 solo en desarrollo
+- **Estados tipados:** `EstadoOT`, `EstadoRecepcion`, `EstadoCotizacion` (mismo texto en BD, sin estados imposibles)
 
 ### Permisos por Rol
 
 | Rol | Puede hacer |
 | :-- | :-- |
-| 🛡️ **ADMIN** | Dashboard, recepcion, cotizacion, ordenes, inventario, pago/entrega, reportes (los paneles de mecanico y recepcionista son exclusivos de su rol) |
+| 🛡️ **ADMIN** | Dashboard, recepcion, cotizacion, ordenes, inventario, pago/entrega, comprobantes (emitir + anular), reportes |
 | 🔧 **MECANICO** | Panel Mecanico, sus ordenes de trabajo (cambio de estado), inventario en lectura |
-| 🧾 **RECEPCIONISTA** | Panel Recepcionista, recepcion, cotizacion, ordenes de trabajo |
+| 🧾 **RECEPCIONISTA** | Panel Recepcionista, recepcion, cotizacion, ordenes de trabajo, pago/entrega (emitir comprobantes; anular es solo ADMIN) |
 | 📦 **ALMACENERO** | Dashboard, inventario (productos, movimientos, alertas de stock) |
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
@@ -406,9 +417,14 @@ agFlashRow(tableRow)              // Resalta una fila momentaneamente
 | Metodo | Endpoint | Descripcion |
 | :-: | :-- | :-- |
 | ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/auth/login` | Autenticacion (devuelve JWT) |
-| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/clientes` | Crear cliente |
+| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/clientes` | Crear cliente (valida DNI/RUC/CE/pasaporte) |
 | ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/clientes` | Listar clientes |
-| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/vehiculos` | Crear vehiculo |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/clientes/buscar?q=` | Buscar paginado por documento, nombre, teléfono o email |
+| ![PUT](https://img.shields.io/badge/PUT-FCA130?style=flat-square) | `/api/clientes/{id}` | Editar cliente (chequea duplicado) |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/clientes/{id}/vehiculos` | Vehículos de un cliente |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/clientes/{id}/resumen` | Ficha con visitas, historial y comprobantes |
+| ![PATCH](https://img.shields.io/badge/PATCH-50E3C2?style=flat-square) | `/api/clientes/{id}/activo` | Desactivar/activar sin borrar |
+| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/vehiculos` | Crear vehiculo (placa peruana, un dueño por placa) |
 | ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/vehiculos` | Listar vehiculos |
 | ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/recepciones` | Crear recepcion |
 | ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/recepciones` | Listar recepciones (filtro por estado) |
@@ -420,12 +436,27 @@ agFlashRow(tableRow)              // Resalta una fila momentaneamente
 | ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/ordenes-trabajo` | Crear orden de trabajo |
 | ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/ordenes-trabajo` | Listar OT |
 | ![PUT](https://img.shields.io/badge/PUT-FCA130?style=flat-square) | `/api/ordenes-trabajo/{id}/estado` | Cambiar estado de OT |
+| ![PUT](https://img.shields.io/badge/PUT-FCA130?style=flat-square) | `/api/ordenes-trabajo/{id}/mecanico` | Reasignar mecánico (OT abierta) |
 | ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/ordenes-trabajo/{id}/productos-usados` | Registrar producto usado |
 | ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/productos` | Listar productos |
 | ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/productos` | Crear producto |
-| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/inventario/movimientos` | Registrar movimiento de inventario |
+| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/inventario/movimientos` | Registrar movimiento (entrada con costo, consumo, ajustes, merma) |
 | ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/inventario/alertas` | Obtener alertas de stock bajo |
-| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/pagos` | Registrar pago |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/inventario/movimientos?tipo=&desde=&hasta=` | Kardex paginado con filtros |
+| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/proveedores` | Crear proveedor (RUC validado) |
+| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/gastos` | Registrar gasto operativo (solo ADMIN) |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/reportes/clientes-por-dia` | Clientes atendidos por día (+ `/export?formato=csv`) |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/reportes/ingresos?agrupar=dia\|mes` | Ingresos cobrados (solo EMITIDO) |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/reportes/resultado` | Utilidad = sin IGV − consumos − gastos |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/reportes/inventario/kardex/{id}` | Kardex con saldos que cuadran |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/reportes/rendimiento-mecanicos` | OT, tiempos y consumo por mecánico |
+| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/pagos` | Registrar pago (flujo antiguo, se mantiene) |
+| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/comprobantes` | Emitir boleta/factura (monto desde cotización) |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/comprobantes` | Listar con filtros y paginación |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/comprobantes/previsualizar` | Totales y adquirente sin reservar número |
+| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/comprobantes/{id}/anular` | Anular con motivo (solo ADMIN) |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/ordenes-trabajo/{id}/comprobante` | Comprobante vigente de una OT |
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/documentos/validar` | Validar DNI/RUC/CE/pasaporte en vivo |
 | ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/api/entregas/{id}` | Registrar entrega |
 | ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/api/reportes/indicadores` | Obtener indicadores del dashboard |
 
@@ -512,6 +543,24 @@ docker compose logs
 <br>
 
 Si eliminaste el volumen `pgdata`, se pierden los datos. Al reiniciar Docker se vuelven a insertar automaticamente.
+
+</details>
+
+<details>
+<summary><b>"Schema-validation: missing column" en bucle (v1.5.1+ ya no pasa)</b></summary>
+
+<br>
+
+Desde la v1.5.1 Flyway aplica solo las migraciones pendientes al arrancar (`baseline` en BD existentes). Si ves este error en una versión vieja: actualiza el código y haz `docker compose up --build` (sin `-v`, no pierdes datos). Solo usa `docker compose down -v` si aceptas borrar todo.
+
+</details>
+
+<details>
+<summary><b>"FlywayException: Unsupported Database: PostgreSQL" (resuelto en 2.0.0)</b></summary>
+
+<br>
+
+Flyway 10 trae el soporte por BD en módulos aparte: sin `flyway-database-postgresql` en el `pom` el backend no arranca en Docker (en H2 local sí, por eso los tests pasaban). Ya viene incluido; si lo ves, es que tu código es anterior a la 2.0.0.
 
 </details>
 

@@ -23,4 +23,31 @@ public class Cliente {
 
     @Column(length = 20)
     private String documento;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_documento", nullable = false, length = 10)
+    private TipoDocumento tipoDocumento = TipoDocumento.DNI;
+
+    @Column(name = "razon_social", length = 200)
+    private String razonSocial;
+
+    @Column(length = 250)
+    private String direccion;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean activo = true;
+
+    @Builder.Default
+    @Column(name = "creado_en", nullable = false)
+    private java.time.LocalDateTime creadoEn = java.time.LocalDateTime.now();
+
+    /** Nombre a imprimir: razón social en empresas, nombre en personas. */
+    public String nombreFiscal() {
+        if (tipoDocumento == TipoDocumento.RUC && razonSocial != null && !razonSocial.isBlank()) {
+            return razonSocial;
+        }
+        return nombre;
+    }
 }

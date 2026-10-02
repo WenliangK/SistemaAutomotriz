@@ -11,6 +11,8 @@ public class CotizacionResponseDTO {
     private Long id;
     private Long diagnosticoId;
     private String diagnosticoDescripcion;
+    private Long mecanicoId;
+    private String mecanicoNombre;
     private String recepcionId;
     private String vehiculoPlaca;
     private String clienteNombre;

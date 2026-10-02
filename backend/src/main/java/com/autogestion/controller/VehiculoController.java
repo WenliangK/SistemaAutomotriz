@@ -4,6 +4,7 @@ import com.autogestion.dto.VehiculoRequest;
 import com.autogestion.dto.VehiculoResponseDTO;
 import com.autogestion.service.VehiculoService;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class VehiculoController {
     private final VehiculoService vehiculoService;
 
     @PostMapping
-    public ResponseEntity<VehiculoResponseDTO> crear(@RequestBody VehiculoRequest request) {
+    public ResponseEntity<VehiculoResponseDTO> crear(@Valid @RequestBody VehiculoRequest request) {
         return ResponseEntity.ok(vehiculoService.crear(request));
     }
 

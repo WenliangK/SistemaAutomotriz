@@ -23,6 +23,19 @@ public class Recepcion {
     @Column(name = "problema_reportado", nullable = false, columnDefinition = "TEXT")
     private String problemaReportado;
 
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String estado = "PENDIENTE";
+    private EstadoRecepcion estado = EstadoRecepcion.PENDIENTE;
+
+    @Column(name = "nivel_combustible", length = 20)
+    private String nivelCombustible;
+
+    @Column(name = "danos_previos", length = 500)
+    private String danosPrevios;
+
+    @Column(length = 500)
+    private String accesorios;
+
+    private Integer kilometraje;
 }

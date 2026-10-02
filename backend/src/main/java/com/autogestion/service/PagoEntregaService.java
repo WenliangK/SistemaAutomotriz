@@ -2,10 +2,12 @@ package com.autogestion.service;
 
 import com.autogestion.dto.PagoEntregaResponseDTO;
 import com.autogestion.dto.PagoRequest;
+import com.autogestion.entity.EstadoRecepcion;
 import com.autogestion.entity.OrdenTrabajo;
 import com.autogestion.entity.PagoEntrega;
 import com.autogestion.repository.OrdenTrabajoRepository;
 import com.autogestion.repository.PagoEntregaRepository;
+import com.autogestion.util.AppTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +36,7 @@ public class PagoEntregaService {
         PagoEntrega pago = PagoEntrega.builder()
                 .ordenTrabajo(ot)
                 .monto(BigDecimal.valueOf(request.getMonto()))
-                .fechaPago(LocalDateTime.now())
+                .fechaPago(AppTime.ahora())
                 .build();
         pago = pagoEntregaRepository.save(pago);
         return toResponseDTO(pago);
@@ -52,10 +54,10 @@ public class PagoEntregaService {
             throw new RuntimeException("Esta OT ya fue entregada");
         }
 
-        pago.setFechaEntrega(LocalDateTime.now());
+        pago.setFechaEntrega(AppTime.ahora());
 
         var recepcion = ot.getCotizacion().getDiagnostico().getRecepcion();
-        recepcion.setEstado("ENTREGADA");
+        recepcion.setEstado(EstadoRecepcion.ENTREGADA);
 
         pago = pagoEntregaRepository.save(pago);
         return toResponseDTO(pago);

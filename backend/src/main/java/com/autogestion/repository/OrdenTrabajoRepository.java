@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface OrdenTrabajoRepository extends JpaRepository<OrdenTrabajo, Long> {
 
     @Query("SELECT ot FROM OrdenTrabajo ot LEFT JOIN FETCH ot.cotizacion c LEFT JOIN FETCH c.diagnostico d LEFT JOIN FETCH d.recepcion r LEFT JOIN FETCH r.vehiculo v LEFT JOIN FETCH v.cliente LEFT JOIN FETCH ot.mecanico WHERE ot.estado = :estado")
-    List<OrdenTrabajo> findByEstado(String estado);
+    List<OrdenTrabajo> findByEstado(com.autogestion.entity.EstadoOT estado);
 
     @Query("SELECT ot FROM OrdenTrabajo ot LEFT JOIN FETCH ot.cotizacion c LEFT JOIN FETCH c.diagnostico d LEFT JOIN FETCH d.recepcion r LEFT JOIN FETCH r.vehiculo v LEFT JOIN FETCH v.cliente LEFT JOIN FETCH ot.mecanico")
     List<OrdenTrabajo> findAll();
@@ -21,6 +21,23 @@ public interface OrdenTrabajoRepository extends JpaRepository<OrdenTrabajo, Long
     @Query("SELECT ot FROM OrdenTrabajo ot LEFT JOIN FETCH ot.cotizacion c LEFT JOIN FETCH c.diagnostico d LEFT JOIN FETCH d.recepcion r LEFT JOIN FETCH r.vehiculo v LEFT JOIN FETCH v.cliente LEFT JOIN FETCH ot.mecanico WHERE ot.id = :id")
     Optional<OrdenTrabajo> findById(Long id);
 
-    @Query("SELECT COUNT(ot) FROM OrdenTrabajo ot WHERE ot.estado = 'FINALIZADA' AND ot.fechaFin IS NOT NULL")
-    long countFinalizadas();
+    @Query("SELECT COUNT(ot) FROM OrdenTrabajo ot WHERE ot.estado = :estado AND ot.fechaFin >= :desde AND ot.fechaFin < :hasta")
+    long countFinalizadasEntre(com.autogestion.entity.EstadoOT estado, java.time.LocalDateTime desde, java.time.LocalDateTime hasta);
+
+    @Query("SELECT ot.mecanico.id, COUNT(ot) FROM OrdenTrabajo ot WHERE ot.fechaCreacion >= :desde AND ot.fechaCreacion < :hasta GROUP BY ot.mecanico.id")
+    List<Object[]> asignadasPorMecanico(java.time.LocalDateTime desde, java.time.LocalDateTime hasta);
+
+    @Query("SELECT ot.mecanico.id, COUNT(ot) FROM OrdenTrabajo ot WHERE ot.estado NOT IN :abiertos GROUP BY ot.mecanico.id")
+    List<Object[]> enProcesoPorMecanico(List<com.autogestion.entity.EstadoOT> abiertos);
+
+    @Query("""
+        SELECT ot FROM OrdenTrabajo ot LEFT JOIN FETCH ot.mecanico
+        WHERE ot.estado = :estado AND ot.fechaFin >= :desde AND ot.fechaFin < :hasta
+        """)
+    List<com.autogestion.entity.OrdenTrabajo> finalizadasEntre(com.autogestion.entity.EstadoOT estado, java.time.LocalDateTime desde, java.time.LocalDateTime hasta);
+
+    long countByMecanicoIdAndEstadoNotIn(Long mecanicoId, List<com.autogestion.entity.EstadoOT> estados);
+
+    @Query("SELECT COUNT(ot) FROM OrdenTrabajo ot WHERE ot.mecanico.id = :mecanicoId AND ot.estado = 'FINALIZADA' AND ot.fechaFin >= :desde")
+    long countFinalizadasDesde(Long mecanicoId, java.time.LocalDateTime desde);
 }

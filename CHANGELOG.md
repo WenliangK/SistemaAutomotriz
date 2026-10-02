@@ -8,7 +8,7 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
 
 <br>
 
-<img src="https://img.shields.io/badge/version-1.3.0-orange?style=for-the-badge" />
+<img src="https://img.shields.io/badge/version-2.0.1-orange?style=for-the-badge" />
 <img src="https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
 <img src="https://img.shields.io/badge/Spring_Boot-3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
 
@@ -20,6 +20,13 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
 
 | Version | Fecha | Lo destacado |
 | :-- | :-- | :-- |
+| [2.4.2](#-242---2026-10-02) | 2026-10-02 | 🔓 CORS: orígenes Live Server :5501 (localhost + 127.0.0.1) |
+| [2.4.1](#-241---2026-10-02) | 2026-10-02 | 🔦 Tour con spotlight (fondo atenuado + hueco iluminado) |
+| [2.4.0](#-240---2026-10-02) | 2026-10-02 | ✨ Set de iconos duotono en nav, dashboard y cabeceras |
+| [2.3.0](#-230---2026-10-02) | 2026-10-02 | 🧹 Admin genérico en seed + responsive real (sin cortes, móvil 360px) |
+| [2.2.0](#-220---2026-10-02) | 2026-10-02 | ✨ Pill solo con rol + layout fluido + dashboard estilo login + SOLID en backend |
+| [2.1.0](#-210---2026-10-02) | 2026-10-02 | ✨ Paneles internos con el lenguaje del login (iconos ambar, tarjetas premium, entrada escalonada) |
+| [2.0.1](#-201---2026-10-02) | 2026-10-02 | 🐛 Historial de comprobantes (ORDER BY) + DNI de boleta + PDF del ticket migrado a Java + limpieza |
 | [1.4.2](#-142---2026-10-01) | 2026-10-01 | 📄 Descarga PDF real + impresion sin encabezados del navegador |
 | [1.4.1](#-141---2026-10-01) | 2026-10-01 | 🎫 Impresion fiel a pantalla + descarga de constancia |
 | [1.4.0](#-140---2026-10-01) | 2026-10-01 | ✨ Rediseño visual guiado · wizard de pago · ticket pro · responsive real |
@@ -28,6 +35,346 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
 | [1.2.0](#-120---2026-09-20) | 2026-09-20 | 🛡️ Permisos por rol + pagina 403 + stepper propio |
 | [1.1.0](#-110---2026-09-20) | 2026-09-20 | ✨ Rediseño visual completo + tutorial + tour guiado |
 | [1.0.0](#-100---2026-09-14) | 2026-09-14 | 🐛 Correccion de errores fundacionales (DTOs, pagos, cache) |
+
+<img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
+
+## 🔓 2.4.2 — 2026-10-02
+
+### CORS: Live Server también en el puerto alterno
+
+- `SecurityConfig.corsConfigurationSource()` acepta ahora
+  `http://localhost:5501` y `http://127.0.0.1:5501`: cuando el 5500 está
+  ocupado, VS Code abre el frontend en el 5501 y el login dejaba de llegar
+  al backend por bloqueo CORS. Sin cambios en métodos, headers ni
+  credenciales (siguen igual).
+- ⚠️ Requiere reiniciar el backend para tomar efecto.
+
+## 🔦 2.4.1 — 2026-10-02
+
+### El tour ahora ilumina solo lo importante
+
+- Efecto *spotlight*: el recuadro ámbar proyecta una sombra gigante que
+  atenúa toda la pantalla (fade semi oscuro) menos el hueco del elemento
+  explicado; el anillo y el glow quedan en el borde para que se entienda
+  qué se está señalando.
+- Si un paso no tiene objetivo visible, el overlay atenúa todo y el popover
+  queda centrado. El hueco sigue a su elemento si se hace scroll o se
+  redimensiona (reposicionado con `requestAnimationFrame`).
+
+## ✨ 2.4.0 — 2026-10-02
+
+### Set de iconos duotono propio
+
+- Adiós al Feather plano: trazo 1.8, remates redondos y capa suave
+  (`fill` con opacidad) que da profundidad sin perder legibilidad a 15px.
+- Metáforas nuevas por módulo: volante (Recepción), casco (Mecánico),
+  headset (Recepcionista), ficha-cliente (Clientes), billete (Pago),
+  cubo con cara superior (Inventario), libro (Tutorial), portapapeles
+  con check, monedas y alerta redibujada para los KPIs.
+- Aplicado en el sidebar de **todos** los paneles (`NAV_ICONS` en `api.js`),
+  cabeceras de los 8 paneles con icono, tiles y KPIs del dashboard, mapa de
+  iconos de reportes, guía contextual, FAB de ayuda y alerta de `api.js`.
+  Sin cambios de estructura: solo el `path` de cada SVG.
+
+## 🧹 2.3.0 — 2026-10-02
+
+### Adiós al nombre personal: el admin es "Administrador" en todos lados
+
+- Seed (`DataInitializer`): el admin de arranque nace como `Administrador`
+  (sin apellidos) y `renombrarAdmin()` renombra instalaciones viejas en el
+  arranque, sin tocar clave, rol ni documento. Los demás demo conservan su nombre.
+- README: la tabla de credenciales dice `Administrador`.
+- Ya no queda ninguna aparición del nombre anterior en código, seed ni docs
+  (el CHANGELOG lo menciona solo como registro histórico de este cambio).
+
+### Responsive real: nada se corta y el móvil respira
+
+- **Causa del corte lateral:** `.ag-page` llevaba `width: 100%` + `margin-left`
+  del sidebar = más que el viewport; la columna derecha se salía. Ahora es
+  `width: auto` y la página llena justo lo disponible, colapsado o no.
+- **Reflow por tramos:** ≤1400px riel de 340px; ≤1250px formularios y layout
+  ancho a una columna, KPIs 2×2, guía con wrap y kanban con scroll horizontal;
+  ≤1100/768/480 los cortes previos (una columna, tiles 1×1).
+- **Móvil (360px):** topbar compacta (salir solo-icono, pill y paddings
+  reducidos), buscadores de cabecera a fila completa, tiles a una columna,
+  tablas con scroll suave. Sin cambios de HTML: todo por CSS.
+
+## ✨ 2.2.0 — 2026-10-02
+
+### Pill sin nombre personal
+
+- El pill del topbar ya no muestra "Carmen Rosa Huamán Díaz": solo el rol
+  (Administrador, Mecánico, Recepcionista, Almacenero) con su punto de color.
+  Vale para todos los roles, en claro y oscuro.
+
+### Layout fluido sin huecos (como el login)
+
+- `.ag-page` sin `max-width`: la página ocupa todo el viewport menos el
+  sidebar, y las columnas usan `minmax(0, 1fr)` para crecer/encoger. Al
+  colapsar el menú o achicar la ventana ya no quedan franjas vacías.
+- KPIs y layouts con `minmax` + mismos cortes responsive de antes
+  (4 → 2 → 1 columnas); los hijos de grid llevan `min-width: 0` para que
+  las tablas largas no rompan el ancho.
+
+### Dashboard estilo login
+
+- Acceso Rápido convertido en *tiles* verticales (icono degradado, título,
+  descripción y flecha) como las `.lg-tile` del login; la grilla es
+  `auto-fill/minmax`, así se reacomoda sola al redimensionar.
+- Flujo del Taller como *chips* (eco de `lg-flow`): pildoras que se envuelven
+  (antes se cortaba en pantallas angostas) y el paso inicial nace activo.
+
+### SOLID en el backend (sin cambiar comportamiento ni API)
+
+- **SRP:** `ComprobanteService` (444 líneas, 6 responsabilidades) ahora solo
+  orquesta. Nace `service/comprobante/` con `ResolutorAdquirente` (reglas del
+  adquirente), `ConstructorDetalle` (líneas, IGV y totales), `ComprobanteMapper`
+  (DTO puro y sin estado) y `OrdenSeguro` (whitelist del ORDER BY nativo).
+- **SRP/DRY:** `OrdenTrabajoService.crear/crearCompleta` comparten
+  `abrirOrden()` + validadores (`cotizacionAprobada`, `mecanico`).
+- **OCP:** `EstadoOT.puedePasarA()` y `estaCerrada()` mudan la máquina de
+  estados al enum (switch exhaustivo: un estado nuevo no compila si no se
+  cubre). `DocumentoValidator` pasa a Strategy: `ReglaDocumento` + 4 reglas
+  (`util/documento/`), fachada con el mismo API para no tocar llamadas ni tests.
+- **DIP/ISP/LSP:** los nuevos componentes dependen de repositorios
+  (abstracciones) y de `EmpresaProperties`; interfaces pequeñas y cohesivas;
+  los enums se comportan igual en todos sus usos.
+- ⚠️ No se pudo compilar aquí (sin Maven en esta máquina): el refactor es
+  extracción verbatim con firmas intactas y quedó verificado por revisión
+  (sin referencias huérfanas, llaves balanceadas, tests existentes compatibles).
+  Corre `mvn test` antes de subir.
+
+## ✨ 2.1.0 — 2026-10-02
+
+Los paneles internos heredan el rediseño del login, sin tocar lógica ni
+estructura HTML. Todo vive en una capa nueva: `frontend/css/panels-premium.css`.
+
+- **Mismo idioma visual:** iconos ámbar con glow (topbar, sidebar, cabeceras,
+  guía, KPIs), tarjetas con barra degradada superior y titulares Space Grotesk.
+- **Entrada escalonada:** cabeceras, guía, KPIs y secciones aparecen con
+  `fade-up` en cascada, como la tarjeta del login.
+- **Detalles premium:** cabecera fija en tablas con guía ámbar al pasar el
+  mouse, montos de estado con texto degradado, sidebar con retícula y grupos
+  estilo *eyebrow*, insignia "Tiempo real" en el dashboard.
+- **Alcance:** los 13 HTML de `pages/` enlazan la hoja; el dashboard además
+  estrena cabecera `.ag-head` con icono y meta. Claro/oscuro y responsive
+  incluidos, con respeto a `prefers-reduced-motion`.
+
+## 🟡 2.0.1 — 2026-10-02
+
+Dos errores que solo saltaban con la app corriendo, más limpieza de archivo y
+la migración del generador de PDF de JavaScript a Java.
+
+### 🐛 El historial de comprobantes devolvía error 500 (SQL nativo + Sort)
+
+- **Causa:** `GET /comprobantes?sort=fechaEmision,desc` llegaba a una consulta
+  NATIVA y Spring Data mete el `Sort` en el `ORDER BY` sin traducir nombres de
+  propiedad, así que PostgreSQL recibía `ORDER BY c.fechaEmision` y respondía
+  *column c.fechaemision does not exist* (la columna es `c.fecha_emision`).
+- **Fix:** `ComprobanteService` traduce el sort a columnas reales con una
+  lista blanca (`fechaEmision` → `fecha_emision`, `id`, `numero`, `total`) y
+  fija un orden por defecto determinista (`fecha_emision DESC, id DESC`) para
+  que la paginación no revuelva filas. De paso, la lista blanca cierra la
+  inyección vía `?sort=`.
+- **Test:** `ComprobanteListadoTest` pide exactamente el sort del front y
+  fallaría con el error viejo.
+
+### 🐛 "El DNI debe tener 8 dígitos (llevas 8)" al emitir la boleta
+
+- **Causa:** el front mandaba `tipoDoc: f.tipo` (el tipo del COMPROBANTE:
+  `BOLETA`), que no es un tipo de documento; el backend lo volvía `null` y
+  rechazaba con un mensaje calculado para DNI que se contradecía con el dato.
+- **Fix en el front:** `pago_entrega.html` manda `RUC` para factura,
+  `SIN_DOC` si no hay documento y `DNI` para boleta.
+- **Fix en el backend (el que vale aunque el front esté cacheado):**
+  `resolverAdquirente` deduce el tipo del número y de la ficha del cliente
+  cuando el declarado no corresponde, y solo rechaza si el número sigue sin
+  servir. Un RUC en boleta sigue diciendo "corresponde factura".
+- **Mensajes honestos:** `DocumentoValidator` ya no dice "8 dígitos (llevas
+  8)" cuando hay letras: explica que son 8 caracteres pero no todos dígitos.
+
+### 📄 El PDF del ticket se migra de JavaScript a Java
+
+- **Nuevo `util/TicketPdf`:** ticket de 80 mm en PDF puro (sin librerías),
+  mismo diseño que el generador que vivía en el HTML: cabecera, folio,
+  adquirente, detalle, IGV, total en letras, QR y leyendas. Codificado en
+  WinAnsi con paréntesis escapados y offsets de `xref` calculados en bytes.
+- **Nuevo endpoint:** `GET /api/comprobantes/{id}/pdf` devuelve el archivo con
+  `Content-Disposition` (roles ADMIN/RECEPCIONISTA como el resto).
+- **Front:** `descargarComprobante()` ahora baja el blob del backend vía el
+  nuevo `apiFetchBlob()` y se borran ~100 líneas de dibujo de PDF del HTML.
+- **Tests:** `TicketPdfTest` valida estructura (cabecera, xref coherente,
+  cierre), datos fiscales, escape de paréntesis y leyenda de anulado.
+
+### 🧹 Refactor y limpieza
+
+- **`util/Rangos`:** un solo lugar para el rango por defecto de los listados
+  («desde 2000-01-01», «hasta exclusivo = día siguiente») y para la zona
+  America/Lima: `Comprobante`, `Inventario` y `Gasto` dejan de reimplementarlo
+  con `LocalDate.now()` del servidor.
+- **`apiFetch` en el front:** la traducción de errores HTTP (401, 403,
+  `BusinessException`, validación Bean) vive solo en `agFalla()`, que usan
+  `apiFetch` y `apiFetchBlob`.
+- **Historial con `URLSearchParams`:** el campo de búsqueda `q` se mandaba
+  al backend (antes había código muerto que intentaba limpiar un `q` que nunca
+  se incluía en la URL).
+- **Borrados:** `sistemaautogestion.zip` (copia obsoleta del repo con `.git`),
+  `frontend/js/icons.js` (nadie lo cargaba) y `database/migrations/*.sql`
+  (reemplazados por Flyway V1/V2; el Dockerfile ya no los copiaba). Árbol del
+  README actualizado (30 entidades, 18 repos, 14 servicios, 17 controladores,
+  37 DTOs, `util/` y `db/migration/`).
+
+### 🗄️ Migración V3: el CHECK de `cotizacion.estado` en H2
+
+- **Bug latente:** V1 creó el CHECK inline sin nombre. PostgreSQL lo bautiza
+  `cotizacion_estado_check` (por eso V2 lo arregló allí), pero H2 le pone
+  `CONSTRAINT_xxx` y el CHECK viejo seguía vivo: en H2/dev, crear una OT
+  (cotización → `CONVERTIDA`) revienta con *Check constraint violation*.
+- **`V3__cotizacion_estado_check_unificado.sql`:** recrea la columna con un
+  único CHECK con nombre estable y redeclara el índice. V1/V2 no se tocan
+  (cambiarlos rompería el checksum de instalaciones ya migradas).
+- **Los IT por fin corren:** surefire solo ejecutaba `*Test`, así que
+  `ReporteFlujoIT` nunca se había corrido; el `pom` ahora incluye `*IT.java`.
+- **Verificado:** `mvn test` **47/47 en verde** (11 clases, incluye
+  `ReporteFlujoIT` y `ComprobanteListadoTest`) + `node --check` sobre `api.js`
+  y los scripts inline de `pago_entrega.html`.
+
+### 🔎 Segunda tanda: búsqueda del equipo rota en PostgreSQL + export de reportes
+
+- **`GET /api/usuarios?...&q=` devolvía 400 con PostgreSQL:** Hibernate no sabe
+  tipar un parámetro dentro de `CONCAT('%', :q, '%')` y lo ata como `bytea`,
+  así que `LOWER(...)` revienta con *function lower(bytea) does not exist*.
+  Solo pasa con la búsqueda vacía (el servicio manda `null`): por eso el equipo
+  fallaba al abrir y clientes no. Arreglado en `UsuarioRepository` y
+  `ClienteRepository`: el patrón lo arma `util/Like.patron(q)` y se compara
+  directo (`LOWER(col) LIKE :q`), sin CONCAT. Además la búsqueda por documento
+  y teléfono ahora también ignora mayúsculas.
+- **Verificado contra PostgreSQL 16 real** (contenedor efímero + Flyway
+  V1/V2/V3 + backend arrancado): `/api/usuarios` (con y sin `q`),
+  `/api/clientes/buscar`, `/api/comprobantes?sort=fechaEmision,desc` y el CSV
+  de reportes → **200**. Sin token, el CSV → 401 (lo que hacía el enlace viejo).
+- **Export «Clientes por día» roto:** era un `<a href="/api/reportes/...">`:
+  en el puerto del frontend daba 404 y ni siquiera llevaba el JWT. Ahora es un
+  botón que baja el archivo con el nuevo `apiDescargar()` de `api.js` (mismo
+  camino que la descarga del PDF).
+- **Auditoría de las 14 páginas HTML:** 0 errores de sintaxis, 0 llamadas a
+  funciones inexistentes, 0 ids referenciados que falten, 0 recursos colgados
+  y 0 endpoints del front sin ruta en el backend. El único bug real era el
+  enlace de export de reportes.
+
+<img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
+
+## 🟡 2.0.0 — 2026-10-02
+
+<img src="./readme-assets/ver-200.svg" width="380" alt="v2.0.0 fases 1 a 9 en una sola versión" />
+
+Todo lo del 2026-10-02 salió junto, así que va en una sola versión con una sección por fase.
+
+### 🧭 Navegación lateral + fixes de RUC y OT (misma 2.0.0)
+
+- **Sidebar hamburguesa:** el menú superior se vuelve barra fina (hamburguesa + marca + usuario) y todo vive en un panel lateral agrupado por flujo (Operación, Taller, Caja, Almacén, Gestión, Ayuda) con solo tus páginas por rol. En PC se fija o colapsa a iconos (recuerda tu elección); en móvil/tablet es cajón deslizable con overlay y Esc. Impresión limpia sin menús.
+- **RUC que sí ayuda:** el validador ahora dice el dígito esperado ("debería terminar en 4") y sugiere el comprobante correcto según el largo (11 dígitos en boleta → vete a FACTURA; 8 en factura → vete a BOLETA). Ojo honesto: `20707162819` no pasa SUNAT (dv real 4, termina en 9): se rechaza a propósito, con test que lo fija.
+- **OT con mecánico pre-asignado:** al elegir cotización se preselecciona el mecánico de su diagnóstico (con aviso); si no, el último que usaste. `GET /cotizaciones` ahora trae `mecanicoId`/`mecanicoNombre`.
+- Verificado: `mvn test` 37/37 + sintaxis JS de las 3 páginas tocadas.
+
+### 🗄️ Flyway en Docker: módulo PG + fuente única (misma 2.0.0)
+
+- **Causa del bucle:** Flyway 10 separó el soporte por BD en módulos; sin `flyway-database-postgresql` el backend moría con `Unsupported Database: PostgreSQL 16` antes de migrar. Agregado al `pom` (versión gestionada por Boot, 10.10.0, sin versión puesta a mano).
+- **Fuente única:** `db/migration/` con `V1__esquema_inicial.sql` (14 tablas originales) + `V2__fiscal_comprobantes_equipo_taller.sql` (todo lo demás, idempotente). Se borraron `db/migration/postgresql|h2` y `database/init.sql`; el Dockerfile de Postgres ya no copia nada al entrypoint.
+- **Mismo SQL en PG16 y H2-modo-PG:** `BIGSERIAL`/`TEXT`/`ON CONFLICT` valen en ambos; lo que no (`ALTER` multi-columna con comas, índice parcial, FK agregada después) se escribe separado o lo valida el servicio. Verificado: `mvn test` 36/36 + boot real contra PG 16.15 con `validate` verde + login JWT OK.
+- **Casos probados:** volumen viejo (esquema original + datos, `baseline` → V2, `AJUSTE`→`AJUSTE_POSITIVO`, re-ejecución = `up to date`) y volumen limpio (V1+V2, 20 tablas, seed + login).
+
+### 🔒 Fase 9: producción sin secretos en el repo
+
+- **Secretos a entorno:** `.env` (con `.env.example`, ignorado por git) gobierna DB, JWT, admin y claves demo. En `application-docker.properties` no queda ningún valor real. Consola H2 y `frameOptions` abierto solo en desarrollo.
+- **Seed por bandera:** el ADMIN de arranque y las series siempre; la demo (equipo, 5 clientes con 2 RUC válidos, vehículos, catálogos) solo con `APP_SEED_DEMO=true`. Claves demo distintas por rol.
+- **Estados tipados:** `EstadoOT`, `EstadoRecepcion`, `EstadoCotizacion` en entidades (mismo texto en BD, cero migración); transiciones inválidas responden 400/409 con campo y sugerencia. El `PROGRESS` del frontend ya usaba los mismos valores: verificado, sin cambios.
+- **Tutorial** con módulos de Clientes, Reportes y Equipo (filtrados por rol) y accesos con clave por chip en el login.
+- **Tests:** 36/36 + flujo punta a punta (un estado imposible como `VOLANDO` se rechaza con campo `estado`).
+
+### 🎓 Fase 8: el sistema enseña solo + docs para defenderlo
+
+- **Glosario en línea:** términos con `data-g` (OT, RUC, IGV, kardex, merma…) muestran definición al pasar el cursor y al hacer clic; glosario completo de 12 términos en el Tutorial.
+- **Caso guiado:** 8 pasos de recepción a entrega con enlaces y progreso por rol guardado.
+- **Tours que faltaban:** equipo, clientes y reportes ya tienen recorrido (botón ¿Cómo usar?) + bienvenida la primera vez que entras por rol.
+- **Docs:** `docs/GUIA_DESARROLLO.md` (fases, Mermaid de flujo/entidades/secuencia, decisiones), `docs/MANUAL_USUARIO.md` (tareas por rol) y `docs/PREGUNTAS_PROFE.md` (14 respuestas para la defensa).
+
+### 📊 Fase 7: los números salen de la BD, no de la memoria
+
+- **Indicadores corregidos:** OT del mes filtra por `fechaFin` del mes e ingresos = comprobantes EMITIDO cobrados (antes contaba todo el historial y sumaba cotizaciones). El dashboard mejora solo.
+- **Zona horaria única:** `util/AppTime` (America/Lima) para todo "ahora" del negocio; el test de flujo atrapó el desfase UTC/Lima antes que un usuario.
+- **16 endpoints:** clientes-por-día (+CSV), ingresos día/mes, comprobantes-resumen, recepciones-por-estado, servicios top, rendimiento de mecánicos (con nombre completo), stock-bajo, inventario resumen/consumo/kardex/entradas, gastos, resultado con fórmula visible, más usados y margen. Permisos: ADMIN todo, RECEPCIONISTA clientes, ALMACENERO stock.
+- **Pantalla Reportes:** 7 pestañas filtradas por rol, filtros Hoy/7d/Mes/Mes-anterior, KPIs, gráficos SVG propios (cero dependencias, funcionan sin internet), tablas con CSV, kardex por producto, registro de gastos y recuadro "¿Cómo leer?" en cada pestaña.
+- **Tests:** 36/36, incluyendo flujo recepción→diagnóstico→cotización→OT→comprobante→reportes que verifica clientes, ingresos y rendimiento de punta a punta.
+
+### 📦 Fase 6: por fin se sabe qué se gasta y qué se añade
+
+- **Movimientos con foto completa:** cada uno guarda stock antes/después, costo, proveedor, OT, documento y quién lo hizo. El `AJUSTE` viejo se partió en positivo/negativo y se sumó `MERMA` (los `AJUSTE` históricos migran a positivo en V5).
+- **Compras reales:** formulario multi-línea con proveedor (RUC validado, creable al vuelo), documento y costo por línea; actualiza stock + último costo. Sin costo no hay compra.
+- **Mermas auditadas:** negativo y merma exigen motivo; nada baja de 0; todo con tu usuario.
+- **Consumo unificado:** la OT usa `registrarConsumoOT` (OT + costo del momento + usuario). `Producto` suma costo, unidad de medida y activo; la tabla muestra precio, costo y margen.
+- **Gastos operativos:** CRUD de proveedores (ADMIN/ALMACENERO) y `gasto` por categorías con `POST/GET /api/gastos` (solo ADMIN). El reporte de resultado llega en Fase 7.
+- **Inventario con pestañas:** Stock · Movimientos (filtros + paginado + motivo en tooltip) · Compra · Mermas · Proveedores · Alertas. El mecánico ve catálogo de lectura.
+- Los tests de `InventarioService` confirman: sin costo no hay compra, sin motivo no hay merma, consumo guarda OT + usuario + costo del momento, y el kardex cuadraría con `stockAntes/stockDespues`.
+
+### 🔧 Fase 5: el taller se ve como el taller
+
+- **OT en kanban:** 4 columnas (Pendiente → En proceso → En prueba → Finalizada) con contadores, tarjetas con placa/cliente/mecánico/problema y buscador. Avanzar pide confirmación que explica consecuencias (finalizar habilita el cobro). Botón "Cobrar →" directo a caja; modal de pago antiguo con monto manual eliminado (`/pagos` y `/pago-entrega/completa` marcados `@Deprecated`, nadie los usa).
+- **Reasignar mecánico:** `PUT /ordenes-trabajo/{id}/mecanico` (ADMIN/RECEPCIONISTA, nunca en OT cerrada ni a no-mecánicos) con modal y lista por carga. Por fin se puede liberar a un mecánico antes de desactivarlo.
+- **Cotización en 3 pasos:** wizard Diagnóstico → Cotización → Aprobar; la sección de cotizar se atenúa hasta registrar el diagnóstico, el ID se rellena solo y aprobar explica que nace la OT.
+- **Panel del mecánico:** "Hola, Luis. Tienes 3 órdenes", lista priorizada (abiertas primero), tarjetas con vehículo/problema/repuestos usados, botón grande de acción y modal de repuesto con stock visible (sin stock se deshabilita).
+- **Unificación real:** el consumo de stock vive en un solo método `consumirProducto` (antes dos bloques idénticos); el registro con costo/OT/usuario llega en Fase 6. `OrdenTrabajoResponseDTO` suma `problemaReportado` y nombre completo.
+- **Tests:** 29/29 verdes (consumo único, sin stock sin tocar nada, reasignaciones bloqueadas y nombre completo en DTO).
+
+### 🧾 Fase 4: recibir un auto ya no es un formulario eterno
+
+- **Wizard en 4 pasos** (reusa el patrón `ag-wz-*` del pago): 1 Cliente (buscador con debounce + tarjeta con vehículos/visitas/última visita, o alta con documento validado en vivo) → 2 Vehículo (elegir de su lista o nuevo con placa validada) → 3 Problema (descripción, combustible, km, daños, accesorios) → 4 Confirmar (resumen + Registrar). No avanza inválido, conserva todo al retroceder, avisa antes de salir con datos sin guardar y al terminar sugiere ir al diagnóstico.
+- **Backend de apoyo:** `POST /recepciones/completa` acepta `clienteId`/`vehiculoId` ya verificados; nuevos campos (combustible, daños, accesorios, km, migración V4); `PATCH /clientes/{id}/activo` (soft delete) y `GET /clientes/{id}/resumen` (ficha con visitas, vehículos, recepciones y comprobantes).
+- **Panel Clientes (ADMIN, RECEPCIONISTA):** buscador instantáneo + filtros por tipo/estado, paginación del servidor, ficha completa, crear/editar con RUC validado, activar/desactivar sin borrar y "Nueva recepción" con el cliente precargado (`?clienteId=`).
+- **Roles/nav:** `clientes` en `ROLE_PAGES`, `ROLE_NAV`, buscador Ctrl+K, guías y dashboard. Tour de recepción actualizado a los nuevos selectores.
+- **Tests:** 24/24 verdes (resumen con visitas/última visita/folio, desactivar sin borrar, wizard con IDs verificados, placa ajena bloqueada).
+- **Hotfix:** `recStep` expuesta en `window` (el wizard la llama desde `onclick` en línea y vivía dentro del IIFE → `ReferenceError`) y `loadPanel` global para el botón Reintentar del mecánico. Auditoría completa: ningún otro `onclick` huérfano en las 11 páginas.
+- **Hotfix 400 fantasma:** registrar recepción con cliente existente moría con `Error 400` sin mensaje. Causas: (1) el DTO exigía `clienteNombre`/`vehiculoPlaca` aunque vinieran `clienteId`/`vehiculoId` (ahora solo se exigen al crear, con error claro); (2) los `""` de email/teléfono chocaban con `@Email` (nuevo `agLimpia()` los quita antes de enviar; aplicado en recepción, clientes y proveedores); (3) `apiFetch` ya muestra los mapas `{campo: mensaje}` de validación en vez de `Error 400` seco. Tests 39/39.
+
+### 🔧 Fase 3: se acabó "Mecánico Uno"
+
+- **Personas reales:** `usuario` ahora tiene nombres, apellidos, DNI, teléfono, especialidad y fecha de ingreso (migración V3). El `nombre` es el nombre completo y es lo que muestran OT, paneles, comprobantes ("Atendido por …") y reportes.
+- **Equipo inicial:** Luis Ramírez (Motor), Jorge Castillo (Frenos y suspensión), Marco Delgado (Electricidad) + admin/almacén/recepción con nombre y apellido. Las BD viejas se reparan solas al arrancar (sin tocar claves).
+- **Selects vivos:** cotización y OT cargan `GET /usuarios/mecanicos` ordenados por menor carga, con "Sugerido" al menos ocupado. Cero `<option value="2">` hardcodeados.
+- **Pantalla Equipo (solo ADMIN):** avatar de iniciales, rol, especialidad, contacto, carga (OT activas + finalizadas del mes); crear con DNI validado en vivo, editar, desactivar sin borrar, restablecer clave.
+- **Reglas que protegen:** email y documento únicos; no desactivarte a ti mismo; nunca quedarse sin ADMIN; mecánico con OT en proceso exige reasignar primero.
+- **API:** `GET/POST /api/usuarios`, `PUT /{id}`, `PATCH /{id}/activo`, `POST /{id}/restablecer-clave`, `GET /mecanicos`, `GET /yo` + `nombreCompleto` en el login.
+- **Tests:** 20/20 verdes. Nota: las claves demo siguen `admin123` a propósito; la rotación a secretos por entorno va en Fase 9.
+
+### 👥 Fase 2: el teléfono ya no identifica a nadie
+
+- **Identidad real:** `findOrCreateCliente` ahora busca solo por `(tipo_documento, documento)`. Dos personas con el mismo teléfono o email jamás se fusionan. Sin documento, se crea cliente nuevo.
+- **Placa con dueño:** si la placa existe y es de otro cliente → 409 ("ya está registrada a nombre de …"). Una placa, un dueño.
+- **Validación que sí ejecuta:** `@Valid` en clientes, vehículos y recepciones (antes las anotaciones existían pero ningún controller las activaba). `ClienteRequest` valida tipo, documento cruzado (RUC exige razón social + dirección fiscal), celular `9XXXXXXXX` y email; `VehiculoRequest` valida placa peruana y año 1950–2100.
+- **Endpoints nuevos:** `GET /api/clientes/buscar?q=&page=` (documento, nombre, teléfono, email, razón social), `GET /api/clientes/{id}/vehiculos`, `PUT /api/clientes/{id}` (con chequeo de duplicado). Errores `{mensaje, campo, sugerencia}` con 404/409 donde toca.
+- **Limpieza:** fuera el `try/catch(Exception)` de `crear`; `RuntimeException`/`IllegalArgumentException` → `BusinessException`.
+- **Tests:** 13/13 verdes, incluyendo no-fusión por teléfono y bloqueo de placa ajena.
+
+### 🗄️ Flyway: adiós al `missing column` en bucle
+
+- **Problema:** con el volumen `pgdata` ya creado, Postgres no vuelve a correr `init.sql` y `ddl-auto=validate` tumbaba el backend (`missing column [activo] in table [cliente]`, reinicio infinito). Solo quedaba ALTER a mano o `down -v` perdiendo datos.
+- **Fix permanente:** Flyway es ahora el único dueño del esquema (`db/migration/postgresql` y `db/migration/h2`, V1 base + V2 comprobantes). Al arrancar, en volumen viejo hace baseline de V1 y aplica solo lo pendiente; en volumen nuevo migra todo. `init.sql` quedó mínimo y `schema-h2.sql` se eliminó para que no haya tres fuentes de verdad.
+- **Regla nueva:** cada cambio de entidad va en una migración `V<N>__...sql` por perfil. Nunca se edita una migración ya aplicada (Flyway valida checksums).
+- Verificado con `mvn test`: 10/10 verdes, log muestra `Migrating schema PUBLIC to version 1/2`.
+
+### 🧾 Fase 1: comprobantes legítimos en el backend (prioridad del docente)
+
+Se acabó el `localStorage` para datos de negocio: series, folios, IGV y snapshots viven en la BD con numeración atómica.
+
+| Cambio | Detalle |
+| :-- | :-- |
+| BD | `serie_comprobante` + `comprobante` + `comprobante_detalle`; `cliente` con tipo de documento, razón social, dirección, activo; `pago_entrega.comprobante_id`; índice único parcial (una OT, un EMITIDO). Migración `2026-10-01_comprobantes.sql` + `init.sql` + `schema-h2.sql` sincronizados |
+| Validadores | `DocumentoValidator` (RUC con prefijo + dígito verificador, DNI/CE/pasaporte) y `NumeroALetras` (`SON: … SOLES`), ambos con tests JUnit 5 |
+| Emisión | `POST /api/comprobantes` en una sola transacción: OT finalizada + sin comprobante vigente, monto desde la cotización (lo del navegador se ignora), serie con bloqueo pesimista, snapshots de emisor/adquirente, detalle con valor sin IGV, `total = gravado + IGV` al centavo, pago enlazado + entrega opcional |
+| Reglas | Factura exige RUC válido + razón social + dirección; boleta > S/ 700 exige DNI; RUC no puede ir en boleta; crédito solo en factura; anular (solo ADMIN) no libera número y permite re-emitir |
+| API nueva | `POST/GET /api/comprobantes`, `GET /previsualizar`, `POST /{id}/anular`, `GET /ordenes-trabajo/{id}/comprobante`, `GET /api/documentos/validar` (✔/✖ en vivo), errores `{mensaje, campo, sugerencia}` |
+| Frontend | Wizard consume la API (adiós `ag_comprobantes_v1`); ticket y PDF con emisor, detalle, letras, QR y leyenda académica; historial con filtros; caja abierta a RECEPCIONISTA |
+| Tests | 10/10 verdes (`mvn test`): validadores, letras y arranque completo del contexto H2 |
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 

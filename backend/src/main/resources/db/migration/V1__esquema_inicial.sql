@@ -1,4 +1,9 @@
-CREATE TABLE usuario (
+-- V1: esquema original de AutoGestion (14 tablas, pre-fases).
+-- UNICA fuente de verdad: este archivo corre igual en PostgreSQL 16
+-- y en H2 en modo PostgreSQL (BIGSERIAL, TEXT y CHECK soportados en ambos).
+-- En BD viejas NO se ejecuta (baseline V1); solo en volumenes nuevos.
+-- Todo lleva IF NOT EXISTS para que re-ejecutar sea seguro.
+CREATE TABLE IF NOT EXISTS usuario (
     id BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
@@ -6,14 +11,20 @@ CREATE TABLE usuario (
     rol VARCHAR(20) NOT NULL CHECK (rol IN ('ADMIN','MECANICO','ALMACENERO','RECEPCIONISTA')),
     activo BOOLEAN NOT NULL DEFAULT TRUE
 );
-CREATE TABLE cliente (
+CREATE TABLE IF NOT EXISTS cliente (
     id BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
     telefono VARCHAR(20),
     email VARCHAR(150),
-    documento VARCHAR(20)
+    documento VARCHAR(20),
+    tipo_documento VARCHAR(10) NOT NULL DEFAULT 'DNI'
+        CHECK (tipo_documento IN ('DNI','RUC','CE','PASAPORTE')),
+    razon_social VARCHAR(200),
+    direccion VARCHAR(250),
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    creado_en TIMESTAMP NOT NULL DEFAULT now()
 );
-CREATE TABLE vehiculo (
+CREATE TABLE IF NOT EXISTS vehiculo (
     id BIGSERIAL PRIMARY KEY,
     cliente_id BIGINT NOT NULL REFERENCES cliente(id),
     placa VARCHAR(10) UNIQUE NOT NULL,
@@ -21,26 +32,26 @@ CREATE TABLE vehiculo (
     modelo VARCHAR(50),
     anio INTEGER
 );
-CREATE TABLE recepcion (
+CREATE TABLE IF NOT EXISTS recepcion (
     id BIGSERIAL PRIMARY KEY,
     vehiculo_id BIGINT NOT NULL REFERENCES vehiculo(id),
     fecha_ingreso TIMESTAMP NOT NULL DEFAULT now(),
     problema_reportado TEXT NOT NULL,
     estado VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE'
 );
-CREATE TABLE diagnostico (
+CREATE TABLE IF NOT EXISTS diagnostico (
     id BIGSERIAL PRIMARY KEY,
     recepcion_id BIGINT NOT NULL REFERENCES recepcion(id),
     mecanico_id BIGINT NOT NULL REFERENCES usuario(id),
     descripcion TEXT NOT NULL,
     fecha TIMESTAMP NOT NULL DEFAULT now()
 );
-CREATE TABLE servicio (
+CREATE TABLE IF NOT EXISTS servicio (
     id BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
     precio_base NUMERIC(10,2) NOT NULL
 );
-CREATE TABLE producto (
+CREATE TABLE IF NOT EXISTS producto (
     id BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
     tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('REPUESTO','INSUMO')),
@@ -49,29 +60,28 @@ CREATE TABLE producto (
     stock_minimo INTEGER NOT NULL DEFAULT 0,
     CONSTRAINT chk_stock_no_negativo CHECK (stock_actual >= 0)
 );
-CREATE TABLE cotizacion (
+CREATE TABLE IF NOT EXISTS cotizacion (
     id BIGSERIAL PRIMARY KEY,
     diagnostico_id BIGINT NOT NULL REFERENCES diagnostico(id),
     total NUMERIC(10,2) NOT NULL DEFAULT 0,
     estado VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE'
-        CHECK (estado IN ('PENDIENTE','EN_DIAGNOSTICO','APROBADA','RECHAZADA','CONVERTIDA')),
+        CHECK (estado IN ('PENDIENTE','APROBADA','RECHAZADA')),
     fecha TIMESTAMP NOT NULL DEFAULT now()
 );
-CREATE TABLE cotizacion_servicio (
+CREATE TABLE IF NOT EXISTS cotizacion_servicio (
     id BIGSERIAL PRIMARY KEY,
     cotizacion_id BIGINT NOT NULL REFERENCES cotizacion(id),
     servicio_id BIGINT NOT NULL REFERENCES servicio(id),
     precio NUMERIC(10,2) NOT NULL
 );
-
-CREATE TABLE cotizacion_producto (
+CREATE TABLE IF NOT EXISTS cotizacion_producto (
     id BIGSERIAL PRIMARY KEY,
     cotizacion_id BIGINT NOT NULL REFERENCES cotizacion(id),
     producto_id BIGINT NOT NULL REFERENCES producto(id),
     cantidad_estimada INTEGER NOT NULL,
     precio_unitario NUMERIC(10,2) NOT NULL
 );
-CREATE TABLE orden_trabajo (
+CREATE TABLE IF NOT EXISTS orden_trabajo (
     id BIGSERIAL PRIMARY KEY,
     cotizacion_id BIGINT NOT NULL REFERENCES cotizacion(id),
     mecanico_id BIGINT NOT NULL REFERENCES usuario(id),
@@ -80,13 +90,13 @@ CREATE TABLE orden_trabajo (
     fecha_creacion TIMESTAMP NOT NULL DEFAULT now(),
     fecha_fin TIMESTAMP
 );
-CREATE TABLE ot_producto_usado (
+CREATE TABLE IF NOT EXISTS ot_producto_usado (
     id BIGSERIAL PRIMARY KEY,
     orden_trabajo_id BIGINT NOT NULL REFERENCES orden_trabajo(id),
     producto_id BIGINT NOT NULL REFERENCES producto(id),
     cantidad_usada INTEGER NOT NULL CHECK (cantidad_usada > 0)
 );
-CREATE TABLE inventario_movimiento (
+CREATE TABLE IF NOT EXISTS inventario_movimiento (
     id BIGSERIAL PRIMARY KEY,
     producto_id BIGINT NOT NULL REFERENCES producto(id),
     tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('ENTRADA','CONSUMO','AJUSTE')),
@@ -94,34 +104,44 @@ CREATE TABLE inventario_movimiento (
     motivo VARCHAR(255),
     fecha TIMESTAMP NOT NULL DEFAULT now()
 );
-CREATE TABLE pago_entrega (
+CREATE TABLE IF NOT EXISTS pago_entrega (
     id BIGSERIAL PRIMARY KEY,
     orden_trabajo_id BIGINT NOT NULL UNIQUE REFERENCES orden_trabajo(id),
     monto NUMERIC(10,2) NOT NULL,
     fecha_pago TIMESTAMP,
     fecha_entrega TIMESTAMP
 );
-CREATE INDEX idx_vehiculo_cliente ON vehiculo(cliente_id);
-CREATE INDEX idx_recepcion_vehiculo ON recepcion(vehiculo_id);
-CREATE INDEX idx_recepcion_estado ON recepcion(estado);
-CREATE INDEX idx_diagnostico_recepcion ON diagnostico(recepcion_id);
-CREATE INDEX idx_diagnostico_mecanico ON diagnostico(mecanico_id);
-CREATE INDEX idx_cotizacion_diagnostico ON cotizacion(diagnostico_id);
-CREATE INDEX idx_cotizacion_estado ON cotizacion(estado);
-CREATE INDEX idx_cotizacion_servicio_cotizacion ON cotizacion_servicio(cotizacion_id);
-CREATE INDEX idx_cotizacion_producto_cotizacion ON cotizacion_producto(cotizacion_id);
-CREATE INDEX idx_ot_cotizacion ON orden_trabajo(cotizacion_id);
-CREATE INDEX idx_ot_mecanico ON orden_trabajo(mecanico_id);
-CREATE INDEX idx_ot_estado ON orden_trabajo(estado);
-CREATE INDEX idx_ot_producto_usado_ot ON ot_producto_usado(orden_trabajo_id);
-CREATE INDEX idx_ot_producto_usado_producto ON ot_producto_usado(producto_id);
-CREATE INDEX idx_inventario_movimiento_producto ON inventario_movimiento(producto_id);
-CREATE INDEX idx_inventario_movimiento_tipo ON inventario_movimiento(tipo);
-CREATE INDEX idx_pago_entrega_ot ON pago_entrega(orden_trabajo_id);
+CREATE INDEX IF NOT EXISTS idx_vehiculo_cliente ON vehiculo(cliente_id);
+CREATE INDEX IF NOT EXISTS idx_recepcion_vehiculo ON recepcion(vehiculo_id);
+CREATE INDEX IF NOT EXISTS idx_recepcion_estado ON recepcion(estado);
+CREATE INDEX IF NOT EXISTS idx_diagnostico_recepcion ON diagnostico(recepcion_id);
+CREATE INDEX IF NOT EXISTS idx_diagnostico_mecanico ON diagnostico(mecanico_id);
+CREATE INDEX IF NOT EXISTS idx_cotizacion_diagnostico ON cotizacion(diagnostico_id);
+CREATE INDEX IF NOT EXISTS idx_cotizacion_estado ON cotizacion(estado);
+CREATE INDEX IF NOT EXISTS idx_cotizacion_servicio_cotizacion ON cotizacion_servicio(cotizacion_id);
+CREATE INDEX IF NOT EXISTS idx_cotizacion_producto_cotizacion ON cotizacion_producto(cotizacion_id);
+CREATE INDEX IF NOT EXISTS idx_ot_cotizacion ON orden_trabajo(cotizacion_id);
+CREATE INDEX IF NOT EXISTS idx_ot_mecanico ON orden_trabajo(mecanico_id);
+CREATE INDEX IF NOT EXISTS idx_ot_estado ON orden_trabajo(estado);
+CREATE INDEX IF NOT EXISTS idx_ot_producto_usado_ot ON ot_producto_usado(orden_trabajo_id);
+CREATE INDEX IF NOT EXISTS idx_ot_producto_usado_producto ON ot_producto_usado(producto_id);
+CREATE INDEX IF NOT EXISTS idx_inventario_movimiento_producto ON inventario_movimiento(producto_id);
+CREATE INDEX IF NOT EXISTS idx_inventario_movimiento_tipo ON inventario_movimiento(tipo);
+CREATE INDEX IF NOT EXISTS idx_pago_entrega_ot ON pago_entrega(orden_trabajo_id);
 
--- Seed data is handled by DataInitializer.java (CommandLineRunner)
--- which correctly hashes passwords with BCrypt on first app start.
--- Do NOT add INSERT statements here for users/data.
+-- Proveedor
+CREATE TABLE IF NOT EXISTS proveedor (
+    id BIGSERIAL PRIMARY KEY,
+    nombre VARCHAR(150) NOT NULL,
+    ruc VARCHAR(11),
+    telefono VARCHAR(30),
+    email VARCHAR(150),
+    direccion VARCHAR(250),
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    creado_en TIMESTAMP NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_proveedor_nombre ON proveedor(nombre);
 
 CREATE OR REPLACE VIEW v_alertas_stock AS
 SELECT

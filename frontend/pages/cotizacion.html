@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+        <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#0f172a">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoGestion - Cotizacion</title>
@@ -9,7 +13,8 @@
     <link rel="stylesheet" href="../css/styles.css?v=20260920b">
     <link rel="stylesheet" href="../css/animations.css">
     <link rel="stylesheet" href="../css/redesign.css">
-    <link rel="stylesheet" href="../css/polish.css?v=20261001">
+    <link rel="stylesheet" href="../css/polish.css?v=20261005">
+    <link rel="stylesheet" href="../css/panels-premium.css?v=20261002">
     <script>
         (function(){var t=localStorage.getItem('ag-theme')||'system';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-bs-theme',t);})();
     </script>
@@ -22,6 +27,13 @@
             <p>Registrar diagnostico y generar cotizacion para una recepcion</p>
         </div>
         <div id="alertContainer"></div>
+        <div class="ag-wizard ag-mb-3" id="cotWizard" style="max-width:640px;">
+            <div class="ag-wz-step" data-s="1"><span class="ag-wz-dot">1</span>Diagnóstico</div>
+            <div class="ag-wz-line"></div>
+            <div class="ag-wz-step" data-s="2"><span class="ag-wz-dot">2</span>Cotización</div>
+            <div class="ag-wz-line"></div>
+            <div class="ag-wz-step" data-s="3"><span class="ag-wz-dot">3</span>Aprobar</div>
+        </div>
         <div class="ag-layout-wide">
             <div class="ag-layout-stack">
                 <div class="ag-section">
@@ -39,7 +51,7 @@
                             </div>
                             <div class="ag-form-group">
                                 <label class="ag-form-label">Mecanico *</label>
-                                <select class="ag-form-control" id="mecanicoSelect" required><option value="2">Mecanico Uno (ID: 2)</option></select>
+                                <select class="ag-form-control" id="mecanicoSelect" required><option value="">-- Cargando mecánicos... --</option></select>
                             </div>
                             <div class="ag-form-group">
                                 <label class="ag-form-label">Descripcion *</label>
@@ -64,12 +76,13 @@
                     </div>
                 </div>
             </div>
-            <div class="ag-section">
+            <div class="ag-section" id="cotizacionSection">
                 <div class="ag-section-header">
                     <h3>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                         Generar Cotizacion
                     </h3>
+                    <span class="ag-text-muted ag-text-sm" id="cotLockHint">Primero registra el diagnóstico (paso 1)</span>
                 </div>
                 <div class="ag-section-body">
                     <form id="cotizacionForm">
@@ -114,9 +127,10 @@
         </div>
     </div>
     <div id="themeToggleWrap"></div>
-    <script src="../js/api.js?v=20260920b"></script>
-    <script src="../js/animations.js"></script>
-    <script src="../js/ui-kit.js"></script>
+    <script src="../js/api.js?v=20261006"></script>
+    <script src="../js/animations.js?v=20261005"></script>
+    <script src="../js/ui-kit.js?v=20261005"></script>
+    <script src="../js/confirm-modal.js?v=20261005"></script>
     <script>
         (function() {
             if (!guardPage('cotizacion')) return;
@@ -124,6 +138,21 @@
         document.getElementById('themeToggleWrap').innerHTML = renderThemeToggle();
         initTheme();
         let itemsSeleccionados = [];
+        let cotStep = 1;
+        function setCotStep(n) {
+            cotStep = Math.min(3, Math.max(1, n));
+            document.querySelectorAll('#cotWizard .ag-wz-step').forEach(s => {
+                const k = parseInt(s.dataset.s, 10);
+                s.classList.toggle('now', k === cotStep);
+                s.classList.toggle('done', k < cotStep);
+                s.querySelector('.ag-wz-dot').textContent = k < cotStep ? '✓' : k;
+            });
+            const locked = !document.getElementById('diagnosticoId').value;
+            document.getElementById('cotizacionSection').style.opacity = locked ? '0.55' : '1';
+            document.getElementById('cotLockHint').textContent = locked
+                ? 'Primero registra el diagnóstico (paso 1)'
+                : 'Diagnóstico listo — agrega items y genera';
+        }
         async function loadData() {
             try {
                 const recepciones = await apiFetch('/recepciones?estado=PENDIENTE');
@@ -131,8 +160,24 @@
                 recepciones.forEach(r => { const o = document.createElement('option'); o.value = r.id; o.textContent = `#${r.id} - ${r.vehiculo?.placa || r.vehiculoPlaca || '?'}`; sel.appendChild(o); });
                 const productos = await apiFetch('/productos');
                 document.getElementById('productosSelector').innerHTML = `<div class="ag-table-wrap"><table class="ag-table"><thead><tr><th>Producto</th><th style="width:70px;">Cant.</th><th style="width:100px;">Precio</th><th style="width:50px;"></th></tr></thead><tbody>${productos.map(p => `<tr><td>${p.nombre} <span class="ag-text-muted ag-text-sm">${p.tipo}</span></td><td>${agStepper(`cant_${p.id}`, { value: 1, min: 1, size: 'sm' })}</td><td><input type="number" class="ag-form-control" id="prec_${p.id}" value="${p.precioUnitario}" step="0.01" style="padding:0.3rem 0.5rem; font-size:0.8rem;"></td><td><button type="button" class="ag-btn ag-btn-outline ag-btn-sm" onclick="agregarProducto(${p.id},'${p.nombre.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></td></tr>`).join('')}</tbody></table></div>`;
+                cargarMecanicos();
                 loadCotizaciones();
             } catch (e) { console.error('loadData error:', e); showError('alertContainer', 'Error al cargar datos: ' + e.message); }
+        }
+        /* Mecánicos desde la API, ordenados por menor carga (el primero es el sugerido) */
+        async function cargarMecanicos() {
+            const sel = document.getElementById('mecanicoSelect');
+            try {
+                const mecs = (await apiFetch('/usuarios/mecanicos')).sort((a, b) => a.otActivas - b.otActivas);
+                sel.innerHTML = '<option value="">-- Seleccionar --</option>';
+                mecs.forEach((m, i) => {
+                    const o = document.createElement('option');
+                    o.value = m.id;
+                    o.textContent = `${m.nombreCompleto} — ${m.especialidadEtiqueta || 'General'} · ${m.otActivas} OT activas${i === 0 ? ' · Sugerido' : ''}`;
+                    sel.appendChild(o);
+                });
+                if (!mecs.length) sel.innerHTML = '<option value="">Sin mecánicos activos</option>';
+            } catch (e) { sel.innerHTML = '<option value="">No se pudo cargar</option>'; }
         }
         window.agregarServicio = function() {
             const n = document.getElementById('servicioNombre').value;
@@ -185,7 +230,9 @@
             try {
                 const d = await apiFetch('/diagnosticos', { method: 'POST', body: JSON.stringify({ recepcionId: parseInt(document.getElementById('recepcionSelect').value), mecanicoId: parseInt(document.getElementById('mecanicoSelect').value), descripcion: document.getElementById('diagnosticoDesc').value }) });
                 document.getElementById('diagnosticoId').value = d.id;
-                showSuccess('alertContainer', `Diagnostico #${d.id} registrado. Use este ID para la cotizacion.`);
+                setCotStep(2);
+                toast(`Diagnóstico #${d.id} listo. Siguiente: agrega servicios y productos.`, 'success');
+                document.getElementById('cotizacionSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 const sel = document.getElementById('recepcionSelect');
                 sel.innerHTML = '<option value="">-- Seleccionar --</option>';
                 const recepciones = await apiFetch('/recepciones?estado=PENDIENTE');
@@ -204,8 +251,10 @@
                 });
                 const productos = itemsSeleccionados.filter(i => i.tipo === 'PRODUCTO').map(i => ({ productoId: i.id, cantidadEstimada: i.cantidad, precioUnitario: i.precio }));
                 const c = await apiFetch('/cotizaciones/completa', { method: 'POST', body: JSON.stringify({ diagnosticoId: parseInt(document.getElementById('diagnosticoId').value), servicios, productos }) });
-                showSuccess('alertContainer', `Cotizacion #${c.id} creada con total ${formatCurrency(c.total)}`);
+                setCotStep(3);
+                toast(`Cotización #${c.id} creada (${formatCurrency(c.total)}). Último paso: apruébala abajo.`, 'success');
                 itemsSeleccionados = []; actualizarItems(); loadCotizaciones();
+                document.getElementById('cotizacionesContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
             } catch (error) { showError('alertContainer', 'Error: ' + error.message); }
         });
         async function loadCotizaciones() {
@@ -235,13 +284,18 @@
                     </div>`).join('');
             } catch (e) { console.error(e); showError('alertContainer', 'Error al cargar cotizaciones: ' + e.message); }
         }
-        window.aprobarCotizacion = async function(id) { try { await apiFetch(`/cotizaciones/${id}/aprobar`, { method: 'PUT' }); showSuccess('alertContainer', 'Cotizacion aprobada'); loadCotizaciones(); } catch (e) { showError('alertContainer', e.message); } };
+        window.aprobarCotizacion = async function(id) {
+            if (!(await confirmarAccion(`Aprobar la cotización #${id}? Con eso podrá crearse la Orden de Trabajo y la recepción pasa a COTIZADA.`, { tipo: 'primary' }))) return;
+            try { await apiFetch(`/cotizaciones/${id}/aprobar`, { method: 'PUT' }); toast('Cotización aprobada. Siguiente: crea la OT en Órdenes de Trabajo.', 'success'); loadCotizaciones(); }
+            catch (e) { toast('Error: ' + e.message, 'danger'); }
+        };
         window.rechazarCotizacion = async function(id) { try { await apiFetch(`/cotizaciones/${id}/rechazar`, { method: 'PUT' }); showSuccess('alertContainer', 'Cotizacion rechazada'); loadCotizaciones(); } catch (e) { showError('alertContainer', e.message); } };
         /* Enter en el campo de servicio agrega directamente */
         document.getElementById('servicioPrecio').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); agregarServicio(); }
         });
         loadData();
+        setCotStep(1);
         })();
     </script>
 </body>

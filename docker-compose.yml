@@ -4,15 +4,15 @@ services:
     build: ./database
     container_name: autogestion_db
     environment:
-      POSTGRES_DB: autogestion
-      POSTGRES_USER: autogestion
-      POSTGRES_PASSWORD: autogestion2024
+      POSTGRES_DB: ${POSTGRES_DB:-autogestion}
+      POSTGRES_USER: ${POSTGRES_USER:-autogestion}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-autogestion2024}
     ports:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U autogestion -d autogestion"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-autogestion} -d ${POSTGRES_DB:-autogestion}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -32,10 +32,17 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/autogestion
-      SPRING_DATASOURCE_USERNAME: autogestion
-      SPRING_DATASOURCE_PASSWORD: autogestion2024
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-autogestion}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-autogestion}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-autogestion2024}
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      APP_JWT_SECRET: ${APP_JWT_SECRET:-dev-only-cambialo-en-produccion-0123456789abcdef}
+      APP_SEED_DEMO: ${APP_SEED_DEMO:-true}
+      APP_ADMIN_EMAIL: ${APP_ADMIN_EMAIL:-admin@sanmartin.pe}
+      APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:-Admin-2026*}
+      APP_SEED_PASSWORD_MECANICO: ${APP_SEED_PASSWORD_MECANICO:-Meca-2026*}
+      APP_SEED_PASSWORD_ALMACEN: ${APP_SEED_PASSWORD_ALMACEN:-Alma-2026*}
+      APP_SEED_PASSWORD_RECEPCIONISTA: ${APP_SEED_PASSWORD_RECEPCIONISTA:-Recep-2026*}
     depends_on:
       db:
         condition: service_healthy

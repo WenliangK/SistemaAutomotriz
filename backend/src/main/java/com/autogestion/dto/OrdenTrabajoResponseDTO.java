@@ -14,4 +14,6 @@ public class OrdenTrabajoResponseDTO {
     private LocalDateTime fechaFin;
     private String vehiculoPlaca;
     private String clienteNombre;
+    private Long recepcionId;
+    private String problemaReportado;
 }

@@ -13,4 +13,8 @@ public class RecepcionResponseDTO {
     private String vehiculoPlaca;
     private Long clienteId;
     private String clienteNombre;
+    private String nivelCombustible;
+    private String danosPrevios;
+    private String accesorios;
+    private Integer kilometraje;
 }

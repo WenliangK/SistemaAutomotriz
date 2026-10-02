@@ -26,4 +26,8 @@ public class PagoEntrega {
 
     @Column(name = "fecha_entrega")
     private LocalDateTime fechaEntrega;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comprobante_id")
+    private Comprobante comprobante;
 }

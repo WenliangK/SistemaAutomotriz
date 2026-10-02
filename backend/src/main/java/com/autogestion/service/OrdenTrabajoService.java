@@ -9,9 +9,13 @@ import com.autogestion.dto.PagoEntregaCompletaRequest;
 import com.autogestion.dto.PagoEntregaResponseDTO;
 import com.autogestion.dto.ProductoUsadoRequest;
 import com.autogestion.entity.*;
+import com.autogestion.exception.BusinessException;
 import com.autogestion.repository.*;
+import com.autogestion.service.InventarioService;
 import com.autogestion.service.PagoEntregaService;
 import lombok.RequiredArgsConstructor;
+import com.autogestion.util.AppTime;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,74 +37,33 @@ public class OrdenTrabajoService {
     private final InventarioMovimientoRepository inventarioMovimientoRepository;
     private final RecepcionRepository recepcionRepository;
     private final PagoEntregaRepository pagoEntregaRepository;
+    private final ComprobanteRepository comprobanteRepository;
+    private final InventarioService inventarioService;
 
     @Transactional
     public OrdenTrabajo crear(OrdenTrabajoRequest request) {
-        Cotizacion cotizacion = cotizacionRepository.findById(request.getCotizacionId())
-                .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
+        Cotizacion cotizacion = cotizacionAprobada(request.getCotizacionId());
+        Usuario mecanico = mecanico(request.getMecanicoId());
+        OrdenTrabajo ot = abrirOrden(cotizacion, mecanico);
 
-        
-        if (!"APROBADA".equals(cotizacion.getEstado())) {
-            throw new RuntimeException("Solo se puede crear OT con cotización aprobada");
-        }
-
-        Usuario mecanico = usuarioRepository.findById(request.getMecanicoId())
-                .orElseThrow(() -> new RuntimeException("Mecánico no encontrado"));
-
-        OrdenTrabajo ot = OrdenTrabajo.builder()
-                .cotizacion(cotizacion)
-                .mecanico(mecanico)
-                .estado("PENDIENTE")
-                .fechaCreacion(LocalDateTime.now())
-                .build();
-        ot = ordenTrabajoRepository.save(ot);
-
-        
-Diagnostico diagnostico = cotizacion.getDiagnostico();
-        Recepcion recepcion = diagnostico.getRecepcion();
-        recepcion.setEstado("EN_TRABAJO");
-        recepcionRepository.save(recepcion);
-        
-        cotizacion.setEstado("CONVERTIDA");
+        cotizacion.setEstado(EstadoCotizacion.CONVERTIDA);
         cotizacionRepository.save(cotizacion);
-        
+
         return ot;
     }
 
     @Transactional
     public OrdenTrabajo crearCompleta(OrdenTrabajoCompletaRequest request) {
-        Cotizacion cotizacion = cotizacionRepository.findById(request.getCotizacionId())
-                .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
+        Cotizacion cotizacion = cotizacionAprobada(request.getCotizacionId());
+        Usuario mecanico = mecanico(request.getMecanicoId());
+        OrdenTrabajo ot = abrirOrden(cotizacion, mecanico);
 
-        if (!"APROBADA".equals(cotizacion.getEstado())) {
-            throw new RuntimeException("Solo se puede crear OT con cotización aprobada");
-        }
-
-        Usuario mecanico = usuarioRepository.findById(request.getMecanicoId())
-                .orElseThrow(() -> new RuntimeException("Mecánico no encontrado"));
-
-        OrdenTrabajo ot = OrdenTrabajo.builder()
-                .cotizacion(cotizacion)
-                .mecanico(mecanico)
-                .estado("PENDIENTE")
-                .fechaCreacion(LocalDateTime.now())
-                .build();
-        ot = ordenTrabajoRepository.save(ot);
-
-        
-        Diagnostico diagnostico = cotizacion.getDiagnostico();
-        Recepcion recepcion = diagnostico.getRecepcion();
-        recepcion.setEstado("EN_TRABAJO");
-        recepcionRepository.save(recepcion);
-
-        
         if (request.getProductosUsados() != null) {
             for (OrdenTrabajoCompletaRequest.ProductoUsadoItem item : request.getProductosUsados()) {
                 registrarProductoUsadoInterno(ot, item.getProductoId(), item.getCantidadUsada());
             }
         }
 
-        
         if (request.getPagoEntrega() != null && request.getPagoEntrega().getMonto() != null) {
             registrarPagoInterno(ot, request.getPagoEntrega().getMonto());
             if (Boolean.TRUE.equals(request.getPagoEntrega().getRegistrarEntrega())) {
@@ -108,39 +71,64 @@ Diagnostico diagnostico = cotizacion.getDiagnostico();
             }
         }
 
-        cotizacion.setEstado("CONVERTIDA");
+        cotizacion.setEstado(EstadoCotizacion.CONVERTIDA);
         cotizacionRepository.save(cotizacion);
-        
+
         return ordenTrabajoRepository.save(ot);
     }
 
-    private void registrarProductoUsadoInterno(OrdenTrabajo ot, Long productoId, Integer cantidad) {
-        Producto producto = productoRepository.findById(productoId)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-
-        if (producto.getStockActual() < cantidad) {
-            throw new RuntimeException("Stock insuficiente para: " + producto.getNombre()
-                    + " (disponible: " + producto.getStockActual() + ")");
+    /** Solo una cotización APROBADA puede convertirse en OT. */
+    private Cotizacion cotizacionAprobada(Long cotizacionId) {
+        Cotizacion cotizacion = cotizacionRepository.findById(cotizacionId)
+                .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
+        if (cotizacion.getEstado() != EstadoCotizacion.APROBADA) {
+            throw new RuntimeException("Solo se puede crear OT con cotización aprobada");
         }
+        return cotizacion;
+    }
 
+    private Usuario mecanico(Long mecanicoId) {
+        return usuarioRepository.findById(mecanicoId)
+                .orElseThrow(() -> new RuntimeException("Mecánico no encontrado"));
+    }
+
+    /** Abre la OT en PENDIENTE y pone la recepción EN_TRABAJO. Único punto de apertura. */
+    private OrdenTrabajo abrirOrden(Cotizacion cotizacion, Usuario mecanico) {
+        OrdenTrabajo ot = ordenTrabajoRepository.save(OrdenTrabajo.builder()
+                .cotizacion(cotizacion)
+                .mecanico(mecanico)
+                .estado(EstadoOT.PENDIENTE)
+                .fechaCreacion(AppTime.ahora())
+                .build());
+        Diagnostico diagnostico = cotizacion.getDiagnostico();
+        Recepcion recepcion = diagnostico.getRecepcion();
+        recepcion.setEstado(EstadoRecepcion.EN_TRABAJO);
+        recepcionRepository.save(recepcion);
+        return ot;
+    }
+
+    /**
+     * ÚNICO lugar donde se consume stock por OT. Delega en InventarioService,
+     * que guarda costo del momento, OT y usuario (auditoría completa Fase 6).
+     */
+    private OtProductoUsado consumirProducto(OrdenTrabajo ot, Long productoId, Integer cantidad, Long usuarioId) {
+        if (cantidad == null || cantidad < 1) {
+            throw new BusinessException("La cantidad mínima es 1.", "cantidadUsada", null);
+        }
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new BusinessException("Producto no encontrado.", "productoId",
+                        null, HttpStatus.NOT_FOUND));
+        inventarioService.registrarConsumoOT(ot.getId(), productoId, cantidad, usuarioId);
         OtProductoUsado uso = OtProductoUsado.builder()
                 .ordenTrabajo(ot)
                 .producto(producto)
                 .cantidadUsada(cantidad)
                 .build();
-        otProductoUsadoRepository.save(uso);
+        return otProductoUsadoRepository.save(uso);
+    }
 
-        InventarioMovimiento movimiento = InventarioMovimiento.builder()
-                .producto(producto)
-                .tipo("CONSUMO")
-                .cantidad(cantidad)
-                .motivo("OT #" + ot.getId() + " - " + producto.getNombre())
-                .fecha(LocalDateTime.now())
-                .build();
-        inventarioMovimientoRepository.save(movimiento);
-
-        producto.setStockActual(producto.getStockActual() - cantidad);
-        productoRepository.save(producto);
+    private void registrarProductoUsadoInterno(OrdenTrabajo ot, Long productoId, Integer cantidad) {
+        consumirProducto(ot, productoId, cantidad, null);
     }
 
     private void registrarPagoInterno(OrdenTrabajo ot, Double monto) {
@@ -153,7 +141,7 @@ Diagnostico diagnostico = cotizacion.getDiagnostico();
             throw new RuntimeException("Esta OT ya tiene un pago registrado el " + pago.getFechaPago());
         }
         pago.setMonto(BigDecimal.valueOf(monto));
-        pago.setFechaPago(LocalDateTime.now());
+        pago.setFechaPago(AppTime.ahora());
         pagoEntregaRepository.save(pago);
     }
 
@@ -165,14 +153,14 @@ Diagnostico diagnostico = cotizacion.getDiagnostico();
                     .monto(BigDecimal.ZERO)
                     .build();
         }
-        pago.setFechaEntrega(LocalDateTime.now());
+        pago.setFechaEntrega(AppTime.ahora());
         pagoEntregaRepository.save(pago);
 
-        ot.setEstado("FINALIZADA");
-        ot.setFechaFin(LocalDateTime.now());
+        ot.setEstado(EstadoOT.FINALIZADA);
+        ot.setFechaFin(AppTime.ahora());
 
         Recepcion recepcion = ot.getCotizacion().getDiagnostico().getRecepcion();
-        recepcion.setEstado("FINALIZADA");
+        recepcion.setEstado(EstadoRecepcion.FINALIZADA);
         recepcionRepository.save(recepcion);
     }
 
@@ -194,12 +182,15 @@ Diagnostico diagnostico = cotizacion.getDiagnostico();
 
     @Transactional(readOnly = true)
     public List<OrdenTrabajoFinalizadaDTO> listarFinalizadasConPago() {
-        return ordenTrabajoRepository.findByEstado("FINALIZADA").stream()
+        return ordenTrabajoRepository.findByEstado(EstadoOT.FINALIZADA).stream()
                 .map(ot -> {
                     BigDecimal monto = pagoEntregaService.obtenerMonto(ot.getId());
                     PagoEntrega pago = pagoEntregaRepository.findByOrdenTrabajoId(ot.getId()).orElse(null);
                     boolean tienePago = pago != null && pago.getFechaPago() != null;
                     boolean tieneEntrega = pago != null && pago.getFechaEntrega() != null;
+                    var comp = comprobanteRepository
+                            .findByOrdenTrabajoIdAndEstado(ot.getId(), EstadoComprobante.EMITIDO)
+                            .orElse(null);
                     return new OrdenTrabajoFinalizadaDTO(
                             ot.getId(),
                             ot.getCotizacion().getId(),
@@ -207,39 +198,36 @@ Diagnostico diagnostico = cotizacion.getDiagnostico();
                             ot.getFechaCreacion(),
                             monto,
                             tienePago,
-                            tieneEntrega
+                            tieneEntrega,
+                            comp != null ? comp.folio() : null,
+                            comp != null ? comp.getTipo().name() : null,
+                            comp != null ? comp.getEstado().name() : null
                     );
                 })
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public OrdenTrabajo cambiarEstado(Long id, String nuevoEstado) {
+    public OrdenTrabajo cambiarEstado(Long id, String nuevoEstadoCodigo) {
         OrdenTrabajo ot = ordenTrabajoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Orden de trabajo no encontrada"));
 
-        
-        String estadoActual = ot.getEstado();
-        boolean transicionValida = switch (estadoActual) {
-            case "PENDIENTE" -> "EN_PROCESO".equals(nuevoEstado) || "CANCELADA".equals(nuevoEstado);
-            case "EN_PROCESO" -> "EN_PRUEBA".equals(nuevoEstado) || "FINALIZADA".equals(nuevoEstado) || "CANCELADA".equals(nuevoEstado);
-            case "EN_PRUEBA" -> "FINALIZADA".equals(nuevoEstado) || "EN_PROCESO".equals(nuevoEstado) || "CANCELADA".equals(nuevoEstado);
-            default -> false;
-        };
-
-        if (!transicionValida) {
-            throw new RuntimeException("Transición de estado no válida: " + estadoActual + " → " + nuevoEstado);
+        EstadoOT nuevo = EstadoOT.desde(nuevoEstadoCodigo);
+        if (nuevo == null) {
+            throw new BusinessException("Estado inválido: " + nuevoEstadoCodigo + ".", "estado",
+                    "Usa PENDIENTE, EN_PROCESO, EN_PRUEBA, FINALIZADA o CANCELADA.");
+        }
+        EstadoOT estadoActual = ot.getEstado();
+        if (!estadoActual.puedePasarA(nuevo)) {
+            throw new BusinessException("No se puede pasar de " + estadoActual + " a " + nuevo + ".", "estado",
+                    "Sigue el orden: PENDIENTE → EN_PROCESO → EN_PRUEBA → FINALIZADA.", HttpStatus.CONFLICT);
         }
 
-        ot.setEstado(nuevoEstado);
-        if ("FINALIZADA".equals(nuevoEstado)) {
-            ot.setFechaFin(LocalDateTime.now());
-        }
-
-        
-        if ("FINALIZADA".equals(nuevoEstado)) {
+        ot.setEstado(nuevo);
+        if (nuevo == EstadoOT.FINALIZADA) {
+            ot.setFechaFin(AppTime.ahora());
             Recepcion recepcion = ot.getCotizacion().getDiagnostico().getRecepcion();
-            recepcion.setEstado("FINALIZADA");
+            recepcion.setEstado(EstadoRecepcion.FINALIZADA);
             recepcionRepository.save(recepcion);
         }
 
@@ -247,53 +235,46 @@ Diagnostico diagnostico = cotizacion.getDiagnostico();
     }
 
     @Transactional
-    public OtProductoUsadoResponseDTO registrarProductoUsado(Long ordenTrabajoId, ProductoUsadoRequest request) {
+    public OtProductoUsadoResponseDTO registrarProductoUsado(Long ordenTrabajoId, ProductoUsadoRequest request,
+                                                             Long usuarioId) {
         OrdenTrabajo ot = ordenTrabajoRepository.findById(ordenTrabajoId)
-                .orElseThrow(() -> new RuntimeException("Orden de trabajo no encontrada"));
+                .orElseThrow(() -> new BusinessException("Orden de trabajo no encontrada.", null,
+                        null, HttpStatus.NOT_FOUND));
 
-        Producto producto = productoRepository.findById(request.getProductoId())
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-
-        
-        if (producto.getStockActual() < request.getCantidadUsada()) {
-            throw new RuntimeException("Stock insuficiente para: " + producto.getNombre()
-                    + " (disponible: " + producto.getStockActual() + ")");
-        }
-
-        
-        OtProductoUsado uso = OtProductoUsado.builder()
-                .ordenTrabajo(ot)
-                .producto(producto)
-                .cantidadUsada(request.getCantidadUsada())
-                .build();
-        uso = otProductoUsadoRepository.save(uso);
-
-        InventarioMovimiento movimiento = InventarioMovimiento.builder()
-                .producto(producto)
-                .tipo("CONSUMO")
-                .cantidad(request.getCantidadUsada())
-                .motivo("OT #" + ot.getId() + " - " + producto.getNombre())
-                .fecha(LocalDateTime.now())
-                .build();
-        inventarioMovimientoRepository.save(movimiento);
-
-        
-        producto.setStockActual(producto.getStockActual() - request.getCantidadUsada());
-        productoRepository.save(producto);
-
-        
-        if (producto.getStockActual() < producto.getStockMinimo()) {
-
-        }
-
+        OtProductoUsado uso = consumirProducto(ot, request.getProductoId(), request.getCantidadUsada(), usuarioId);
         return toProductoUsadoResponseDTO(uso);
+    }
+
+    /** Reasigna el mecánico (para rotar carga o liberar a quien se desactiva). */
+    @Transactional
+    public OrdenTrabajoResponseDTO reasignarMecanico(Long id, Long mecanicoId) {
+        OrdenTrabajo ot = ordenTrabajoRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Orden de trabajo no encontrada.", null,
+                        null, HttpStatus.NOT_FOUND));
+        if (ot.getEstado().estaCerrada()) {
+            throw new BusinessException("La OT #" + id + " ya está cerrada.", "estado",
+                    "Solo se reasignan OT abiertas.", HttpStatus.CONFLICT);
+        }
+        Usuario mecanico = usuarioRepository.findById(mecanicoId)
+                .orElseThrow(() -> new BusinessException("Mecánico no encontrado.", "mecanicoId",
+                        null, HttpStatus.NOT_FOUND));
+        if (!"MECANICO".equals(mecanico.getRol()) || Boolean.FALSE.equals(mecanico.getActivo())) {
+            throw new BusinessException("Debe ser un mecánico activo.", "mecanicoId",
+                    "Elige de la lista de mecánicos.");
+        }
+        ot.setMecanico(mecanico);
+        return toResponseDTO(ordenTrabajoRepository.save(ot));
     }
 
     @Transactional(readOnly = true)
     public List<OrdenTrabajoResponseDTO> listar(String estado) {
-        List<OrdenTrabajo> ots = (estado != null && !estado.isEmpty())
-                ? ordenTrabajoRepository.findByEstado(estado)
-                : ordenTrabajoRepository.findAll();
+        List<OrdenTrabajo> ots;
+        if (estado == null || estado.isEmpty()) {
+            ots = ordenTrabajoRepository.findAll();
+        } else {
+            EstadoOT est = EstadoOT.desde(estado);
+            ots = (est != null) ? ordenTrabajoRepository.findByEstado(est) : List.of();
+        }
         return ots.stream().map(this::toResponseDTO).collect(Collectors.toList());
     }
 
@@ -329,12 +310,14 @@ Diagnostico diagnostico = cotizacion.getDiagnostico();
                 .id(ot.getId())
                 .cotizacionId(cotizacion.getId())
                 .mecanicoId(mecanico.getId())
-                .mecanicoNombre(mecanico.getNombre())
-                .estado(ot.getEstado())
+                .mecanicoNombre(mecanico.getNombreCompleto())
+                .estado(ot.getEstado().name())
                 .fechaCreacion(ot.getFechaCreacion())
                 .fechaFin(ot.getFechaFin())
                 .vehiculoPlaca(vehiculo.getPlaca())
                 .clienteNombre(cliente.getNombre())
+                .recepcionId(recepcion.getId())
+                .problemaReportado(recepcion.getProblemaReportado())
                 .build();
     }
 

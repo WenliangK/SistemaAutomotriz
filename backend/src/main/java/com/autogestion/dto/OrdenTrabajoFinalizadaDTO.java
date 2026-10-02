@@ -14,4 +14,7 @@ public class OrdenTrabajoFinalizadaDTO {
     private BigDecimal monto;
     private Boolean tienePago;
     private Boolean tieneEntrega;
+    private String comprobanteFolio;
+    private String comprobanteTipo;
+    private String comprobanteEstado;
 }

@@ -56,8 +56,8 @@
       { sel: '.ag-grid-4', title: 'Acceso rapido', text: 'Atajos a los modulos mas usados. Tambien puedes usar Ctrl+K en cualquier momento para saltar a cualquier pagina.' }
     ],
     recepcion: [
-      { sel: '#recepcionForm', title: 'Registrar ingreso', text: 'Completa los datos del cliente y su vehiculo. Si el cliente ya existe, selecciona desde la lista y los campos se liberan.' },
-      { sel: '#filtroEstado', title: 'Filtrar recepciones', text: 'Filtra por estado del flujo. Al registrar una recepcion el vehiculo entra como PENDIENTE, listo para diagnostico.' },
+      { sel: '#recWizard', title: 'Wizard en 4 pasos', text: 'Cliente, vehículo, problema y confirmación. No avanzas si el paso actual está incompleto, y puedes retroceder sin perder nada.' },
+      { sel: '#cliSearch', title: 'Busca primero', text: 'Escribe documento, nombre o teléfono: si el cliente existe, elige su tarjeta y sus vehículos aparecen solos.' },
       { sel: '#recepcionesContainer', title: 'Lista en vivo', text: 'Cada tarjeta muestra placa, estado y problema reportado. Cuando avances el vehiculo de etapa, su estado cambia aqui.' }
     ],
     cotizacion: [
@@ -89,7 +89,19 @@
     ],
     tutorial: [
       { sel: '.ag-tut-grid', title: 'Modulos del sistema', text: 'Cada tarjeta explica un modulo con sus pasos clave. Pulsa para ir directamente a esa pagina.' },
-      { sel: '.ag-quiz-opt, #quizBox', title: 'Ponte a prueba', text: 'Responde el mini-quiz para afianzar el flujo del taller.' }
+      { sel: '#quizBox', title: 'Ponte a prueba', text: 'Responde el mini-quiz para afianzar el flujo del taller.' }
+    ],
+    equipo: [
+      { sel: '#eqQ', title: 'Busca a cualquiera', text: 'Por nombre, email o documento. Los filtros separan por rol.' },
+      { sel: '#eqBody', title: 'Carga visible', text: 'Cada mecánico muestra sus OT activas para repartir parejo.' }
+    ],
+    clientes: [
+      { sel: '#cliFQ', title: 'Busca primero', text: 'Documento, nombre, teléfono o placa. Crear duplicados ensucia la base.' },
+      { sel: '#cliBody', title: 'Ficha completa', text: 'El botón Ver abre vehículos, visitas y comprobantes de cada cliente.' }
+    ],
+    reportes: [
+      { sel: '#fDesde', title: 'El rango manda', text: 'Hoy, 7 días, mes o mes anterior. Todo se calcula en ese rango.' },
+      { sel: '#repTabs', title: 'Una pestaña por pregunta', text: 'Clientes, ingresos, inventario, gastos, resultado y mecánicos. Cada una explica cómo leerla.' }
     ]
   };
 
@@ -120,6 +132,15 @@
     document.getElementById('agTourClose').addEventListener('click', stopTour);
     document.getElementById('agTourSkip').addEventListener('click', stopTour);
     document.getElementById('agTourNext').addEventListener('click', () => tourAdvance(1));
+    /* El hueco de luz sigue a su elemento si se mueve (scroll/resize) */
+    let tourRaf = 0;
+    const reponer = () => {
+      if (!tourState) return;
+      cancelAnimationFrame(tourRaf);
+      tourRaf = requestAnimationFrame(() => { if (tourState) placeStep(); });
+    };
+    window.addEventListener('resize', reponer);
+    document.addEventListener('scroll', reponer, true);
     document.addEventListener('keydown', (e) => {
       if (!tourState) return;
       if (e.key === 'Escape') stopTour();
@@ -136,6 +157,8 @@
     const hl = document.getElementById('agTourHighlight');
     const pop = document.getElementById('agTourPopover');
     const el = step.sel ? document.querySelector(step.sel) : null;
+    /* Sin objetivo a la vista, el overlay atenua toda la pantalla */
+    ov.classList.toggle('no-target', !el);
     document.getElementById('agTourBadge').textContent = 'Paso ' + (idx + 1) + ' de ' + steps.length;
     document.getElementById('agTourTitle').textContent = step.title;
     document.getElementById('agTourText').textContent = step.text;
@@ -191,7 +214,7 @@
   window.agStartTour = startTour;
 
   /* ---------------- Guia contextual ("que hago aqui") ---------------- */
-  const GUIDE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  const GUIDE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5" fill="currentColor" stroke="none" opacity=".22"/><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.1-2.5 3.4"/><path d="M12 16.9v.01"/></svg>';
   const AG_GUIDES = {
     dashboard: { title: 'Tu tablero de un vistazo', steps: ['Revisa los indicadores: OT, ingresos y stock', 'Sigue el flujo del taller paso a paso', 'Usa los accesos rapidos o pulsa Ctrl+K'], cta: { label: 'Registrar recepcion', page: 'recepcion' } },
     recepcion: { title: 'Aqui entra cada vehiculo', steps: ['1. Registra cliente + vehiculo + problema', '2. Filtra por estado para ubicar cada caso', '3. Lo pendiente pasa a diagnostico en Cotizacion'], cta: { label: 'Ir a cotizacion', page: 'cotizacion' } },
@@ -200,7 +223,10 @@
     inventario: { title: 'Tu almacen bajo control', steps: ['1. Busca productos al instante', '2. Registra entradas y ajustes de stock', '3. Vigila las alertas de stock minimo'], cta: null },
     pago_entrega: { title: 'Cobrar y entregar, sin perderse', steps: ['1. Registra el pago: elige BOLETA o FACTURA', '2. Revisa tu constancia e imprimela', '3. Registra la entrega del vehiculo'], cta: null },
     mecanico: { title: 'Tu trabajo de hoy', steps: ['1. Revisa tus OT asignadas', '2. Avanza cada una: Iniciar > Prueba > Finalizar', '3. Los repuestos se registran en Ordenes'], cta: { label: 'Abrir mis ordenes', page: 'orden_trabajo' } },
-    recepcionista: { title: 'La puerta del taller', steps: ['1. Registra cada ingreso en Recepcion', '2. Cotiza y haz seguimiento a pendientes', '3. Lo aprobado sigue a Ordenes de Trabajo'], cta: { label: 'Nueva recepcion', page: 'recepcion' } }
+    recepcionista: { title: 'La puerta del taller', steps: ['1. Registra cada ingreso en Recepcion', '2. Cotiza y haz seguimiento a pendientes', '3. Lo aprobado sigue a Ordenes de Trabajo'], cta: { label: 'Nueva recepcion', page: 'recepcion' } },
+    equipo: { title: 'Tu equipo, con nombre y apellido', steps: ['1. Crea mecánicos con DNI y especialidad', '2. Mira su carga: OT activas por persona', '3. Desactiva sin borrar; nada se pierde'], cta: null },
+    clientes: { title: 'Tus clientes en un lugar', steps: ['1. Busca por documento, nombre o teléfono', '2. Abre la ficha: vehículos, visitas y comprobantes', '3. Lanza una recepción con el cliente ya cargado'], cta: { label: 'Nueva recepción', page: 'recepcion' } },
+    reportes: { title: 'Los números no muerden', steps: ['1. Elige el rango: hoy, 7 días o el mes', '2. Lee el recuadro: te dice qué significa cada número', '3. Exporta a CSV para Excel'], cta: null }
   };
 
   function pageCanSee(page) {
@@ -242,13 +268,53 @@
   }
   window.agMountGuide = mountGuide;
 
+  /* ---------------- Glosario en línea (data-g="ruc") ---------------- */
+  const GLOSARIO = {
+    ot: 'OT = Orden de Trabajo: qué se le hace al auto, quién y en qué estado va.',
+    ruc: 'RUC: 11 dígitos de empresa o negocio. Sin RUC válido no hay factura.',
+    dni: 'DNI peruano: 8 dígitos. Obligatorio en boletas mayores a S/ 700.',
+    boleta: 'Boleta: para consumidor final (DNI). No da crédito fiscal.',
+    factura: 'Factura: para empresas (RUC + razón social + dirección). Da crédito fiscal.',
+    serie: 'Serie + correlativo (B001-00000001): número único que jamás se repite.',
+    igv: 'IGV: impuesto del 18 % ya incluido en los precios del taller.',
+    kardex: 'Kardex: saldo inicial + entradas − salidas = saldo final de cada producto.',
+    merma: 'Merma: pérdida de almacén (vencido, roto). Se registra con motivo.',
+    stock: 'Stock mínimo: debajo de él salta la alerta y toca comprar.',
+    utilidad: 'Utilidad estimada = ingresos sin IGV − consumos − gastos. Estimación académica.',
+    cotizacion: 'Cotización: presupuesto que el cliente aprueba. Aprobada → nace la OT.'
+  };
+  function enhanceGlosarioEl(el) {
+    const key = (el.dataset.g || '').toLowerCase();
+    const def = GLOSARIO[key];
+    if (!def || el.dataset.gDone) return;
+    el.dataset.gDone = '1';
+    el.style.borderBottom = '1px dotted var(--ag-oil)';
+    el.style.cursor = 'help';
+    el.title = def;
+    el.addEventListener('click', () => toast(def, 'info', 6000));
+  }
+  function initGlosario() {
+    document.querySelectorAll('[data-g]').forEach(enhanceGlosarioEl);
+    /* Los reportes y wizard inyectan HTML después: se observan nodos nuevos */
+    try {
+      new MutationObserver(muts => {
+        muts.forEach(m => m.addedNodes.forEach(n => {
+          if (!n || n.nodeType !== 1) return;
+          if (n.matches && n.matches('[data-g]')) enhanceGlosarioEl(n);
+          if (n.querySelectorAll) n.querySelectorAll('[data-g]').forEach(enhanceGlosarioEl);
+        }));
+      }).observe(document.body, { childList: true, subtree: true });
+    } catch (_) { /* noop */ }
+  }
+  window.agInitGlosario = initGlosario;
+
   /* ---------------- Ayuda flotante + auto-tour ---------------- */
   function initHelp() {
     const page = (window.location.pathname.match(/([a-z_]+)\.html/i) || [null, ''])[1] || '';
     if (document.querySelector('.ag-fab')) return;
     const fab = document.createElement('button');
     fab.className = 'ag-fab';
-    fab.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Como usar</span>';
+    fab.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5" fill="currentColor" stroke="none" opacity=".22"/><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.1-2.5 3.4"/><path d="M12 16.9v.01"/></svg><span>Como usar</span>';
     fab.title = 'Ver tour guiado de esta pagina';
     fab.addEventListener('click', () => startTour(page));
     document.body.appendChild(fab);
@@ -271,7 +337,10 @@
     { page: 'pago_entrega', label: 'Pago y Entrega', desc: 'Cobros y entrega de vehiculos', keywords: 'cobro caja entrega finalizar' },
     { page: 'mecanico', label: 'Panel Mecanico', desc: 'OT asignadas', keywords: 'taller tareas' },
     { page: 'recepcionista', label: 'Panel Recepcionista', desc: 'Recepciones y cotizaciones', keywords: 'front desk' },
-    { page: 'tutorial', label: 'Tutorial', desc: 'Aprende a usar el sistema', keywords: 'ayuda guia como usar manual faq quiz' }
+    { page: 'tutorial', label: 'Tutorial', desc: 'Aprende a usar el sistema', keywords: 'ayuda guia como usar manual faq quiz' },
+    { page: 'equipo', label: 'Equipo', desc: 'Mecánicos y personal del taller', keywords: 'mecanicos personal usuarios roles especialidad' },
+    { page: 'clientes', label: 'Clientes', desc: 'Personas y empresas, vehículos e historial', keywords: 'clientes buscar dni ruc razon social telefono placa' },
+    { page: 'reportes', label: 'Reportes', desc: 'Clientes, ingresos, inventario, gastos y resultado', keywords: 'reportes graficos kpi csv utilidad kardex gastos' }
   ];
 
   let paletteOpen = false;
@@ -388,11 +457,20 @@
     setTimeout(() => clearInterval(tryInject), 8000);
   }
 
+  /* ---------------- Bienvenida (solo la primera vez que entras) ---------------- */
+  function initHola() {
+    let msg = null;
+    try { msg = sessionStorage.getItem('ag-hola-msg'); sessionStorage.removeItem('ag-hola-msg'); } catch (_) { /* noop */ }
+    if (msg) setTimeout(() => toast(msg, 'info', 6000), 800);
+  }
+
   /* ---------------- Init ---------------- */
   function init() {
     initPalette();
     initNavbarHelp();
+    initHola();
     try { mountGuide(); } catch (_) { /* noop */ }
+    try { initGlosario(); } catch (_) { /* noop */ }
     const page = (window.location.pathname.match(/([a-z_]+)\.html/i) || [null, ''])[1] || '';
     /* El FAB no tiene sentido en el login ni en el tutorial */
     if (page && page !== 'tutorial' && TOUR_STEPS[page]) initHelp();

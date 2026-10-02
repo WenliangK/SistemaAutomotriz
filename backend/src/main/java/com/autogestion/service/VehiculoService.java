@@ -4,9 +4,11 @@ import com.autogestion.dto.VehiculoRequest;
 import com.autogestion.dto.VehiculoResponseDTO;
 import com.autogestion.entity.Cliente;
 import com.autogestion.entity.Vehiculo;
+import com.autogestion.exception.BusinessException;
 import com.autogestion.repository.ClienteRepository;
 import com.autogestion.repository.VehiculoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +23,19 @@ public class VehiculoService {
 
     @Transactional
     public VehiculoResponseDTO crear(VehiculoRequest request) {
-        if (vehiculoRepository.findByPlaca(request.getPlaca()).isPresent()) {
-            throw new IllegalArgumentException("Ya existe un vehículo registrado con la placa " + request.getPlaca());
+        String placa = request.placaNormalizada();
+        if (vehiculoRepository.findByPlaca(placa).isPresent()) {
+            throw new BusinessException("Ya existe un vehículo con la placa " + placa + ".", "placa",
+                    "Si es de otro dueño, no puedes registrarlo de nuevo.", HttpStatus.CONFLICT);
         }
 
         Cliente cliente = clienteRepository.findById(request.getClienteId())
-                .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
+                .orElseThrow(() -> new BusinessException("Cliente no encontrado.", "clienteId",
+                        null, HttpStatus.NOT_FOUND));
 
         Vehiculo vehiculo = Vehiculo.builder()
                 .cliente(cliente)
-                .placa(request.getPlaca())
+                .placa(placa)
                 .marca(request.getMarca())
                 .modelo(request.getModelo())
                 .anio(request.getAnio())
@@ -65,7 +70,8 @@ public class VehiculoService {
     @Transactional(readOnly = true)
     public VehiculoResponseDTO obtenerPorId(Long id) {
         Vehiculo vehiculo = vehiculoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado"));
+                .orElseThrow(() -> new BusinessException("Vehículo no encontrado.", null,
+                        null, HttpStatus.NOT_FOUND));
         return VehiculoResponseDTO.builder()
                 .id(vehiculo.getId())
                 .placa(vehiculo.getPlaca())

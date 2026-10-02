@@ -3,8 +3,10 @@ package com.autogestion.service;
 import com.autogestion.dto.DiagnosticoRequest;
 import com.autogestion.dto.DiagnosticoResponseDTO;
 import com.autogestion.entity.Diagnostico;
+import com.autogestion.entity.EstadoRecepcion;
 import com.autogestion.entity.Recepcion;
 import com.autogestion.entity.Usuario;
+import com.autogestion.util.AppTime;
 import com.autogestion.repository.DiagnosticoRepository;
 import com.autogestion.repository.RecepcionRepository;
 import com.autogestion.repository.UsuarioRepository;
@@ -32,14 +34,14 @@ public class DiagnosticoService {
                 .orElseThrow(() -> new RuntimeException("Mecánico no encontrado"));
 
         
-        recepcion.setEstado("EN_DIAGNOSTICO");
+        recepcion.setEstado(EstadoRecepcion.EN_DIAGNOSTICO);
         recepcionRepository.save(recepcion);
 
         Diagnostico diagnostico = Diagnostico.builder()
                 .recepcion(recepcion)
                 .mecanico(mecanico)
                 .descripcion(request.getDescripcion())
-                .fecha(LocalDateTime.now())
+                .fecha(AppTime.ahora())
                 .build();
         Diagnostico saved = diagnosticoRepository.save(diagnostico);
 

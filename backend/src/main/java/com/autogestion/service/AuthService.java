@@ -45,7 +45,8 @@ public class AuthService {
         return LoginResponse.builder()
                 .token(token)
                 .id(usuario.getId())
-                .nombre(usuario.getNombre())
+                .nombre(usuario.getNombreCompleto())
+                .nombreCompleto(usuario.getNombreCompleto())
                 .email(usuario.getEmail())
                 .rol(usuario.getRol())
                 .build();
@@ -59,7 +60,7 @@ public class AuthService {
         return Jwts.builder()
                 .subject(usuario.getId().toString())
                 .claim("rol", usuario.getRol())
-                .claim("nombre", usuario.getNombre())
+                .claim("nombre", usuario.getNombreCompleto())
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)

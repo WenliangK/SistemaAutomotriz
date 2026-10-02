@@ -21,8 +21,10 @@ public class Cotizacion {
     @Column(nullable = false)
     private BigDecimal total = BigDecimal.ZERO;
 
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String estado = "PENDIENTE";
+    private EstadoCotizacion estado = EstadoCotizacion.PENDIENTE;
 
     @Column(nullable = false)
     private LocalDateTime fecha = LocalDateTime.now();

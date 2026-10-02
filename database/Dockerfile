@@ -1,3 +1,5 @@
 FROM postgres:16-alpine
-COPY init.sql /docker-entrypoint-initdb.d/01-init.sql
-COPY migrations/*.sql /docker-entrypoint-initdb.d/
+# Sin COPY de init.sql a proposito: el esquema lo crea y versiona Flyway
+# al arrancar el backend (backend/src/main/resources/db/migration/).
+# El entrypoint de Postgres NO debe crear tablas: en volumenes existentes
+# se saltaria igual y en volumenes nuevos chocaria con Flyway.

@@ -5,6 +5,7 @@ import com.autogestion.dto.RecepcionRequest;
 import com.autogestion.dto.RecepcionResponseDTO;
 import com.autogestion.service.RecepcionService;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +21,12 @@ public class RecepcionController {
     private final RecepcionService recepcionService;
 
     @PostMapping
-    public ResponseEntity<RecepcionResponseDTO> crear(@RequestBody RecepcionRequest request) {
+    public ResponseEntity<RecepcionResponseDTO> crear(@Valid @RequestBody RecepcionRequest request) {
         return ResponseEntity.ok(recepcionService.crear(request));
     }
 
     @PostMapping("/completa")
-    public ResponseEntity<RecepcionResponseDTO> crearCompleta(@RequestBody RecepcionCompletaRequest request) {
+    public ResponseEntity<RecepcionResponseDTO> crearCompleta(@Valid @RequestBody RecepcionCompletaRequest request) {
         return ResponseEntity.ok(recepcionService.crearCompleto(request));
     }
 
