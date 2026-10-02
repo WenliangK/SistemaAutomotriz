@@ -20,13 +20,7 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
 
 | Version | Fecha | Lo destacado |
 | :-- | :-- | :-- |
-| [2.4.2](#-242---2026-10-02) | 2026-10-02 | 🔓 CORS: orígenes Live Server :5501 (localhost + 127.0.0.1) |
-| [2.4.1](#-241---2026-10-02) | 2026-10-02 | 🔦 Tour con spotlight (fondo atenuado + hueco iluminado) |
-| [2.4.0](#-240---2026-10-02) | 2026-10-02 | ✨ Set de iconos duotono en nav, dashboard y cabeceras |
-| [2.3.0](#-230---2026-10-02) | 2026-10-02 | 🧹 Admin genérico en seed + responsive real (sin cortes, móvil 360px) |
-| [2.2.0](#-220---2026-10-02) | 2026-10-02 | ✨ Pill solo con rol + layout fluido + dashboard estilo login + SOLID en backend |
-| [2.1.0](#-210---2026-10-02) | 2026-10-02 | ✨ Paneles internos con el lenguaje del login (iconos ambar, tarjetas premium, entrada escalonada) |
-| [2.0.1](#-201---2026-10-02) | 2026-10-02 | 🐛 Historial de comprobantes (ORDER BY) + DNI de boleta + PDF del ticket migrado a Java + limpieza |
+| [2.5.0](#-250---2026-10-02) | 2026-10-02 | ✨ Jornada visual + SOLID + fixes de comprobantes (todo el día en una entrada) |
 | [1.4.2](#-142---2026-10-01) | 2026-10-01 | 📄 Descarga PDF real + impresion sin encabezados del navegador |
 | [1.4.1](#-141---2026-10-01) | 2026-10-01 | 🎫 Impresion fiel a pantalla + descarga de constancia |
 | [1.4.0](#-140---2026-10-01) | 2026-10-01 | ✨ Rediseño visual guiado · wizard de pago · ticket pro · responsive real |
@@ -38,9 +32,13 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## 🔓 2.4.2 — 2026-10-02
+## ✨ 2.5.0 — 2026-10-02
 
-### CORS: Live Server también en el puerto alterno
+Jornada completa del 2 de octubre en una sola entrada: rediseño visual de los paneles, iconos duotono, responsive real, principios SOLID en el backend y fixes de comprobantes con PDF en Java.
+
+### 🔓 2.4.2
+
+#### CORS: Live Server también en el puerto alterno
 
 - `SecurityConfig.corsConfigurationSource()` acepta ahora
   `http://localhost:5501` y `http://127.0.0.1:5501`: cuando el 5500 está
@@ -49,9 +47,9 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
   credenciales (siguen igual).
 - ⚠️ Requiere reiniciar el backend para tomar efecto.
 
-## 🔦 2.4.1 — 2026-10-02
+### 🔦 2.4.1
 
-### El tour ahora ilumina solo lo importante
+#### El tour ahora ilumina solo lo importante
 
 - Efecto *spotlight*: el recuadro ámbar proyecta una sombra gigante que
   atenúa toda la pantalla (fade semi oscuro) menos el hueco del elemento
@@ -61,9 +59,9 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
   queda centrado. El hueco sigue a su elemento si se hace scroll o se
   redimensiona (reposicionado con `requestAnimationFrame`).
 
-## ✨ 2.4.0 — 2026-10-02
+### ✨ 2.4.0
 
-### Set de iconos duotono propio
+#### Set de iconos duotono propio
 
 - Adiós al Feather plano: trazo 1.8, remates redondos y capa suave
   (`fill` con opacidad) que da profundidad sin perder legibilidad a 15px.
@@ -76,9 +74,9 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
   iconos de reportes, guía contextual, FAB de ayuda y alerta de `api.js`.
   Sin cambios de estructura: solo el `path` de cada SVG.
 
-## 🧹 2.3.0 — 2026-10-02
+### 🧹 2.3.0
 
-### Adiós al nombre personal: el admin es "Administrador" en todos lados
+#### Adiós al nombre personal: el admin es "Administrador" en todos lados
 
 - Seed (`DataInitializer`): el admin de arranque nace como `Administrador`
   (sin apellidos) y `renombrarAdmin()` renombra instalaciones viejas en el
@@ -87,7 +85,7 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
 - Ya no queda ninguna aparición del nombre anterior en código, seed ni docs
   (el CHANGELOG lo menciona solo como registro histórico de este cambio).
 
-### Responsive real: nada se corta y el móvil respira
+#### Responsive real: nada se corta y el móvil respira
 
 - **Causa del corte lateral:** `.ag-page` llevaba `width: 100%` + `margin-left`
   del sidebar = más que el viewport; la columna derecha se salía. Ahora es
@@ -99,15 +97,15 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
   reducidos), buscadores de cabecera a fila completa, tiles a una columna,
   tablas con scroll suave. Sin cambios de HTML: todo por CSS.
 
-## ✨ 2.2.0 — 2026-10-02
+### ✨ 2.2.0
 
-### Pill sin nombre personal
+#### Pill sin nombre personal
 
 - El pill del topbar ya no muestra "Carmen Rosa Huamán Díaz": solo el rol
   (Administrador, Mecánico, Recepcionista, Almacenero) con su punto de color.
   Vale para todos los roles, en claro y oscuro.
 
-### Layout fluido sin huecos (como el login)
+#### Layout fluido sin huecos (como el login)
 
 - `.ag-page` sin `max-width`: la página ocupa todo el viewport menos el
   sidebar, y las columnas usan `minmax(0, 1fr)` para crecer/encoger. Al
@@ -116,7 +114,7 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
   (4 → 2 → 1 columnas); los hijos de grid llevan `min-width: 0` para que
   las tablas largas no rompan el ancho.
 
-### Dashboard estilo login
+#### Dashboard estilo login
 
 - Acceso Rápido convertido en *tiles* verticales (icono degradado, título,
   descripción y flecha) como las `.lg-tile` del login; la grilla es
@@ -124,7 +122,7 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
 - Flujo del Taller como *chips* (eco de `lg-flow`): pildoras que se envuelven
   (antes se cortaba en pantallas angostas) y el paso inicial nace activo.
 
-### SOLID en el backend (sin cambiar comportamiento ni API)
+#### SOLID en el backend (sin cambiar comportamiento ni API)
 
 - **SRP:** `ComprobanteService` (444 líneas, 6 responsabilidades) ahora solo
   orquesta. Nace `service/comprobante/` con `ResolutorAdquirente` (reglas del
@@ -144,7 +142,7 @@ Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
   (sin referencias huérfanas, llaves balanceadas, tests existentes compatibles).
   Corre `mvn test` antes de subir.
 
-## ✨ 2.1.0 — 2026-10-02
+### ✨ 2.1.0
 
 Los paneles internos heredan el rediseño del login, sin tocar lógica ni
 estructura HTML. Todo vive en una capa nueva: `frontend/css/panels-premium.css`.
@@ -160,12 +158,12 @@ estructura HTML. Todo vive en una capa nueva: `frontend/css/panels-premium.css`.
   estrena cabecera `.ag-head` con icono y meta. Claro/oscuro y responsive
   incluidos, con respeto a `prefers-reduced-motion`.
 
-## 🟡 2.0.1 — 2026-10-02
+### 🟡 2.0.1
 
 Dos errores que solo saltaban con la app corriendo, más limpieza de archivo y
 la migración del generador de PDF de JavaScript a Java.
 
-### 🐛 El historial de comprobantes devolvía error 500 (SQL nativo + Sort)
+#### 🐛 El historial de comprobantes devolvía error 500 (SQL nativo + Sort)
 
 - **Causa:** `GET /comprobantes?sort=fechaEmision,desc` llegaba a una consulta
   NATIVA y Spring Data mete el `Sort` en el `ORDER BY` sin traducir nombres de
@@ -179,7 +177,7 @@ la migración del generador de PDF de JavaScript a Java.
 - **Test:** `ComprobanteListadoTest` pide exactamente el sort del front y
   fallaría con el error viejo.
 
-### 🐛 "El DNI debe tener 8 dígitos (llevas 8)" al emitir la boleta
+#### 🐛 "El DNI debe tener 8 dígitos (llevas 8)" al emitir la boleta
 
 - **Causa:** el front mandaba `tipoDoc: f.tipo` (el tipo del COMPROBANTE:
   `BOLETA`), que no es un tipo de documento; el backend lo volvía `null` y
@@ -193,7 +191,7 @@ la migración del generador de PDF de JavaScript a Java.
 - **Mensajes honestos:** `DocumentoValidator` ya no dice "8 dígitos (llevas
   8)" cuando hay letras: explica que son 8 caracteres pero no todos dígitos.
 
-### 📄 El PDF del ticket se migra de JavaScript a Java
+#### 📄 El PDF del ticket se migra de JavaScript a Java
 
 - **Nuevo `util/TicketPdf`:** ticket de 80 mm en PDF puro (sin librerías),
   mismo diseño que el generador que vivía en el HTML: cabecera, folio,
@@ -206,7 +204,7 @@ la migración del generador de PDF de JavaScript a Java.
 - **Tests:** `TicketPdfTest` valida estructura (cabecera, xref coherente,
   cierre), datos fiscales, escape de paréntesis y leyenda de anulado.
 
-### 🧹 Refactor y limpieza
+#### 🧹 Refactor y limpieza
 
 - **`util/Rangos`:** un solo lugar para el rango por defecto de los listados
   («desde 2000-01-01», «hasta exclusivo = día siguiente») y para la zona
@@ -224,7 +222,7 @@ la migración del generador de PDF de JavaScript a Java.
   README actualizado (30 entidades, 18 repos, 14 servicios, 17 controladores,
   37 DTOs, `util/` y `db/migration/`).
 
-### 🗄️ Migración V3: el CHECK de `cotizacion.estado` en H2
+#### 🗄️ Migración V3: el CHECK de `cotizacion.estado` en H2
 
 - **Bug latente:** V1 creó el CHECK inline sin nombre. PostgreSQL lo bautiza
   `cotizacion_estado_check` (por eso V2 lo arregló allí), pero H2 le pone
@@ -239,7 +237,7 @@ la migración del generador de PDF de JavaScript a Java.
   `ReporteFlujoIT` y `ComprobanteListadoTest`) + `node --check` sobre `api.js`
   y los scripts inline de `pago_entrega.html`.
 
-### 🔎 Segunda tanda: búsqueda del equipo rota en PostgreSQL + export de reportes
+#### 🔎 Segunda tanda: búsqueda del equipo rota en PostgreSQL + export de reportes
 
 - **`GET /api/usuarios?...&q=` devolvía 400 con PostgreSQL:** Hibernate no sabe
   tipar un parámetro dentro de `CONCAT('%', :q, '%')` y lo ata como `bytea`,
