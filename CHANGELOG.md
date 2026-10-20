@@ -5,51 +5,71 @@
 **Historial de cambios del sistema, en lenguaje humano.**
 <br>
 Lo nuevo arriba, lo viejo abajo. Sin humo: lo pendiente se marca ⏳.
+<br>
+<sub>✨ nuevo · 🐛 fix · 🧹 refactor · 🔒 seguridad · 🗄️ base de datos · ⏳ pendiente</sub>
 
 <br>
 
-<img src="https://img.shields.io/badge/version-2.0.1-orange?style=for-the-badge" />
+<img src="https://img.shields.io/badge/version-2.5.0-8b5cf6?style=for-the-badge" />
 <img src="https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
 <img src="https://img.shields.io/badge/Spring_Boot-3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
+<img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
+<img src="https://img.shields.io/badge/Flyway-migraciones-CC0200?style=for-the-badge&logo=flyway&logoColor=white" />
 
 </div>
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
+<a id="versiones"></a>
+
 ## 🗂️ Versiones
 
-| Version | Fecha | Lo destacado |
-| :-- | :-- | :-- |
-| [2.5.0](#-250---2026-10-02) | 2026-10-02 | ✨ Jornada visual + SOLID + fixes de comprobantes (todo el día en una entrada) |
-| [1.4.2](#-142---2026-10-01) | 2026-10-01 | 📄 Descarga PDF real + impresion sin encabezados del navegador |
-| [1.4.1](#-141---2026-10-01) | 2026-10-01 | 🎫 Impresion fiel a pantalla + descarga de constancia |
-| [1.4.0](#-140---2026-10-01) | 2026-10-01 | ✨ Rediseño visual guiado · wizard de pago · ticket pro · responsive real |
-| [1.3.1](#-131---2026-10-01) | 2026-10-01 | 🐛 Fix crash boleta/factura · paneles exclusivos por rol |
-| [1.3.0](#-130---2026-10-01) | 2026-10-01 | 🧾 Boleta/Factura al pagar + constancia imprimible · 📁 Reorden a la raiz |
-| [1.2.0](#-120---2026-09-20) | 2026-09-20 | 🛡️ Permisos por rol + pagina 403 + stepper propio |
-| [1.1.0](#-110---2026-09-20) | 2026-09-20 | ✨ Rediseño visual completo + tutorial + tour guiado |
-| [1.0.0](#-100---2026-09-14) | 2026-09-14 | 🐛 Correccion de errores fundacionales (DTOs, pagos, cache) |
+| Versión | Fecha | Tipo | Lo destacado |
+| :-- | :-- | :-: | :-- |
+| **[2.5.0](#v250)** | 2026-10-02 | ✨ | Jornada visual + SOLID + fixes de comprobantes (todo el día en una entrada) |
+| ↳ [2.4.2](#v242) | 2026-10-02 | 🔓 | CORS: Live Server también en el puerto 5501 |
+| ↳ [2.4.1](#v241) | 2026-10-02 | ✨ | Tour con efecto spotlight |
+| ↳ [2.4.0](#v240) | 2026-10-02 | ✨ | Set de iconos duotono propio en todos los paneles |
+| ↳ [2.3.0](#v230) | 2026-10-02 | 🧹 | Admin sin nombre personal + responsive real |
+| ↳ [2.2.0](#v220) | 2026-10-02 | 🧹 | Layout fluido, dashboard tipo login y SOLID en el backend |
+| ↳ [2.1.0](#v210) | 2026-10-02 | ✨ | Paneles internos con el diseño del login |
+| ↳ [2.0.1](#v201) | 2026-10-02 | 🐛 | Fix 500 en historial y DNI en boleta · PDF en Java · migración V3 |
+| **[2.0.0](#v200)** | 2026-10-02 | 🚀 | Fases 1-9: comprobantes, equipo, recepción, taller, inventario, reportes, producción |
+| **[1.4.2](#v142)** | 2026-10-01 | 📄 | Descarga PDF real + impresión sin encabezados del navegador |
+| **[1.4.1](#v141)** | 2026-10-01 | 🎫 | Impresión fiel a pantalla + descarga de constancia |
+| **[1.4.0](#v140)** | 2026-10-01 | ✨ | Rediseño visual guiado · wizard de pago · ticket pro · responsive real |
+| **[1.3.1](#v131)** | 2026-10-01 | 🐛 | Fix crash boleta/factura · paneles exclusivos por rol |
+| **[1.3.0](#v130)** | 2026-10-01 | 🧾 | Boleta/Factura al pagar + constancia imprimible · reorden a la raíz |
+| **[1.2.0](#v120)** | 2026-09-20 | 🛡️ | Permisos por rol + página 403 + stepper propio |
+| **[1.1.0](#v110)** | 2026-09-20 | ✨ | Rediseño visual completo + tutorial + tour guiado |
+| **[1.0.0](#v100)** | 2026-09-14 | 🐛 | Corrección de errores fundacionales (DTOs, pagos, caché) |
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## ✨ 2.5.0 — 2026-10-02
+<a id="v250"></a>
+
+## 🟣 v2.5.0 · 2026-10-02
+
+<img src="./readme-assets/ver-250.svg" width="380" alt="v2.5.0 jornada completa" />
 
 Jornada completa del 2 de octubre en una sola entrada: rediseño visual de los paneles, iconos duotono, responsive real, principios SOLID en el backend y fixes de comprobantes con PDF en Java.
 
-### 🔓 2.4.2
+<a id="v242"></a>
 
-#### CORS: Live Server también en el puerto alterno
+### 🔓 v2.4.2 · CORS: Live Server también en el puerto alterno
 
 - `SecurityConfig.corsConfigurationSource()` acepta ahora
   `http://localhost:5501` y `http://127.0.0.1:5501`: cuando el 5500 está
   ocupado, VS Code abre el frontend en el 5501 y el login dejaba de llegar
   al backend por bloqueo CORS. Sin cambios en métodos, headers ni
   credenciales (siguen igual).
-- ⚠️ Requiere reiniciar el backend para tomar efecto.
 
-### 🔦 2.4.1
+> [!IMPORTANT]
+> Requiere reiniciar el backend para tomar efecto.
 
-#### El tour ahora ilumina solo lo importante
+<a id="v241"></a>
+
+### 🔦 v2.4.1 · El tour ahora ilumina solo lo importante
 
 - Efecto *spotlight*: el recuadro ámbar proyecta una sombra gigante que
   atenúa toda la pantalla (fade semi oscuro) menos el hueco del elemento
@@ -59,9 +79,9 @@ Jornada completa del 2 de octubre en una sola entrada: rediseño visual de los p
   queda centrado. El hueco sigue a su elemento si se hace scroll o se
   redimensiona (reposicionado con `requestAnimationFrame`).
 
-### ✨ 2.4.0
+<a id="v240"></a>
 
-#### Set de iconos duotono propio
+### ✨ v2.4.0 · Set de iconos duotono propio
 
 - Adiós al Feather plano: trazo 1.8, remates redondos y capa suave
   (`fill` con opacidad) que da profundidad sin perder legibilidad a 15px.
@@ -74,7 +94,9 @@ Jornada completa del 2 de octubre en una sola entrada: rediseño visual de los p
   iconos de reportes, guía contextual, FAB de ayuda y alerta de `api.js`.
   Sin cambios de estructura: solo el `path` de cada SVG.
 
-### 🧹 2.3.0
+<a id="v230"></a>
+
+### 🧹 v2.3.0 · Nombre neutro y responsive real
 
 #### Adiós al nombre personal: el admin es "Administrador" en todos lados
 
@@ -97,7 +119,9 @@ Jornada completa del 2 de octubre en una sola entrada: rediseño visual de los p
   reducidos), buscadores de cabecera a fila completa, tiles a una columna,
   tablas con scroll suave. Sin cambios de HTML: todo por CSS.
 
-### ✨ 2.2.0
+<a id="v220"></a>
+
+### ✨ v2.2.0 · Pill, layout fluido, dashboard y SOLID
 
 #### Pill sin nombre personal
 
@@ -137,12 +161,15 @@ Jornada completa del 2 de octubre en una sola entrada: rediseño visual de los p
 - **DIP/ISP/LSP:** los nuevos componentes dependen de repositorios
   (abstracciones) y de `EmpresaProperties`; interfaces pequeñas y cohesivas;
   los enums se comportan igual en todos sus usos.
-- ⚠️ No se pudo compilar aquí (sin Maven en esta máquina): el refactor es
-  extracción verbatim con firmas intactas y quedó verificado por revisión
-  (sin referencias huérfanas, llaves balanceadas, tests existentes compatibles).
-  Corre `mvn test` antes de subir.
+> [!WARNING]
+> No se pudo compilar aquí (sin Maven en esta máquina): el refactor es
+> extracción verbatim con firmas intactas y quedó verificado por revisión
+> (sin referencias huérfanas, llaves balanceadas, tests existentes compatibles).
+> Corre `mvn test` antes de subir.
 
-### ✨ 2.1.0
+<a id="v210"></a>
+
+### ✨ v2.1.0 · Paneles internos con el diseño del login
 
 Los paneles internos heredan el rediseño del login, sin tocar lógica ni
 estructura HTML. Todo vive en una capa nueva: `frontend/css/panels-premium.css`.
@@ -158,7 +185,9 @@ estructura HTML. Todo vive en una capa nueva: `frontend/css/panels-premium.css`.
   estrena cabecera `.ag-head` con icono y meta. Claro/oscuro y responsive
   incluidos, con respeto a `prefers-reduced-motion`.
 
-### 🟡 2.0.1
+<a id="v201"></a>
+
+### 🐛 v2.0.1 · Fixes 500/DNI, PDF en Java y limpieza
 
 Dos errores que solo saltaban con la app corriendo, más limpieza de archivo y
 la migración del generador de PDF de JavaScript a Java.
@@ -262,27 +291,36 @@ la migración del generador de PDF de JavaScript a Java.
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## 🟡 2.0.0 — 2026-10-02
+<a id="v200"></a>
+
+## 🟡 v2.0.0 · 2026-10-02
 
 <img src="./readme-assets/ver-200.svg" width="380" alt="v2.0.0 fases 1 a 9 en una sola versión" />
 
-Todo lo del 2026-10-02 salió junto, así que va en una sola versión con una sección por fase.
+Todo lo del 2026-10-02 salió junto, así que va en una sola versión con una sección por fase (clic en cada una para abrirla).
 
-### 🧭 Navegación lateral + fixes de RUC y OT (misma 2.0.0)
+<details>
+<summary><b>🧭 Navegación lateral + fixes de RUC y OT</b></summary>
 
 - **Sidebar hamburguesa:** el menú superior se vuelve barra fina (hamburguesa + marca + usuario) y todo vive en un panel lateral agrupado por flujo (Operación, Taller, Caja, Almacén, Gestión, Ayuda) con solo tus páginas por rol. En PC se fija o colapsa a iconos (recuerda tu elección); en móvil/tablet es cajón deslizable con overlay y Esc. Impresión limpia sin menús.
 - **RUC que sí ayuda:** el validador ahora dice el dígito esperado ("debería terminar en 4") y sugiere el comprobante correcto según el largo (11 dígitos en boleta → vete a FACTURA; 8 en factura → vete a BOLETA). Ojo honesto: `20707162819` no pasa SUNAT (dv real 4, termina en 9): se rechaza a propósito, con test que lo fija.
 - **OT con mecánico pre-asignado:** al elegir cotización se preselecciona el mecánico de su diagnóstico (con aviso); si no, el último que usaste. `GET /cotizaciones` ahora trae `mecanicoId`/`mecanicoNombre`.
 - Verificado: `mvn test` 37/37 + sintaxis JS de las 3 páginas tocadas.
 
-### 🗄️ Flyway en Docker: módulo PG + fuente única (misma 2.0.0)
+</details>
+
+<details>
+<summary><b>🗄️ Flyway en Docker: módulo PG + fuente única</b></summary>
 
 - **Causa del bucle:** Flyway 10 separó el soporte por BD en módulos; sin `flyway-database-postgresql` el backend moría con `Unsupported Database: PostgreSQL 16` antes de migrar. Agregado al `pom` (versión gestionada por Boot, 10.10.0, sin versión puesta a mano).
 - **Fuente única:** `db/migration/` con `V1__esquema_inicial.sql` (14 tablas originales) + `V2__fiscal_comprobantes_equipo_taller.sql` (todo lo demás, idempotente). Se borraron `db/migration/postgresql|h2` y `database/init.sql`; el Dockerfile de Postgres ya no copia nada al entrypoint.
 - **Mismo SQL en PG16 y H2-modo-PG:** `BIGSERIAL`/`TEXT`/`ON CONFLICT` valen en ambos; lo que no (`ALTER` multi-columna con comas, índice parcial, FK agregada después) se escribe separado o lo valida el servicio. Verificado: `mvn test` 36/36 + boot real contra PG 16.15 con `validate` verde + login JWT OK.
 - **Casos probados:** volumen viejo (esquema original + datos, `baseline` → V2, `AJUSTE`→`AJUSTE_POSITIVO`, re-ejecución = `up to date`) y volumen limpio (V1+V2, 20 tablas, seed + login).
 
-### 🔒 Fase 9: producción sin secretos en el repo
+</details>
+
+<details>
+<summary><b>🔒 Fase 9: producción sin secretos en el repo</b></summary>
 
 - **Secretos a entorno:** `.env` (con `.env.example`, ignorado por git) gobierna DB, JWT, admin y claves demo. En `application-docker.properties` no queda ningún valor real. Consola H2 y `frameOptions` abierto solo en desarrollo.
 - **Seed por bandera:** el ADMIN de arranque y las series siempre; la demo (equipo, 5 clientes con 2 RUC válidos, vehículos, catálogos) solo con `APP_SEED_DEMO=true`. Claves demo distintas por rol.
@@ -290,14 +328,20 @@ Todo lo del 2026-10-02 salió junto, así que va en una sola versión con una se
 - **Tutorial** con módulos de Clientes, Reportes y Equipo (filtrados por rol) y accesos con clave por chip en el login.
 - **Tests:** 36/36 + flujo punta a punta (un estado imposible como `VOLANDO` se rechaza con campo `estado`).
 
-### 🎓 Fase 8: el sistema enseña solo + docs para defenderlo
+</details>
+
+<details>
+<summary><b>🎓 Fase 8: el sistema enseña solo + docs para defenderlo</b></summary>
 
 - **Glosario en línea:** términos con `data-g` (OT, RUC, IGV, kardex, merma…) muestran definición al pasar el cursor y al hacer clic; glosario completo de 12 términos en el Tutorial.
 - **Caso guiado:** 8 pasos de recepción a entrega con enlaces y progreso por rol guardado.
 - **Tours que faltaban:** equipo, clientes y reportes ya tienen recorrido (botón ¿Cómo usar?) + bienvenida la primera vez que entras por rol.
 - **Docs:** `docs/GUIA_DESARROLLO.md` (fases, Mermaid de flujo/entidades/secuencia, decisiones), `docs/MANUAL_USUARIO.md` (tareas por rol) y `docs/PREGUNTAS_PROFE.md` (14 respuestas para la defensa).
 
-### 📊 Fase 7: los números salen de la BD, no de la memoria
+</details>
+
+<details>
+<summary><b>📊 Fase 7: los números salen de la BD, no de la memoria</b></summary>
 
 - **Indicadores corregidos:** OT del mes filtra por `fechaFin` del mes e ingresos = comprobantes EMITIDO cobrados (antes contaba todo el historial y sumaba cotizaciones). El dashboard mejora solo.
 - **Zona horaria única:** `util/AppTime` (America/Lima) para todo "ahora" del negocio; el test de flujo atrapó el desfase UTC/Lima antes que un usuario.
@@ -305,7 +349,10 @@ Todo lo del 2026-10-02 salió junto, así que va en una sola versión con una se
 - **Pantalla Reportes:** 7 pestañas filtradas por rol, filtros Hoy/7d/Mes/Mes-anterior, KPIs, gráficos SVG propios (cero dependencias, funcionan sin internet), tablas con CSV, kardex por producto, registro de gastos y recuadro "¿Cómo leer?" en cada pestaña.
 - **Tests:** 36/36, incluyendo flujo recepción→diagnóstico→cotización→OT→comprobante→reportes que verifica clientes, ingresos y rendimiento de punta a punta.
 
-### 📦 Fase 6: por fin se sabe qué se gasta y qué se añade
+</details>
+
+<details>
+<summary><b>📦 Fase 6: por fin se sabe qué se gasta y qué se añade</b></summary>
 
 - **Movimientos con foto completa:** cada uno guarda stock antes/después, costo, proveedor, OT, documento y quién lo hizo. El `AJUSTE` viejo se partió en positivo/negativo y se sumó `MERMA` (los `AJUSTE` históricos migran a positivo en V5).
 - **Compras reales:** formulario multi-línea con proveedor (RUC validado, creable al vuelo), documento y costo por línea; actualiza stock + último costo. Sin costo no hay compra.
@@ -315,7 +362,10 @@ Todo lo del 2026-10-02 salió junto, así que va en una sola versión con una se
 - **Inventario con pestañas:** Stock · Movimientos (filtros + paginado + motivo en tooltip) · Compra · Mermas · Proveedores · Alertas. El mecánico ve catálogo de lectura.
 - Los tests de `InventarioService` confirman: sin costo no hay compra, sin motivo no hay merma, consumo guarda OT + usuario + costo del momento, y el kardex cuadraría con `stockAntes/stockDespues`.
 
-### 🔧 Fase 5: el taller se ve como el taller
+</details>
+
+<details>
+<summary><b>🔧 Fase 5: el taller se ve como el taller</b></summary>
 
 - **OT en kanban:** 4 columnas (Pendiente → En proceso → En prueba → Finalizada) con contadores, tarjetas con placa/cliente/mecánico/problema y buscador. Avanzar pide confirmación que explica consecuencias (finalizar habilita el cobro). Botón "Cobrar →" directo a caja; modal de pago antiguo con monto manual eliminado (`/pagos` y `/pago-entrega/completa` marcados `@Deprecated`, nadie los usa).
 - **Reasignar mecánico:** `PUT /ordenes-trabajo/{id}/mecanico` (ADMIN/RECEPCIONISTA, nunca en OT cerrada ni a no-mecánicos) con modal y lista por carga. Por fin se puede liberar a un mecánico antes de desactivarlo.
@@ -324,7 +374,10 @@ Todo lo del 2026-10-02 salió junto, así que va en una sola versión con una se
 - **Unificación real:** el consumo de stock vive en un solo método `consumirProducto` (antes dos bloques idénticos); el registro con costo/OT/usuario llega en Fase 6. `OrdenTrabajoResponseDTO` suma `problemaReportado` y nombre completo.
 - **Tests:** 29/29 verdes (consumo único, sin stock sin tocar nada, reasignaciones bloqueadas y nombre completo en DTO).
 
-### 🧾 Fase 4: recibir un auto ya no es un formulario eterno
+</details>
+
+<details>
+<summary><b>🧾 Fase 4: recibir un auto ya no es un formulario eterno</b></summary>
 
 - **Wizard en 4 pasos** (reusa el patrón `ag-wz-*` del pago): 1 Cliente (buscador con debounce + tarjeta con vehículos/visitas/última visita, o alta con documento validado en vivo) → 2 Vehículo (elegir de su lista o nuevo con placa validada) → 3 Problema (descripción, combustible, km, daños, accesorios) → 4 Confirmar (resumen + Registrar). No avanza inválido, conserva todo al retroceder, avisa antes de salir con datos sin guardar y al terminar sugiere ir al diagnóstico.
 - **Backend de apoyo:** `POST /recepciones/completa` acepta `clienteId`/`vehiculoId` ya verificados; nuevos campos (combustible, daños, accesorios, km, migración V4); `PATCH /clientes/{id}/activo` (soft delete) y `GET /clientes/{id}/resumen` (ficha con visitas, vehículos, recepciones y comprobantes).
@@ -334,7 +387,10 @@ Todo lo del 2026-10-02 salió junto, así que va en una sola versión con una se
 - **Hotfix:** `recStep` expuesta en `window` (el wizard la llama desde `onclick` en línea y vivía dentro del IIFE → `ReferenceError`) y `loadPanel` global para el botón Reintentar del mecánico. Auditoría completa: ningún otro `onclick` huérfano en las 11 páginas.
 - **Hotfix 400 fantasma:** registrar recepción con cliente existente moría con `Error 400` sin mensaje. Causas: (1) el DTO exigía `clienteNombre`/`vehiculoPlaca` aunque vinieran `clienteId`/`vehiculoId` (ahora solo se exigen al crear, con error claro); (2) los `""` de email/teléfono chocaban con `@Email` (nuevo `agLimpia()` los quita antes de enviar; aplicado en recepción, clientes y proveedores); (3) `apiFetch` ya muestra los mapas `{campo: mensaje}` de validación en vez de `Error 400` seco. Tests 39/39.
 
-### 🔧 Fase 3: se acabó "Mecánico Uno"
+</details>
+
+<details>
+<summary><b>🔧 Fase 3: se acabó "Mecánico Uno"</b></summary>
 
 - **Personas reales:** `usuario` ahora tiene nombres, apellidos, DNI, teléfono, especialidad y fecha de ingreso (migración V3). El `nombre` es el nombre completo y es lo que muestran OT, paneles, comprobantes ("Atendido por …") y reportes.
 - **Equipo inicial:** Luis Ramírez (Motor), Jorge Castillo (Frenos y suspensión), Marco Delgado (Electricidad) + admin/almacén/recepción con nombre y apellido. Las BD viejas se reparan solas al arrancar (sin tocar claves).
@@ -344,7 +400,10 @@ Todo lo del 2026-10-02 salió junto, así que va en una sola versión con una se
 - **API:** `GET/POST /api/usuarios`, `PUT /{id}`, `PATCH /{id}/activo`, `POST /{id}/restablecer-clave`, `GET /mecanicos`, `GET /yo` + `nombreCompleto` en el login.
 - **Tests:** 20/20 verdes. Nota: las claves demo siguen `admin123` a propósito; la rotación a secretos por entorno va en Fase 9.
 
-### 👥 Fase 2: el teléfono ya no identifica a nadie
+</details>
+
+<details>
+<summary><b>👥 Fase 2: el teléfono ya no identifica a nadie</b></summary>
 
 - **Identidad real:** `findOrCreateCliente` ahora busca solo por `(tipo_documento, documento)`. Dos personas con el mismo teléfono o email jamás se fusionan. Sin documento, se crea cliente nuevo.
 - **Placa con dueño:** si la placa existe y es de otro cliente → 409 ("ya está registrada a nombre de …"). Una placa, un dueño.
@@ -353,14 +412,20 @@ Todo lo del 2026-10-02 salió junto, así que va en una sola versión con una se
 - **Limpieza:** fuera el `try/catch(Exception)` de `crear`; `RuntimeException`/`IllegalArgumentException` → `BusinessException`.
 - **Tests:** 13/13 verdes, incluyendo no-fusión por teléfono y bloqueo de placa ajena.
 
-### 🗄️ Flyway: adiós al `missing column` en bucle
+</details>
+
+<details>
+<summary><b>🗄️ Flyway: adiós al `missing column` en bucle</b></summary>
 
 - **Problema:** con el volumen `pgdata` ya creado, Postgres no vuelve a correr `init.sql` y `ddl-auto=validate` tumbaba el backend (`missing column [activo] in table [cliente]`, reinicio infinito). Solo quedaba ALTER a mano o `down -v` perdiendo datos.
 - **Fix permanente:** Flyway es ahora el único dueño del esquema (`db/migration/postgresql` y `db/migration/h2`, V1 base + V2 comprobantes). Al arrancar, en volumen viejo hace baseline de V1 y aplica solo lo pendiente; en volumen nuevo migra todo. `init.sql` quedó mínimo y `schema-h2.sql` se eliminó para que no haya tres fuentes de verdad.
 - **Regla nueva:** cada cambio de entidad va en una migración `V<N>__...sql` por perfil. Nunca se edita una migración ya aplicada (Flyway valida checksums).
 - Verificado con `mvn test`: 10/10 verdes, log muestra `Migrating schema PUBLIC to version 1/2`.
 
-### 🧾 Fase 1: comprobantes legítimos en el backend (prioridad del docente)
+</details>
+
+<details>
+<summary><b>🧾 Fase 1: comprobantes legítimos en el backend (prioridad del docente)</b></summary>
 
 Se acabó el `localStorage` para datos de negocio: series, folios, IGV y snapshots viven en la BD con numeración atómica.
 
@@ -374,9 +439,13 @@ Se acabó el `localStorage` para datos de negocio: series, folios, IGV y snapsho
 | Frontend | Wizard consume la API (adiós `ag_comprobantes_v1`); ticket y PDF con emisor, detalle, letras, QR y leyenda académica; historial con filtros; caja abierta a RECEPCIONISTA |
 | Tests | 10/10 verdes (`mvn test`): validadores, letras y arranque completo del contexto H2 |
 
+</details>
+
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## 🔴 1.4.2 — 2026-10-01
+<a id="v142"></a>
+
+## 🔴 v1.4.2 · 2026-10-01
 
 <img src="./readme-assets/ver-142.svg" width="360" alt="v1.4.2 pdf real sin encabezados" />
 
@@ -388,7 +457,9 @@ Se acabó el `localStorage` para datos de negocio: series, folios, IGV y snapsho
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## 🔵 1.4.1 — 2026-10-01
+<a id="v141"></a>
+
+## 🔵 v1.4.1 · 2026-10-01
 
 <img src="./readme-assets/ver-141.svg" width="360" alt="v1.4.1 impresión fiel y descarga" />
 
@@ -401,7 +472,9 @@ Se acabó el `localStorage` para datos de negocio: series, folios, IGV y snapsho
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## 🟠 1.4.0 — 2026-10-01
+<a id="v140"></a>
+
+## 🟠 v1.4.0 · 2026-10-01
 
 <img src="./readme-assets/ver-140.svg" width="330" alt="v1.4.0 rediseño visual guiado" />
 
@@ -423,7 +496,9 @@ Nueva capa `frontend/css/polish.css` (cargada en las 10 paginas despues de `rede
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## 🔴 1.3.1 — 2026-10-01
+<a id="v131"></a>
+
+## 🔴 v1.3.1 · 2026-10-01
 
 <img src="./readme-assets/ver-131.svg" width="300" alt="v1.3.1 fix de pago y paneles por rol" />
 
@@ -443,7 +518,9 @@ Nueva capa `frontend/css/polish.css` (cargada en las 10 paginas despues de `rede
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## 🟢 1.3.0 — 2026-10-01
+<a id="v130"></a>
+
+## 🟢 v1.3.0 · 2026-10-01
 
 <img src="./readme-assets/ver-130.svg" width="520" alt="v1.3.0 actual, frontend hecho, backend pendiente" />
 
@@ -477,7 +554,7 @@ Pagar ya no es un boton a ciegas: ahora eliges el comprobante y te llevas tu con
 - Al confirmar: POST existente (`/pago-entrega/completa`) + correlativo por serie en `localStorage` (`ag_comprobantes_v1` / `ag_correlativos_v1`) + ticket con serie-numero, fecha, DNI/RUC, cliente, metodo y totales (`window.print()` con `@media print` solo-ticket).
 - Pagos anteriores a v1.3.0 muestran constancia generica reimprimible. Paso 2 del Flujo de Pago renombrado a "Pago + Comprobante".
 
-**⏳ Pendiente backend (gap real):**
+**⏳ Pendiente backend (gap real) — ✅ resuelto en [v2.0.0 · Fase 1](#v200):**
 
 - `pago_entrega` aun solo guarda `monto` + fechas (`entity/PagoEntrega.java`, `service/PagoEntregaService.java`, `database/init.sql`).
 - Falta migracion `2026-10-01_comprobantes.sql` (`cliente`: `tipo_documento`, `razon_social`, `direccion_fiscal`; `pago_entrega`: `metodo_pago`, `tipo_comprobante`, `serie`, `numero` + `UNIQUE(serie, numero)`, `subtotal`, `igv`, `total`, snapshots, `estado_comprobante`) y payload extendido en `PagoRequest` + `GET /api/comprobantes/{id}`.
@@ -496,7 +573,9 @@ Pagar ya no es un boton a ciegas: ahora eliges el comprobante y te llevas tu con
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## 🟡 1.2.0 — 2026-09-20
+<a id="v120"></a>
+
+## 🟡 v1.2.0 · 2026-09-20
 
 <img src="./readme-assets/ver-120.svg" width="440" alt="v1.2.0 roles, seguridad backend, UI stepper" />
 
@@ -568,7 +647,9 @@ Pagar ya no es un boton a ciegas: ahora eliges el comprobante y te llevas tu con
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## 🔵 1.1.0 — 2026-09-20
+<a id="v110"></a>
+
+## 🔵 v1.1.0 · 2026-09-20
 
 <img src="./readme-assets/ver-110.svg" width="330" alt="v1.1.0 rediseño, tutorial y tour" />
 
@@ -597,7 +678,9 @@ Pagar ya no es un boton a ciegas: ahora eliges el comprobante y te llevas tu con
 
 <img src="./readme-assets/divider.svg" width="100%" height="6" alt="" />
 
-## ⚪ 1.0.0 — 2026-09-14
+<a id="v100"></a>
+
+## ⚪ v1.0.0 · 2026-09-14
 
 <img src="./readme-assets/ver-100.svg" width="150" alt="v1.0.0 base" />
 
@@ -750,6 +833,6 @@ Pagar ya no es un boton a ciegas: ahora eliges el comprobante y te llevas tu con
 
 **AutoGestion · Taller Mecanico Automotriz**
 <br>
-[⬆ Volver a versiones](#️-versiones)
+[⬆ Volver a versiones](#versiones)
 
 </div>
