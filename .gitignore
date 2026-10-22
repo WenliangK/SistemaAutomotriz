@@ -95,3 +95,4 @@ yarn-error.log
 # Production build
 frontend/dist/
 frontend/build/
+/backups/
