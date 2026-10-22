@@ -32,14 +32,16 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
-    @Bean
+   @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:5500",
+                "http://localhost:5501", // Agregado para frontend
                 "http://localhost:8080",
                 "http://127.0.0.1:5500",
+                "http://127.0.0.1:5501", // Agregado para frontend
                 "http://127.0.0.1:8080"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
